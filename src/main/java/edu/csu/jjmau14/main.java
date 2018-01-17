@@ -51,9 +51,12 @@ public class main {
                 dOut.writeUTF(scnr.nextLine());
                 DataInputStream dIn = new DataInputStream(socket.getInputStream());
                 System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
+                        dIn.read() + " from server");
+                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
+                        dIn.read() + " from server");
+                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
+                        dIn.read() + " from server");
+                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
                         dIn.read() + " from server");
             }
         } catch (Exception e){

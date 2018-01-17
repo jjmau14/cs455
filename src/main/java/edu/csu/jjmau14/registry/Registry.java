@@ -8,10 +8,10 @@ import java.net.Socket;
 
 public class Registry {
 
-    private static int[] registry;
+    private static String[] registry;
 
     public Registry(){
-        this.registry = new int[128];
+        this.registry = new String[128];
         try (
             ServerSocket ss = new ServerSocket(5000)
         ){
@@ -22,8 +22,9 @@ public class Registry {
                 // Initialize a new Data Input Stream to read data sent by the client
                 DataInputStream dIn = new DataInputStream(socket.getInputStream());
 
-                switch(dIn.read()){
+                switch(dIn.read()) {
                     case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:
+                        int port = dIn.read();
                         break;
                     case ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS:
                         break;
@@ -32,6 +33,18 @@ public class Registry {
         }catch(Exception e){
 
         }
+    }
+
+    private int register(String ip) throws RegistrationException {
+        int guid = -1;
+        for (int i = 0 ; i < this.registry.length ; i++){
+            if (this.registry[i].equals(ip)){
+                throw new RegistrationException("IP already registered with guid: " + i);
+            } else if (this.registry[i] == null ){
+                guid = i;
+            }
+        }
+        return guid;
     }
 
 }
