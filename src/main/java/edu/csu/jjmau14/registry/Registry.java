@@ -2,13 +2,10 @@ package edu.csu.jjmau14.registry;
 
 import edu.csu.jjmau14.util.ControlMessages;
 import edu.csu.jjmau14.util.RegisteredMessenger;
-
-import javax.naming.ldap.Control;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Registry {
 
@@ -41,14 +38,24 @@ public class Registry {
 
                         // Register IP or error if already registered.
                         DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                        int status = register(new RegisteredMessenger(ipBytes, port));
+
+                        String statusText;
+                        int status = -1;
+
+                        // if (socket ip != requested register Ip)
+                        try {
+                            status = register(new RegisteredMessenger(ipBytes, port));
+                            statusText = "Registration request successful. The number of messaging nodes currently constituting the overlay is (" + this.countRegistered + ")";
+
+                        } catch (RegistrationException re){
+                            statusText = "Error registering IP: " + re.getMessage();
+                        }
 
                         // Send reply to messaging node.
                         dOut.writeByte(ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS);
                         dOut.writeByte(status);
-                        String message = "Registration request successful. The number of messaging nodes currently constituting the overlay is (" + this.countRegistered + ")";
-                        dOut.writeByte(message.getBytes().length);
-                        dOut.write(message.getBytes());
+                        dOut.writeByte(statusText.getBytes().length);
+                        dOut.write(statusText.getBytes());
                         
                         break;
                     case ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS:
@@ -67,10 +74,10 @@ public class Registry {
                 this.countRegistered += 1;
                 return i;
             } else if (this.registry[i].equals(rm)){
-                return -1;
+                throw new RegistrationException("IP already registered with registry.");
             }
         }
-        return -1;
+        throw new RegistrationException("Registry full!");
     }
 
 }

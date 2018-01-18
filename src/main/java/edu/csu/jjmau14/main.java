@@ -32,6 +32,7 @@ public class main {
             dOut.write(InetAddress.getLocalHost().getAddress().length);
             dOut.write(InetAddress.getLocalHost().getAddress());
             dOut.write(socket.getPort());
+            socket.close();
             DataInputStream dIn = new DataInputStream(socket.getInputStream());
             dIn.readByte();
             System.out.println("Unique ID: " + dIn.readByte());
