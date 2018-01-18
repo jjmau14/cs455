@@ -1,6 +1,7 @@
 package edu.csu.jjmau14.registry;
 
 import edu.csu.jjmau14.util.ControlMessages;
+import edu.csu.jjmau14.util.RegisteredMessenger;
 
 import java.io.DataInputStream;
 import java.net.ServerSocket;
@@ -8,10 +9,10 @@ import java.net.Socket;
 
 public class Registry {
 
-    private static String[] registry;
+    private static RegisteredMessenger[] registry;
 
     public Registry(){
-        this.registry = new String[128];
+        this.registry = new RegisteredMessenger[128];
         try (
             ServerSocket ss = new ServerSocket(5000)
         ){
@@ -22,9 +23,15 @@ public class Registry {
                 // Initialize a new Data Input Stream to read data sent by the client
                 DataInputStream dIn = new DataInputStream(socket.getInputStream());
 
-                switch(dIn.read()) {
+                switch(dIn.readByte()) {
                     case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:
+                        int ipLength = dIn.readByte();
+                        byte[] ipBytes = new byte[ipLength];
+                        for (int i = 0 ; i < ipLength ; i++){
+                            ipBytes[i] = dIn.readByte();
+                        }
                         int port = dIn.read();
+                        register(new RegisteredMessenger(ipBytes, port));
                         break;
                     case ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS:
                         break;
@@ -35,16 +42,16 @@ public class Registry {
         }
     }
 
-    private int register(String ip) throws RegistrationException {
-        int guid = -1;
+    private int register(RegisteredMessenger rm) throws RegistrationException {
         for (int i = 0 ; i < this.registry.length ; i++){
-            if (this.registry[i].equals(ip)){
-                throw new RegistrationException("IP already registered with guid: " + i);
+            if (this.registry[i].equals(rm)){
+                return -1;
             } else if (this.registry[i] == null ){
-                guid = i;
+                this.registry[i] = rm;
+                return i;
             }
         }
-        return guid;
+        return -1;
     }
 
 }

@@ -1,8 +1,13 @@
 package edu.csu.jjmau14;
 
+import edu.csu.jjmau14.registry.Registry;
+import edu.csu.jjmau14.util.ControlMessages;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -19,46 +24,17 @@ public class main {
     }
 
     public static void serve(){
-        try (
-                ServerSocket ss = new ServerSocket(5000)
-        ){
-            while(true){
-                Socket socket = ss.accept();
-                DataInputStream dIn = new DataInputStream(socket.getInputStream());
-                System.out.println("[" + Thread.currentThread().getName() + "] Server received \"" +
-                        dIn.readUTF() + "\" from client.");
-                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                Thread.sleep(500);
-                System.out.println(socket);
-                dOut.write(1);
-                dOut.write(2);
-                dOut.write(3);
-                dOut.write(4);
-                socket.close();
-            }
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
-        }
+        Registry r = new Registry();
     }
 
     public static void client() {
         try {
-            while(true) {
-                Socket socket = new Socket("localhost", 5000);
-                System.out.print("[" + Thread.currentThread().getName() + "] Enter your message: ");
-                Scanner scnr = new Scanner(System.in);
-                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                dOut.writeUTF(scnr.nextLine());
-                DataInputStream dIn = new DataInputStream(socket.getInputStream());
-                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");
-                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");
-                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");
-                System.out.println("[" + Thread.currentThread().getName() + "] Received status of " +
-                        dIn.read() + " from server");
-            }
+            Socket socket = new Socket("localhost", 5000);
+            DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+            dOut.write(ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION);
+            dOut.write(InetAddress.getLocalHost().getAddress().length);
+            dOut.write(InetAddress.getLocalHost().getAddress());
+            dOut.write(socket.getPort());
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
         }
