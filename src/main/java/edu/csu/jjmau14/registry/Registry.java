@@ -21,45 +21,54 @@ public class Registry {
             while(true){
                 // Wait for a client to connect
                 Socket socket = ss.accept();
+                while(true) {
+                    // Initialize a new Data Input Stream to read data sent by the client
+                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
 
-                // Initialize a new Data Input Stream to read data sent by the client
-                DataInputStream dIn = new DataInputStream(socket.getInputStream());
+                    switch (dIn.readByte()) {
+                        case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:
 
-                switch(dIn.readByte()) {
-                    case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:
+                            // Gather data inputs from socket
+                            int ipLength = dIn.readByte();
+                            byte[] ipBytes = new byte[ipLength];
+                            for (int i = 0; i < ipLength; i++) {
+                                ipBytes[i] = dIn.readByte();
+                            }
+                            int port = dIn.read();
 
-                        // Gather data inputs from socket
-                        int ipLength = dIn.readByte();
-                        byte[] ipBytes = new byte[ipLength];
-                        for (int i = 0 ; i < ipLength ; i++){
-                            ipBytes[i] = dIn.readByte();
-                        }
-                        int port = dIn.read();
+                            // Register IP or error if already registered.
+                            DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
 
-                        // Register IP or error if already registered.
-                        DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+                            String statusText;
+                            int status = -1;
 
-                        String statusText;
-                        int status = -1;
+                            // if (socket ip != requested register Ip)
+                            try {
+                                status = register(new RegisteredMessenger(ipBytes, port));
+                                statusText = "Registration request successful. The number of messaging nodes currently constituting the overlay is (" + this.countRegistered + ")";
 
-                        // if (socket ip != requested register Ip)
-                        try {
-                            status = register(new RegisteredMessenger(ipBytes, port));
-                            statusText = "Registration request successful. The number of messaging nodes currently constituting the overlay is (" + this.countRegistered + ")";
+                            } catch (RegistrationException re) {
+                                statusText = "Error registering IP: " + re.getMessage();
+                            }
 
-                        } catch (RegistrationException re){
-                            statusText = "Error registering IP: " + re.getMessage();
-                        }
+                            // Send reply to messaging node.
+                            dOut.writeByte(ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS);
+                            dOut.writeByte(status);
+                            dOut.writeByte(statusText.getBytes().length);
+                            dOut.write(statusText.getBytes());
 
-                        // Send reply to messaging node.
-                        dOut.writeByte(ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS);
-                        dOut.writeByte(status);
-                        dOut.writeByte(statusText.getBytes().length);
-                        dOut.write(statusText.getBytes());
-                        
-                        break;
-                    case ControlMessages.REGISTRY_REPORTS_REGISTRATION_STATUS:
-                        break;
+                            break;
+                        case ControlMessages.NODE_REPORTS_OVERLAY_SETUP_STATUS:
+                            System.out.println((this.registry[dIn.read()].toString() + " :: " + (socket.getInetAddress())));
+                            int len2 = dIn.readByte();
+                            byte[] x = new byte[len2];
+                            for (int i = 0; i < len2; i++) {
+                                x[i] = dIn.readByte();
+                            }
+                            String m = new String(x);
+                            System.out.println(m);
+                            break;
+                    }
                 }
             }
         }catch(Exception e){
