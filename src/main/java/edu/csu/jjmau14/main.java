@@ -12,10 +12,10 @@ import java.net.Socket;
 public class main {
 
     public static void main(String[] args) throws Exception {
-        new Thread(() -> {
+        /*new Thread(() -> {
             serve();
         }, "Server Thread").start();
-        new Thread(() -> {
+        */new Thread(() -> {
             client();
         }, "Client Thread").start();
     }
@@ -26,7 +26,7 @@ public class main {
 
     public static void client() {
         try {
-            Socket socket = new Socket("192.168.0.200", 5000);
+            Socket socket = new Socket("192.168.0.31", 5000);
             DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
             dOut.write(ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION);
             dOut.write(InetAddress.getLocalHost().getAddress().length);
