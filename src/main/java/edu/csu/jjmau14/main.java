@@ -15,9 +15,9 @@ public class main {
         new Thread(() -> {
             serve();
         }, "Server Thread").start();
-        new Thread(() -> {
+        /*new Thread(() -> {
             client();
-        }, "Client Thread").start();
+        }, "Client Thread").start();*/
     }
 
     public static void serve(){

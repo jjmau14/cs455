@@ -5,6 +5,7 @@ public class RegisteredMessenger {
     private String ipString;
     private byte[] ipBytes;
     private int port;
+    private int id;
 
     public RegisteredMessenger(byte[] ipBytes, int port){
         this.ipBytes = ipBytes;
@@ -45,5 +46,17 @@ public class RegisteredMessenger {
     @Override
     public String toString() {
         return ipString;
+    }
+
+    public void setId(int id){
+        this.id = id;
+    }
+
+    public int getId(){
+        return this.id;
+    }
+
+    public String getIpString(){
+        return this.ipString.substring(0, this.ipString.indexOf(":"));
     }
 }
