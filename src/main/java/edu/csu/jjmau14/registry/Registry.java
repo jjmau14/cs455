@@ -5,8 +5,11 @@ import edu.csu.jjmau14.util.ControlMessages;
 import edu.csu.jjmau14.util.RegisteredMessenger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 public class Registry {
@@ -30,7 +33,7 @@ public class Registry {
                         DataInputStream dIn = new DataInputStream(socket.getInputStream());
 
                         switch (dIn.readByte()) {
-                            case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:
+                            case ControlMessages.OVERLAY_NODE_SENDS_REGISTRATION:{
 
                                 // Gather data inputs from socket
                                 int ipLength = dIn.readByte();
@@ -63,17 +66,18 @@ public class Registry {
                                 dOut.write(statusText.getBytes());
 
                                 break;
-                            case ControlMessages.NODE_REPORTS_OVERLAY_SETUP_STATUS:
-                                System.out.println("[" + Thread.currentThread().getName() + "]" + (this.registry[dIn.read()].toString() + " :: " + (socket.getInetAddress())));
-                                int len2 = dIn.readByte();
-                                byte[] x = new byte[len2];
-                                for (int i = 0; i < len2; i++) {
-                                    x[i] = dIn.readByte();
+                            }
+
+                            case ControlMessages.NODE_REPORTS_OVERLAY_SETUP_STATUS: {
+                                int length = dIn.readByte();
+                                byte[] message = new byte[length];
+                                for (int i = 0; i < length; i++) {
+                                    message[i] = dIn.readByte();
                                 }
-                                String m = new String(x);
-                                System.out.println("[" + Thread.currentThread().getName() + "]" + m);
+                                System.out.println("[" + Thread.currentThread().getName() + "]" + new String(message));
                                 exit = true;
                                 break;
+                            }
                         }
                     }
                     socket.close();
@@ -87,28 +91,30 @@ public class Registry {
             while(true){
                 System.out.print("[" + Thread.currentThread().getName() + "] Enter a command: ");
                 String cmd = scnr.nextLine();
-                try {
-                    switch (cmd) {
-                        case "list-messaging-nodes":
-                            System.out.println(this.countRegistered + (this.countRegistered == 1 ? " node is registered:" : " nodes are registered."));
-                            String[] cols = new String[]{"Hostname", "Port", "Node ID"};
-                            String[][] data = new String[this.countRegistered][3];
-                            int count = 0;
-                            for (int i = 0; i < this.registry.length; i++) {
-                                if (this.registry[i] != null){
-                                    data[count][0] = this.registry[i].getIpString();
-                                    data[count][1] = Integer.toString(this.registry[i].getPort());
-                                    data[count][2] = Integer.toString(this.registry[i].getId());
-                                    count++;
-                                }
+                switch (cmd) {
+                    case "list-messaging-nodes":
+                        System.out.println(this.countRegistered + (this.countRegistered == 1 ? " node is registered:" : " nodes are registered."));
+                        String[] cols = new String[]{"Hostname", "Port", "Node ID"};
+                        String[][] data = new String[this.countRegistered][3];
+                        int count = 0;
+                        for (int i = 0; i < this.registry.length; i++) {
+                            if (this.registry[i] != null){
+                                data[count][0] = this.registry[i].getIpString();
+                                data[count][1] = Integer.toString(this.registry[i].getPort());
+                                data[count][2] = Integer.toString(this.registry[i].getId());
+                                count++;
                             }
-                            TextTable tt = new TextTable(cols, data);
-                            tt.printTable();
-                            System.out.println();
-                            break;
-                    }
-                } catch (Exception e){
-                    System.out.println("[" + Thread.currentThread().getName() + "] Invalid command or error occurred.");
+                        }
+                        TextTable tt = new TextTable(cols, data);
+                        tt.printTable();
+                        System.out.println();
+                        break;
+                    case "help":
+                        System.out.println("\nCommands:");
+                        System.out.println("list-messaging-nodes\t-\tList all nodes registered in the overlay.\n");
+                        break;
+                    default:
+                        System.out.println("Invalid command, try typing \"help\".\n");
                 }
             }
 
