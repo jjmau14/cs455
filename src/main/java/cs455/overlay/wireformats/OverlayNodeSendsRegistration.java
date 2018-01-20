@@ -43,15 +43,34 @@ public class OverlayNodeSendsRegistration implements Protocol {
 
     public void craft(byte[] data) throws IOException {
         byte length = data[1];
-        String ip = "";
-        for (int i = 0 ; i < length; i++){
-            if (i < length -1)
-                ip += (data[i+2] & 0xFF) + ".";
-            else
-                ip += (data[i+2] & 0xFF);
+        this.ip = Arrays.copyOfRange(data, 2, 2+length);
+        byte[] portArray = Arrays.copyOfRange(data, 2+length, 6+length);
+        int port = 0;
+        for (int i = 0 ; i < 4 ; i++) {
+            port <<= 8;
+            port |= (int) portArray[i] & 0xFF;
         }
-        System.out.println(ip);
+        this.port = port;
+        System.out.println(this.ipToString() + ":" + port);
 
     }
 
+    public String ipToString(){
+        String ipString = "";
+        for (int i = 0 ; i < this.ip.length; i++){
+            if (i < this.ip.length -1)
+                ipString += (this.ip[i] & 0xFF) + ".";
+            else
+                ipString += (this.ip[i] & 0xFF);
+        }
+        return ipString;
+    }
+
+    public byte[] getIp() {
+        return ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
 }
