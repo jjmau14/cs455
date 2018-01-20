@@ -9,7 +9,7 @@
     </properties>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>edu.csu.jjmau14</groupId>
+    <groupId>cs455.overlay</groupId>
     <artifactId>jjmau14</artifactId>
     <version>1.0-SNAPSHOT</version>
 
