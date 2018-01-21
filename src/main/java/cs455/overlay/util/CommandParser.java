@@ -45,7 +45,7 @@ public class CommandParser {
                             System.out.println("USAGE: setup-overlay [routing table size]");
                             break;
                         }
-                        System.out.println("SEND ROUTING MANIFESTS HERE. SIZE: " + cmdArray[1]);
+                        Registry.generateManifests(Integer.parseInt(cmdArray[1]));
                         break;
                     default:
                         System.out.println("Unrecognized command \"" + cmd + "\". Try \"help\".");

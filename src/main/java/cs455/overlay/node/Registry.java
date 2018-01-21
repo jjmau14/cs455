@@ -1,6 +1,8 @@
 package cs455.overlay.node;
 
 import cs455.overlay.routing.RegisterItem;
+import cs455.overlay.routing.Route;
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.util.CommandParser;
@@ -16,6 +18,7 @@ public class Registry extends Node{
     private static RegisterItem[] registry = new RegisterItem[128];
     private static int size = 0;
     private static ServerSocket server;
+    private static RoutingTable[] masterRouter;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -84,6 +87,33 @@ public class Registry extends Node{
         registry[index] = ri;
         size += 1;
         return index;
+    }
+
+    public static void generateManifests(int numRoutes){
+        try {
+            masterRouter = new RoutingTable[size];
+
+            for (int i = 0; i < size; i++) {
+                RoutingTable table = new RoutingTable();
+
+                for (int j = 0; j < numRoutes; j++) {
+                    int index = i + (int) Math.pow(2, j);
+                    if (index <= size) {
+                        table.addRoute(new Route(registry[index].getIp(), registry[index].getPort(), index));
+                    } else {
+                        index = i + (int) Math.pow(2, j) - size;
+                        table.addRoute(new Route(registry[index].getIp(), registry[index].getPort(), index));
+                    }
+                }
+                masterRouter[i] = table;
+            }
+
+            for (RoutingTable rt : masterRouter) {
+                System.out.println(rt.toString());
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public static RegisterItem[] getRegistry() {
