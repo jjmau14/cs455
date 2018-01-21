@@ -1,5 +1,7 @@
 package cs455.overlay.wireformats;
 
+import edu.csu.jjmau14.registry.Registry;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -17,6 +19,10 @@ public class RegistryReportsRegistrationStatus {
         this.id = id;
         this.message = message.getBytes();
         this.length = (byte)message.getBytes().length;
+    }
+
+    public RegistryReportsRegistrationStatus(){
+        // Nothing
     }
 
     public byte[] pack() throws IOException {
@@ -44,6 +50,15 @@ public class RegistryReportsRegistrationStatus {
             id <<= 8;
             id |= (int) idArray[i] & 0xFF;
         }
+        int length = (data[5] & 0xFF);
+        message = Arrays.copyOfRange(data, 6, 6 + length);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getMessage() {
+        return new String(message);
+    }
 }

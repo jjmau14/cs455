@@ -1,18 +1,19 @@
 package cs455.overlay.node;
 
+import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
-
+import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class MessagingNode extends Node {
 
-    private static int MessagerPort = 0;
-    private static String RegistryIP = "";
-    private static int RegistryPort = 0;
+    private static ServerSocket server;
+    private static int id = -1;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -20,43 +21,54 @@ public class MessagingNode extends Node {
             System.exit(1);
         }
 
-        RegistryIP = args[0];
-        RegistryPort = Integer.parseInt(args[1]);
-        new Thread(() -> start(), "Server").start();
+        try {
+            // Initialize server to get port to send to registry
+            server = new ServerSocket(0);
 
+            // Register this node with the registry
+            register(args[0], Integer.parseInt(args[1]));
+
+            // Accept all connections
+            cycle();
+
+        } finally {
+            server.close();
+        }
     }
 
-    private static int register() {
+    private static void register(String RegistryIP, int RegistryPort) {
         try (
-                Socket s = new Socket(RegistryIP, RegistryPort)
+                Socket registerSocket = new Socket(RegistryIP, RegistryPort)
         ){
-            OverlayNodeSendsRegistration register = new OverlayNodeSendsRegistration(InetAddress.getLocalHost().getAddress(), MessagerPort);
-            new TCPSender(s).sendData(register.pack());
+            OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
+                    InetAddress.getLocalHost().getAddress(),
+                    server.getLocalPort());
+
+            System.out.println("Node requesting registration: " + Arrays.toString(ONSR.pack()));
+            new TCPSender(registerSocket).sendData(ONSR.pack());
+            byte[] data = new TCPReceiver(registerSocket).read();
+
+            RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus();
+            RRRS.craft(data);
+
+            id = RRRS.getId();
+            System.out.println(RRRS.getMessage());
 
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
         }
-        return 0;
     }
 
     /**
      * @author: Josh Mau | 1/20/2018
      * initialize function creates a socket with the registry.
      * */
-    private static void start() {
-        try (
-                ServerSocket ss = new ServerSocket(0)
-        ){
-            // Set port
-            MessagerPort = ss.getLocalPort();
-            System.out.println(MessagerPort);
-
-            int id = register();
-            System.out.println("Node registered successfully, id: " + id);
+    private static void cycle() {
+        try {
 
             while(true){
-                Socket socket = ss.accept();
+                Socket socket = server.accept();
             }
 
         } catch (Exception e){

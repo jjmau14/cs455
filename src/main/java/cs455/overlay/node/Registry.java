@@ -2,11 +2,11 @@ package cs455.overlay.node;
 
 import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
+import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
 
-import java.io.DataInputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,43 +16,50 @@ public class Registry extends Node{
 
     private static RegisterItem[] registry = new RegisterItem[128];
     private static int registerCount = 0;
+    private static ServerSocket server;
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception {
         if (args.length != 1){
             System.out.println("USAGE: java cs455.overlay.node.Registry [Port Number]");
             System.exit(1);
         }
 
-        start(Integer.parseInt(args[0]));
+        server = new ServerSocket(5000);
+        System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
+        cycle();
     }
 
-    private static void start(int port){
-        new Thread(() -> serverThread(port), "Server Thread").start();
-    }
+    private static void cycle(){
+        try {
 
-    private static void serverThread(int port){
-        try (
-                ServerSocket ss = new ServerSocket(port)
-        ){
-            System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + ss.getLocalPort() + "...");
             while(true){
-                Socket socket = ss.accept();
+                Socket socket = server.accept();
 
-                TCPReceiver r = new TCPReceiver(socket);
-                byte[] data = r.read();
+                byte[] data = new TCPReceiver(socket).read();
+
                 switch (data[0]){
                     case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                         OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration();
                         ONSR.craft(data);
+
                         int id = -1;
                         String message = "";
+
                         try {
                             id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
                             message = "Registration request successful. There are currently (" + registerCount + ") nodes constituting the overlay.";
                         } catch (Exception e){
                             message = e.getMessage();
                         }
+
                         RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
+                        new Thread(() -> {
+                            try {
+                                new TCPSender(socket).sendData(RRRS.pack());
+                            } catch (Exception e){
+
+                            }
+                        }).start();
                 }
             }
         } catch (Exception e){
@@ -64,9 +71,9 @@ public class Registry extends Node{
     private static int register(RegisterItem ri) throws Exception {
         int index = -1;
         for (int i = 0 ; i < registry.length ; i++){
-            if (registry[i] == null){
+            if (registry[i] == null && index == -1){
                 index = i;
-            } else if (registry[i].equals(ri)){
+            } else if (registry[i] != null && registry[i].equals(ri)){
                 throw new Exception("This IP has already been registered with the registry.");
             }
         }
