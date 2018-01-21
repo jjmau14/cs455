@@ -40,6 +40,7 @@ public class MessagingNode extends Node {
         try (
                 Socket registerSocket = new Socket(RegistryIP, RegistryPort)
         ){
+            registerSocket.setKeepAlive(true);
             OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
                     InetAddress.getLocalHost().getAddress(),
                     server.getLocalPort());

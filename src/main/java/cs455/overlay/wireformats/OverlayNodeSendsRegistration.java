@@ -51,7 +51,6 @@ public class OverlayNodeSendsRegistration implements Protocol {
             port |= (int) portArray[i] & 0xFF;
         }
         this.port = port;
-        System.out.println(this.ipToString() + ":" + port);
 
     }
 
