@@ -53,7 +53,7 @@ public class MessagingNode extends Node {
             RRRS.craft(data);
 
             id = RRRS.getId();
-            System.out.println(RRRS.getMessage());
+            System.out.println("ID: " + id + ". " + RRRS.getMessage());
 
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());

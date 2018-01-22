@@ -4,6 +4,7 @@ import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.node.Registry;
 import dnl.utils.text.table.TextTable;
 
+import java.util.Hashtable;
 import java.util.Scanner;
 
 public class CommandParser {
@@ -24,14 +25,14 @@ public class CommandParser {
                     case "":
                         break;
                     case "list-messaging-nodes":
-                        RegisterItem[] registry = Registry.getRegistry();
+                        Hashtable<Integer, RegisterItem> registry = Registry.getRegistry();
+                        System.out.println(registry.size());
                         String[][] data = new String[Registry.getSize()][3];
-                        for (int i = 0; i < registry.length; i++) {
-                            if (registry[i] != null) {
-                                data[i][0] = registry[i].ipToString();
-                                data[i][1] = Integer.toString(registry[i].getPort());
-                                data[i][2] = Integer.toString(registry[i].getId());
-                            }
+                        for (int i = 0 ; i < registry.size() ; i++) {
+                            data[i][0] = registry.get(i).ipToString();
+                            data[i][1] = Integer.toString(registry.get(i).getPort());
+                            data[i][2] = Integer.toString(registry.get(i).getId());
+
                         }
                         System.out.println("There " + (Registry.getSize() == 1 ? "is 1 node registered with the registry." :
                                 "are " + Registry.getSize() + " nodes registered with the registry."));

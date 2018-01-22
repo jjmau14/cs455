@@ -3,6 +3,8 @@ package cs455.overlay.routing;
 import dnl.utils.text.table.TextTable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class RoutingTable {
 
@@ -14,6 +16,16 @@ public class RoutingTable {
 
     public void addRoute(Route r){
         this.routes.add(r);
+        Collections.sort(routes, new Comparator<Route>() {
+            @Override
+            public int compare(Route o1, Route o2) {
+                if (o1.getGuid() >= o2.getGuid()){
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
     }
 
     public String toString(){
