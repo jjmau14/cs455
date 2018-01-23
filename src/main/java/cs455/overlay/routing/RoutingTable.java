@@ -28,6 +28,10 @@ public class RoutingTable {
         });
     }
 
+    public byte tableSize(){
+        return (byte)this.routes.size();
+    }
+
     public String toString(){
         String[][] data = new String[routes.size()][3];
         for (int i = 0 ; i < routes.size() ; i++){
