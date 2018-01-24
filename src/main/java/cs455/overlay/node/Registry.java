@@ -9,6 +9,8 @@ import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
+import dnl.utils.text.table.TextTable;
+
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -94,7 +96,7 @@ public class Registry extends Node{
         return ri.getId();
     }
 
-    public static void generateManifests(int size){
+    public static void generateManifests(int size) throws Exception {
         RoutingTable[] manifests = new RoutingTable[registry.size()];
 
         for (int i = 0 ; i < registry.size() ; i++){
@@ -119,6 +121,22 @@ public class Registry extends Node{
         for (RoutingTable r : manifests){
             System.out.println(r.toString());
         }
+    }
+
+    public static void listMessagingNodes(){
+        Hashtable<Integer, RegisterItem> registry = Registry.getRegistry();
+        String[][] data = new String[Registry.getSize()][3];
+        for (int i = 0 ; i < registry.size() ; i++) {
+            data[i][0] = registry.get(i).ipToString();
+            data[i][1] = Integer.toString(registry.get(i).getPort());
+            data[i][2] = Integer.toString(registry.get(i).getId());
+
+        }
+        System.out.println("There " + (Registry.getSize() == 1 ? "is 1 node registered with the registry." :
+                "are " + Registry.getSize() + " nodes registered with the registry."));
+        TextTable tt = new TextTable(new String[]{"Host", "Port", "Node ID"}, data);
+        tt.printTable();
+        System.out.println();
     }
 
     public static Hashtable<Integer, RegisterItem> getRegistry() { return registry; }

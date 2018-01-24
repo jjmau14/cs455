@@ -17,29 +17,29 @@ public class CommandParser {
 
             try {
                 switch (cmd.toLowerCase().split(" ")[0]) {
+                    /**
+                     * @Case: help
+                     * Prints list of available commands.
+                     * */
                     case "help":
                         System.out.println("list-messaging-nodes\t\tDisplays list of messaging nodes registered with the registry.");
-                        System.out.println("setup-overlay [routing table size]\t\tSends routing manifest to messaging nodes.");
-                        System.out.println();
+                        System.out.println("setup-overlay [routing table size]\t\tSends routing manifest to messaging nodes.\n");
                         break;
-                    case "":
-                        break;
-                    case "list-messaging-nodes":
-                        Hashtable<Integer, RegisterItem> registry = Registry.getRegistry();
-                        System.out.println(registry.size());
-                        String[][] data = new String[Registry.getSize()][3];
-                        for (int i = 0 ; i < registry.size() ; i++) {
-                            data[i][0] = registry.get(i).ipToString();
-                            data[i][1] = Integer.toString(registry.get(i).getPort());
-                            data[i][2] = Integer.toString(registry.get(i).getId());
 
-                        }
-                        System.out.println("There " + (Registry.getSize() == 1 ? "is 1 node registered with the registry." :
-                                "are " + Registry.getSize() + " nodes registered with the registry."));
-                        TextTable tt = new TextTable(new String[]{"Host", "Port", "Node ID"}, data);
-                        tt.printTable();
-                        System.out.println();
+                    /**
+                     * @Case: list-messaging-nodes
+                     * Lists Host ip address, port #, and Node GUID that are currently
+                     * registered with the Registry.
+                     * */
+                    case "list-messaging-nodes":
+                        Registry.listMessagingNodes();
                         break;
+
+                    /**
+                     * @Case: setup-overlay
+                     * Takes one parameter argument that is the routing table size. This will determine
+                     * the number of other nodes in each node's routing table.
+                     * */
                     case "setup-overlay":
                         String[] cmdArray = cmd.split(" ");
                         if (cmdArray.length != 2) {
@@ -48,11 +48,24 @@ public class CommandParser {
                         }
                         Registry.generateManifests(Integer.parseInt(cmdArray[1]));
                         break;
+
+                    /**
+                     * @Case: Empty String
+                     * Prints new line for entering command rather than returning
+                     * the default error "Unrecognized command"
+                     * */
+                    case "":
+                        break;
+
+                    /**
+                     * @Case: Default
+                     * Error: Command was not one of the available commands.
+                     * */
                     default:
                         System.out.println("Unrecognized command \"" + cmd + "\". Try \"help\".");
                 }
             } catch (Exception e){
-                System.out.println("Error parsing command.");
+                System.out.println("Error parsing command:" + e.getMessage());
             }
         }
     }
