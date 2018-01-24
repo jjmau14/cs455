@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class CommandParser {
 
-    public void registryParser(){
+    public void registryParser(Registry registry){
         Scanner scnr = new Scanner(System.in);
         while(true) {
             System.out.print("[" + Thread.currentThread().getName() + "] Enter a Registry Command: ");
@@ -32,7 +32,7 @@ public class CommandParser {
                      * registered with the Registry.
                      * */
                     case "list-messaging-nodes":
-                        Registry.listMessagingNodes();
+                        registry.listMessagingNodes();
                         break;
 
                     /**
@@ -46,7 +46,7 @@ public class CommandParser {
                             System.out.println("USAGE: setup-overlay [routing table size]");
                             break;
                         }
-                        Registry.generateManifests(Integer.parseInt(cmdArray[1]));
+                        registry.generateManifests(Integer.parseInt(cmdArray[1]));
                         break;
 
                     /**

@@ -9,6 +9,7 @@ import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
+import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 import dnl.utils.text.table.TextTable;
 
 import java.net.InetAddress;
@@ -18,24 +19,27 @@ import java.util.Hashtable;
 
 public class Registry extends Node{
 
-    private static ServerSocket server;
-    private static Hashtable<Integer, RegisterItem> registry;
-    private static RoutingTable[] manifests;
+    private ServerSocket server;
+    private Hashtable<Integer, RegisterItem> registry;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
             System.out.println("USAGE: java cs455.overlay.node.Registry [Port Number]");
             System.exit(1);
         }
+        Registry registry = new Registry(Integer.parseInt(args[0]));
 
-        server = new ServerSocket(5000);
+    }
+
+    public Registry(int port) throws Exception {
+        server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
         new Thread(() -> cycle(), "Registry").start();
-        new Thread(() -> new CommandParser().registryParser(), "Command Parser").start();
+        new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
     }
 
-    private static void cycle(){
+    private void cycle(){
         try {
 
             while(true){
@@ -82,7 +86,7 @@ public class Registry extends Node{
      * Must setID as current size first (since 0 based), then add the item
      * to the registry so the size will be incremented next time.
      * */
-    private synchronized static int register(RegisterItem ri) throws Exception {
+    private synchronized int register(RegisterItem ri) throws Exception {
         if (!registry.containsValue(ri)){
             if (registry.size() < 127) {
                 ri.setId(registry.size());
@@ -96,7 +100,7 @@ public class Registry extends Node{
         return ri.getId();
     }
 
-    public static void generateManifests(int size) throws Exception {
+    public void generateManifests(int size) throws Exception {
         RoutingTable[] manifests = new RoutingTable[registry.size()];
 
         for (int i = 0 ; i < registry.size() ; i++){
@@ -119,28 +123,38 @@ public class Registry extends Node{
             manifests[i] = temp;
         }
         for (RoutingTable r : manifests){
+            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
+            byte[] data = RSNM.pack();
+            RSNM.craft(data);
             System.out.println(r.toString());
         }
     }
 
-    public static void listMessagingNodes(){
-        Hashtable<Integer, RegisterItem> registry = Registry.getRegistry();
-        String[][] data = new String[Registry.getSize()][3];
+    public void listMessagingNodes(){
+        String[][] data = new String[this.getSize()][3];
         for (int i = 0 ; i < registry.size() ; i++) {
             data[i][0] = registry.get(i).ipToString();
             data[i][1] = Integer.toString(registry.get(i).getPort());
             data[i][2] = Integer.toString(registry.get(i).getId());
 
         }
-        System.out.println("There " + (Registry.getSize() == 1 ? "is 1 node registered with the registry." :
-                "are " + Registry.getSize() + " nodes registered with the registry."));
+        System.out.println("There " + (this.getSize() == 1 ? "is 1 node registered with the registry." :
+                "are " + this.getSize() + " nodes registered with the registry."));
         TextTable tt = new TextTable(new String[]{"Host", "Port", "Node ID"}, data);
         tt.printTable();
         System.out.println();
     }
 
-    public static Hashtable<Integer, RegisterItem> getRegistry() { return registry; }
-    public static int getSize() {
+    public Hashtable<Integer, RegisterItem> getRegistry() { return registry; }
+    public int getSize() {
         return registry.size();
+    }
+    public int[] getAllNodes() {
+        int[] nodes = new int[this.getSize()];
+        int counter = 0;
+        for (Integer key : this.registry.keySet()){
+            nodes[counter++] = key;
+        }
+        return nodes;
     }
 }

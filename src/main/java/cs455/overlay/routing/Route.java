@@ -22,6 +22,7 @@ public class Route {
      * @Getters
      * getIP: Returns ip address as a byte array of size 4.
      * getGuid: Returns global unique ID assigned by the Registry of that particular node.
+     * getGuidBytes: Returns the byte array version of the guid.
      * getPort: Returns the port of a node.
      * */
     public byte[] getIp() {
@@ -29,6 +30,22 @@ public class Route {
     }
     public int getGuid() {
         return guid;
+    }
+    public byte[] getGuidBytes() {
+        byte[] guidByte = new byte[4];
+        guidByte[0] = (byte)(guid >> 24);
+        guidByte[1] = (byte)(guid >> 16);
+        guidByte[2] = (byte)(guid >> 8);
+        guidByte[3] = (byte)(guid);
+        return guidByte;
+    }
+    public byte[] getPortBytes() {
+        byte[] portByte = new byte[4];
+        portByte[0] = (byte)(port >> 24);
+        portByte[1] = (byte)(port >> 16);
+        portByte[2] = (byte)(port >> 8);
+        portByte[3] = (byte)(port);
+        return portByte;
     }
     public int getPort() {
         return port;

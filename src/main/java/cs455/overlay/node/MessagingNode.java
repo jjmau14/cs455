@@ -12,21 +12,25 @@ import java.util.Arrays;
 
 public class MessagingNode extends Node {
 
-    private static ServerSocket server;
-    private static int id = -1;
+    private ServerSocket server;
+    private int id = -1;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
             System.out.println("USAGE: java cs455.overlay.node.MessagingNode [Registry Host] [Registry Port]");
             System.exit(1);
         }
+        MessagingNode node = new MessagingNode(args[0], Integer.parseInt(args[1]));
 
+    }
+
+    public MessagingNode(String ip, int port) throws Exception {
         try {
             // Initialize server to get port to send to registry
             server = new ServerSocket(0);
 
             // Register this node with the registry
-            register(args[0], Integer.parseInt(args[1]));
+            register(ip, port);
 
             // Accept all connections
             cycle();
@@ -36,7 +40,7 @@ public class MessagingNode extends Node {
         }
     }
 
-    private static void register(String RegistryIP, int RegistryPort) {
+    private void register(String RegistryIP, int RegistryPort) {
         try (
                 Socket registerSocket = new Socket(RegistryIP, RegistryPort)
         ){
@@ -65,7 +69,7 @@ public class MessagingNode extends Node {
      * @author: Josh Mau | 1/20/2018
      * initialize function creates a socket with the registry.
      * */
-    private static void cycle() {
+    private void cycle() {
         try {
 
             while(true){
