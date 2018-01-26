@@ -1,7 +1,9 @@
 package cs455.overlay.node;
 
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
+import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
@@ -17,6 +19,8 @@ public class MessagingNode extends Node {
 
     private ServerSocket server;
     private int id = -1;
+    private RoutingTable routingTable;
+    private TCPConnectionsCache cache;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -28,6 +32,7 @@ public class MessagingNode extends Node {
     }
 
     public MessagingNode(String ip, int port) throws Exception {
+        this.cache = new TCPConnectionsCache();
         try {
             // Initialize server to get port to send to registry
             server = new ServerSocket(0);
@@ -66,7 +71,16 @@ public class MessagingNode extends Node {
             System.out.println(Arrays.toString(data2));
             RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
             RSNM.craft(data2);
-            System.out.println(RSNM.getRoutes().toString());
+            this.routingTable = RSNM.getRoutes();
+            for (int i = 0 ; i < routingTable.getTableSize() ; i++){
+                Socket s = new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort());
+                cache.addConnection(routingTable.getRoute(i).getGuid(), s);
+            }
+            System.out.println("Successfully configured overlay.");
+            cache.doForAll((Integer i) -> {
+                System.out.println(cache.getConnectionById(i).getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getPort());
+                return true;
+            });
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
