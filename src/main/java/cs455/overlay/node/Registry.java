@@ -81,13 +81,9 @@ public class Registry extends Node{
                         }
 
                         RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
-                        new Thread(() -> {
-                            try {
-                                new TCPSender(socket).sendData(RRRS.pack());
-                            } catch (Exception e) {
 
-                            }
-                        }).start();
+                        new TCPSender(socket).sendData(RRRS.pack());
+
                 }
             }catch (Exception e){
                 ;
@@ -166,14 +162,10 @@ public class Registry extends Node{
             RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
             byte[] data = RSNM.pack();
             Socket s = sockets.get(index);
-            new Thread(() -> {
-                try {
-                    TCPSender send = new TCPSender(s);
-                    send.sendData(data);
-                } catch (Exception e) {
-                    System.out.println("Error sending manifest: " + e.getMessage());
-                }
-            });
+
+            TCPSender send = new TCPSender(s);
+            send.sendData(data);
+
         } catch (Exception e){
             System.out.println("Error sending manifest: " + e.getMessage());
             throw new Exception("Error sending manifest: " + e.getMessage());
