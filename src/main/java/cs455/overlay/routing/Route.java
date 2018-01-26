@@ -1,5 +1,7 @@
 package cs455.overlay.routing;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author: Josh Mau | 1/23/2018
  * Class: Route
@@ -32,19 +34,15 @@ public class Route {
         return guid;
     }
     public byte[] getGuidBytes() {
-        byte[] guidByte = new byte[4];
-        guidByte[0] = (byte)(guid >> 24);
-        guidByte[1] = (byte)(guid >> 16);
-        guidByte[2] = (byte)(guid >> 8);
-        guidByte[3] = (byte)(guid);
+        byte guidByte[] = new byte[4];
+        ByteBuffer buf = ByteBuffer.wrap(guidByte);
+        buf.putInt(this.guid);
         return guidByte;
     }
     public byte[] getPortBytes() {
-        byte[] portByte = new byte[4];
-        portByte[0] = (byte)(port >> 24);
-        portByte[1] = (byte)(port >> 16);
-        portByte[2] = (byte)(port >> 8);
-        portByte[3] = (byte)(port);
+        byte portByte[] = new byte[4];
+        ByteBuffer buf = ByteBuffer.wrap(portByte);
+        buf.putInt(this.port);
         return portByte;
     }
     public int getPort() {

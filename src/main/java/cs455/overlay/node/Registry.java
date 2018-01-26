@@ -11,7 +11,6 @@ import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
 import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 import dnl.utils.text.table.TextTable;
-
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,6 +20,8 @@ public class Registry extends Node{
 
     private ServerSocket server;
     private Hashtable<Integer, RegisterItem> registry;
+    private RoutingTable[] manifests;
+    private Hashtable<Integer, Socket> sockets;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -32,6 +33,7 @@ public class Registry extends Node{
     }
 
     public Registry(int port) throws Exception {
+        sockets = new Hashtable<>();
         server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
@@ -41,10 +43,21 @@ public class Registry extends Node{
 
     private void cycle(){
         try {
-
             while(true){
-                Socket socket = server.accept();
+                ServerWorker(server.accept());
+                for (int i = 0 ; i < this.sockets.size() ; i++){
+                    System.out.println(sockets.get(i).getPort() + " : " + sockets.get(i).isConnected());
+                }
+            }
+        } catch (Exception e){
+            System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
+            System.exit(1);
+        }
+    }
 
+    private void ServerWorker(Socket socket){
+        Thread server = new Thread(() -> {
+            try{
                 byte[] data = new TCPReceiver(socket).read();
 
                 switch (data[0]) {
@@ -59,6 +72,8 @@ public class Registry extends Node{
                         try {
                             id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
                             message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
+                            socket.setKeepAlive(true);
+                            sockets.put(id, socket);
                         } catch (Exception e) {
                             message = e.getMessage();
                         }
@@ -72,11 +87,11 @@ public class Registry extends Node{
                             }
                         }).start();
                 }
+            }catch (Exception e){
+                ;
             }
-        } catch (Exception e){
-            System.out.println("[Registry - " + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
-            System.exit(1);
-        }
+        });
+        server.start();
     }
 
     /**
@@ -101,7 +116,7 @@ public class Registry extends Node{
     }
 
     public void generateManifests(int size) throws Exception {
-        RoutingTable[] manifests = new RoutingTable[registry.size()];
+        this.manifests = new RoutingTable[registry.size()];
 
         for (int i = 0 ; i < registry.size() ; i++){
 
@@ -122,10 +137,40 @@ public class Registry extends Node{
             }
             manifests[i] = temp;
         }
-        for (RoutingTable r : manifests){
-            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
+        try {
+            for (int i = 0; i < this.sockets.size(); i++) {
+                TCPSender send = new TCPSender(this.sockets.get(i));
+                send.sendData(new RegistrySendsNodeManifest(this.manifests[i], this.getAllNodes()).pack());
+            }
+        }catch (Exception e){
+            System.out.println("error " + e.getMessage());
+        }
+        printManifests();
+    }
+
+    public void sendManifest(int index) throws Exception {
+        try {
+            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
             byte[] data = RSNM.pack();
-            RSNM.craft(data);
+            Socket s = sockets.get(index);
+            new Thread(() -> {
+                try {
+                    TCPSender send = new TCPSender(s);
+                    send.sendData(data);
+                } catch (Exception e) {
+                    System.out.println("Error sending manifest: " + e.getMessage());
+                }
+            });
+        } catch (Exception e){
+            System.out.println("Error sending manifest: " + e.getMessage());
+            throw new Exception("Error sending manifest: " + e.getMessage());
+        }
+    }
+
+    public void printManifests(){
+        int counter = 0;
+        for (RoutingTable r : manifests){
+            System.out.println("Node " + counter++);
             System.out.println(r.toString());
         }
     }

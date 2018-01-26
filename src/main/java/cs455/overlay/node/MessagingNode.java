@@ -3,7 +3,10 @@ package cs455.overlay.node;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
+import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
+import cs455.overlay.wireformats.RegistrySendsNodeManifest;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -40,7 +43,7 @@ public class MessagingNode extends Node {
         }
     }
 
-    private void register(String RegistryIP, int RegistryPort) {
+    private void register(String RegistryIP, int RegistryPort) throws Exception {
         try (
                 Socket registerSocket = new Socket(RegistryIP, RegistryPort)
         ){
@@ -59,6 +62,11 @@ public class MessagingNode extends Node {
             id = RRRS.getId();
             System.out.println("ID: " + id + ". " + RRRS.getMessage());
 
+            byte[] data2 = new TCPReceiver(registerSocket).read();
+            System.out.println(Arrays.toString(data2));
+            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
+            RSNM.craft(data2);
+            System.out.println(RSNM.getRoutes().toString());
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
@@ -74,6 +82,15 @@ public class MessagingNode extends Node {
 
             while(true){
                 Socket socket = server.accept();
+
+                byte[] data = new TCPReceiver(socket).read();
+
+                switch(data[0]){
+                    case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
+                        RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
+                        RSNM.craft(data);
+                        System.out.println(RSNM.getRoutes().toString());
+                }
             }
 
         } catch (Exception e){
