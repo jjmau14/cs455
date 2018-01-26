@@ -5,6 +5,7 @@ import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
+import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
 import cs455.overlay.wireformats.Protocol;
@@ -22,6 +23,7 @@ public class Registry extends Node{
     private Hashtable<Integer, RegisterItem> registry;
     private RoutingTable[] manifests;
     private Hashtable<Integer, Socket> sockets;
+    private TCPConnectionsCache cache;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -33,6 +35,7 @@ public class Registry extends Node{
     }
 
     public Registry(int port) throws Exception {
+        cache = new TCPConnectionsCache();
         sockets = new Hashtable<>();
         server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
@@ -45,9 +48,7 @@ public class Registry extends Node{
         try {
             while(true){
                 ServerWorker(server.accept());
-                for (int i = 0 ; i < this.sockets.size() ; i++){
-                    System.out.println(sockets.get(i).getPort() + " : " + sockets.get(i).isConnected());
-                }
+
             }
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
@@ -74,6 +75,7 @@ public class Registry extends Node{
                             message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
                             socket.setKeepAlive(true);
                             sockets.put(id, socket);
+                            cache.addConnection(id, socket);
                         } catch (Exception e) {
                             message = e.getMessage();
                         }
@@ -137,14 +139,25 @@ public class Registry extends Node{
             }
             manifests[i] = temp;
         }
-        try {
+        /*try {
             for (int i = 0; i < this.sockets.size(); i++) {
                 TCPSender send = new TCPSender(this.sockets.get(i));
                 send.sendData(new RegistrySendsNodeManifest(this.manifests[i], this.getAllNodes()).pack());
             }
         }catch (Exception e){
             System.out.println("error " + e.getMessage());
-        }
+        }*/
+        this.cache.doForAll((Integer id) -> {
+            try {
+                TCPSender send = new TCPSender(this.cache.getConnectionById(id));
+                RoutingTable r = this.manifests[id];
+                RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
+                send.sendData(RSNM.pack());
+            } catch (Exception e){
+                ;
+            }
+            return true;
+        });
         printManifests();
     }
 
