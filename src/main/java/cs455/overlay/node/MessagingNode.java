@@ -61,7 +61,7 @@ public class MessagingNode extends Node {
 
             id = RRRS.getId();
             System.out.println("ID: " + id + ". " + RRRS.getMessage());
-
+            
             byte[] data2 = new TCPReceiver(registerSocket).read();
             System.out.println(Arrays.toString(data2));
             RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
