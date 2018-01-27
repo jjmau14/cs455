@@ -46,8 +46,8 @@ public class Registry extends Node{
     private void cycle(){
         try {
             while(true){
-                ServerWorker(server.accept());
-
+                Socket socket = server.accept();
+                new TCPReceiver(socket).read();
             }
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
@@ -55,43 +55,29 @@ public class Registry extends Node{
         }
     }
 
-    private void ServerWorker(Socket socket){
-        Thread server = new Thread(() -> {
-            try{
-                byte[] data = new TCPReceiver(socket).read();
+    public void onEvent(Socket s, Event e){
+        switch (e.getType()){
+            case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
+                int id = -1;
+                String message = "";
+                OverlayNodeSendsRegistration ONSR = (OverlayNodeSendsRegistration)e;
 
-                switch (data[0]) {
-                    case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
-                        OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration();
-                        ONSR.craft(data);
-
-                        int id = -1;
-                        String message = "";
-
-                        // if ONSR.ipToString().equals(socket.getInetAddress())
-                        try {
-                            id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
-                            message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
-                            socket.setKeepAlive(true);
-                            sockets.put(id, socket);
-                            cache.addConnection(id, socket);
-                        } catch (Exception e) {
-                            message = e.getMessage();
-                        }
-
-                        RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
-
-                        new TCPSender(socket).sendData(RRRS.pack());
-
+                try {
+                    id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
+                    message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
+                    cache.addConnection(id, s);
+                } catch (Exception err) {
+                    message = err.getMessage();
                 }
-            }catch (Exception e){
-                ;
-            }
-        });
-        server.start();
-    }
 
-    public void onEvent(Event e){
+                RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
+                try {
+                    TCPSender sender = new TCPSender(s);
+                    sender.sendData(RRRS.pack());
+                } catch (Exception err){
+                    ;
+                }
+        }
 
     }
 

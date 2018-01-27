@@ -2,6 +2,8 @@ package cs455.overlay.wireformats;
 
 import cs455.overlay.node.Node;
 
+import java.net.Socket;
+
 public class EventFactory {
 
     private static EventFactory eventFactory;
@@ -11,9 +13,9 @@ public class EventFactory {
         this.node = node;
     }
 
-    public void run(byte[] b){
+    public void run(Socket s, byte[] b){
         try {
-            node.onEvent(getType(b));
+            node.onEvent(s, getType(b));
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();

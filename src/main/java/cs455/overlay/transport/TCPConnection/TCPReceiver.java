@@ -19,20 +19,22 @@ public class TCPReceiver {
     }
 
     public void read(){
-        int dataLength;
-        byte[] data = null;
-        try {
-            dataLength = din.readInt();
-            data = new byte[dataLength];
-            din.readFully(data, 0, dataLength);
-        } catch (SocketException se) {
-            System.out.println("SocketException: " + se.getMessage());
-        } catch (IOException ioe) {
-            System.out.println("IOException: " + ioe.getMessage());
-        } catch (Exception e){
-            System.out.println("Exception: " + e.getMessage());
-        }
-        EventFactory.getInstance().run(data);
+        new Thread(() -> {
+            int dataLength;
+            byte[] data = null;
+            try {
+                dataLength = din.readInt();
+                data = new byte[dataLength];
+                din.readFully(data, 0, dataLength);
+            } catch (SocketException se) {
+                System.out.println("SocketException: " + se.getMessage());
+            } catch (IOException ioe) {
+                System.out.println("IOException: " + ioe.getMessage());
+            } catch (Exception e) {
+                System.out.println("Exception: " + e.getMessage());
+            }
+            EventFactory.getInstance().run(socket, data);
+        }).start();
     }
 
 }

@@ -1,7 +1,5 @@
 package cs455.overlay.wireformats;
 
-import edu.csu.jjmau14.registry.Registry;
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

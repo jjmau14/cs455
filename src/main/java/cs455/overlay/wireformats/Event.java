@@ -8,4 +8,5 @@ public abstract class Event {
 
     public abstract byte[] pack() throws IOException;
     public abstract void craft(byte[] b);
+    public int getType() {return this.type;}
 }
