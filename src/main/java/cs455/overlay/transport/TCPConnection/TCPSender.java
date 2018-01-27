@@ -4,19 +4,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class TCPSender implements Runnable {
+public class TCPSender {
 
     private Socket socket;
     private DataOutputStream dout;
-    private byte[] data;
 
-    public TCPSender(Socket socket, byte[] data) throws IOException{
+    public TCPSender(Socket socket) throws IOException{
         this.socket = socket;
-        this.data = data;
         this.dout = new DataOutputStream(socket.getOutputStream());
     }
 
-    public void run(){
+    public void sendData(byte[] data){
         try {
             int dataLength = data.length;
             dout.writeInt(dataLength);

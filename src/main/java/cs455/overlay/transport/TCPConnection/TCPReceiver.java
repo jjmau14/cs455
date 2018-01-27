@@ -32,6 +32,6 @@ public class TCPReceiver implements Runnable {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-        EventFactory.getInstance().run(socket, data);
+        EventFactory.getInstance().run(data);
     }
 }

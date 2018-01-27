@@ -3,7 +3,7 @@ package cs455.overlay.node;
 import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
-import cs455.overlay.transport.TCPConnection.TCPReceiver;
+import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
@@ -38,24 +38,12 @@ public class Registry extends Node{
         server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
-        new Thread(() -> cycle(), "Registry").start();
+        new Thread(new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         this.eventFactory = new EventFactory(this);
     }
 
-    private void cycle(){
-        try {
-            while(true){
-                Socket socket = server.accept();
-                new Thread(new TCPReceiver(socket)).start();
-            }
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
-            System.exit(1);
-        }
-    }
-
-    public void onEvent(Socket s, Event e){
+    public void onEvent(Event e){
         switch (e.getType()){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 int id = -1;

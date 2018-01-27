@@ -13,9 +13,9 @@ public class EventFactory {
         this.node = node;
     }
 
-    public void run(Socket s, byte[] b){
+    public void run(byte[] b){
         try {
-            node.onEvent(s, getType(b));
+            node.onEvent(getType(b));
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();

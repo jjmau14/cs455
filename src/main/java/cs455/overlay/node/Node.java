@@ -6,6 +6,5 @@ import java.net.Socket;
 
 public abstract class Node {
 
-    public abstract void onEvent(Socket s, Event e);
-
+    public abstract void onEvent(Event e);
 }
