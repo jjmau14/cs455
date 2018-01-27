@@ -1,4 +1,17 @@
 package cs455.overlay.wireformats;
 
-public class OverlayNodeReportsTaskFinished {
+import java.io.IOException;
+
+public class OverlayNodeReportsTaskFinished extends Event {
+
+    @Override
+    public byte[] pack() throws IOException {
+        return new byte[0];
+    }
+
+    @Override
+    public void craft(byte[] b) {
+
+    }
+
 }

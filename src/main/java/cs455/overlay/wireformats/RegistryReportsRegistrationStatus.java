@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class RegistryReportsRegistrationStatus {
+public class RegistryReportsRegistrationStatus extends Event {
 
     private byte type = Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS;
     private int id;
@@ -25,6 +25,7 @@ public class RegistryReportsRegistrationStatus {
         // Nothing
     }
 
+    @Override
     public byte[] pack() throws IOException {
         byte[] data = null;
         ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
@@ -43,7 +44,8 @@ public class RegistryReportsRegistrationStatus {
         return data;
     }
 
-    public void craft(byte[] data) throws IOException {
+    @Override
+    public void craft(byte[] data) {
         byte[] idArray = Arrays.copyOfRange(data, 1, 1+4);
         id = 0;
         for (int i = 0 ; i < 4 ; i++){

@@ -7,10 +7,7 @@ import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
-import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
-import cs455.overlay.wireformats.Protocol;
-import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
-import cs455.overlay.wireformats.RegistrySendsNodeManifest;
+import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -24,6 +21,7 @@ public class Registry extends Node{
     private RoutingTable[] manifests;
     private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
+    private EventFactory eventFactory;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -42,6 +40,7 @@ public class Registry extends Node{
         registry = new Hashtable<>();
         new Thread(() -> cycle(), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
+        this.eventFactory = new EventFactory(this);
     }
 
     private void cycle(){
@@ -90,6 +89,10 @@ public class Registry extends Node{
             }
         });
         server.start();
+    }
+
+    public void onEvent(Event e){
+
     }
 
     /**

@@ -1,5 +1,7 @@
 package cs455.overlay.transport.TCPConnection;
 
+import cs455.overlay.wireformats.EventFactory;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -16,7 +18,7 @@ public class TCPReceiver {
         din = new DataInputStream(socket.getInputStream());
     }
 
-    public byte[] read(){
+    public void read(){
         int dataLength;
         byte[] data = null;
         try {
@@ -30,7 +32,7 @@ public class TCPReceiver {
         } catch (Exception e){
             System.out.println("Exception: " + e.getMessage());
         }
-        return data;
+        EventFactory.getInstance().run(data);
     }
 
 }

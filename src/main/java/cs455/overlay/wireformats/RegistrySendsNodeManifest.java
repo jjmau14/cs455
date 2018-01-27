@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class RegistrySendsNodeManifest {
+public class RegistrySendsNodeManifest extends Event{
 
     byte type = Protocol.REGISTRY_SENDS_NODE_MANIFEST;
     RoutingTable routes;
@@ -21,7 +21,8 @@ public class RegistrySendsNodeManifest {
         // Nothing - for use by craft.
     }
 
-    public byte[] pack() throws Exception {
+    @Override
+    public byte[] pack() {
         byte tableSize = routes.getTableSize();
         byte ipSize = (byte) routes.getRoute(0).getIp().length;
         byte[] data = new byte[1+1+(tableSize * (9+ipSize)) + 1 + (4*nodes.length)];
@@ -63,7 +64,8 @@ public class RegistrySendsNodeManifest {
         return data;
     }
 
-    public void craft(byte[] data) throws Exception {
+    @Override
+    public void craft(byte[] data) {
         System.out.println("Received: " + data.length);
 
         int index = 1; // ignore type
@@ -80,7 +82,11 @@ public class RegistrySendsNodeManifest {
             }
             ByteBuffer port = ByteBuffer.wrap(new byte[]{data[index], data[index+1], data[index+2], data[index+3]});
             index += 4; // for port
-            routes.addRoute(new Route(ip, port.getInt(), guid.getInt()));
+            try {
+                routes.addRoute(new Route(ip, port.getInt(), guid.getInt()));
+            } catch (Exception e){
+
+            }
 
         }
 

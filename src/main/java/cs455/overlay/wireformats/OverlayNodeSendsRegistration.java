@@ -6,9 +6,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class OverlayNodeSendsRegistration implements Protocol {
+public class OverlayNodeSendsRegistration extends Event{
 
-    private byte type = OVERLAY_NODE_SENDS_REGISTRATION;
+    private byte type = Protocol.OVERLAY_NODE_SENDS_REGISTRATION;
     private byte length;
     private byte[] ip;
     int port;
@@ -41,7 +41,7 @@ public class OverlayNodeSendsRegistration implements Protocol {
         return data;
     }
 
-    public void craft(byte[] data) throws IOException {
+    public void craft(byte[] data) {
         byte length = data[1];
         this.ip = Arrays.copyOfRange(data, 2, 2+length);
         byte[] portArray = Arrays.copyOfRange(data, 2+length, 6+length);
