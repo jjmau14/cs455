@@ -1,5 +1,6 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.routing.Route;
 import cs455.overlay.wireformats.EventFactory;
 
 import java.io.DataInputStream;
@@ -14,9 +15,11 @@ public class TCPConnection {
     private Socket socket;
     private Queue<byte[]> queue;
     private int id;
+    private Route routingData;
 
     public TCPConnection(Socket socket){
         this.socket = socket;
+        this.routingData = new Route(socket.getInetAddress().getAddress(), socket.getPort(), -1);
         this.id = -1;
         init();
     }
@@ -55,8 +58,16 @@ public class TCPConnection {
         this.queue.add(b);
     }
 
+    public Socket getSocket(){
+        return this.socket;
+    }
+
     public void setId(int id){
         this.id = id;
+    }
+
+    public void setGuid(int guid){
+        this.routingData.setGuid(guid);
     }
 
     public class TCPReceiver implements AutoCloseable{

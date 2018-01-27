@@ -22,6 +22,7 @@ public class Registry extends Node{
     private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
     private EventFactory eventFactory;
+    private TCPServerThread tcpServer;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -38,7 +39,7 @@ public class Registry extends Node{
         server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
-        new Thread(new TCPServerThread(port), "Registry").start();
+        new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         this.eventFactory = new EventFactory(this);
     }
@@ -53,7 +54,7 @@ public class Registry extends Node{
                 try {
                     id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
                     message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
-                    cache.addConnection(id, s);
+                    this.tcpServer.cache.addConnection(id, s);
                 } catch (Exception err) {
                     message = err.getMessage();
                 }

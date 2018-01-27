@@ -10,7 +10,7 @@ import java.net.Socket;
 public class TCPServerThread implements Runnable {
 
     private ServerSocket server;
-    private TCPConnectionsCache cache;
+    public TCPConnectionsCache cache;
 
     public TCPServerThread(int port) throws IOException {
         this.cache = new TCPConnectionsCache();
