@@ -47,7 +47,7 @@ public class Registry extends Node{
         try {
             while(true){
                 Socket socket = server.accept();
-                new TCPReceiver(socket).read();
+                new Thread(new TCPReceiver(socket)).start();
             }
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
@@ -72,8 +72,7 @@ public class Registry extends Node{
 
                 RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
                 try {
-                    TCPSender sender = new TCPSender(s);
-                    sender.sendData(RRRS.pack());
+                    new Thread(new TCPSender(s, RRRS.pack())).start();
                 } catch (Exception err){
                     ;
                 }
@@ -134,10 +133,9 @@ public class Registry extends Node{
         }*/
         this.cache.doForAll((Integer id) -> {
             try {
-                TCPSender send = new TCPSender(this.cache.getConnectionById(id));
                 RoutingTable r = this.manifests[id];
                 RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
-                send.sendData(RSNM.pack());
+                new Thread(new TCPSender(this.cache.getConnectionById(id), RSNM.pack())).start();
             } catch (Exception e){
                 ;
             }
@@ -152,8 +150,7 @@ public class Registry extends Node{
             byte[] data = RSNM.pack();
             Socket s = sockets.get(index);
 
-            TCPSender send = new TCPSender(s);
-            send.sendData(data);
+            new Thread(new TCPSender(s, data)).start();
 
         } catch (Exception e){
             System.out.println("Error sending manifest: " + e.getMessage());

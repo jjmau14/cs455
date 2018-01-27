@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 
-public class TCPReceiver {
+public class TCPReceiver implements Runnable {
 
     private Socket socket;
     private DataInputStream din;
@@ -18,23 +18,20 @@ public class TCPReceiver {
         din = new DataInputStream(socket.getInputStream());
     }
 
-    public void read(){
-        new Thread(() -> {
-            int dataLength;
-            byte[] data = null;
-            try {
-                dataLength = din.readInt();
-                data = new byte[dataLength];
-                din.readFully(data, 0, dataLength);
-            } catch (SocketException se) {
-                System.out.println("SocketException: " + se.getMessage());
-            } catch (IOException ioe) {
-                System.out.println("IOException: " + ioe.getMessage());
-            } catch (Exception e) {
-                System.out.println("Exception: " + e.getMessage());
-            }
-            EventFactory.getInstance().run(socket, data);
-        }).start();
+    public void run(){
+        int dataLength;
+        byte[] data = null;
+        try {
+            dataLength = din.readInt();
+            data = new byte[dataLength];
+            din.readFully(data, 0, dataLength);
+        } catch (SocketException se) {
+            System.out.println("SocketException: " + se.getMessage());
+        } catch (IOException ioe) {
+            System.out.println("IOException: " + ioe.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+        EventFactory.getInstance().run(socket, data);
     }
-
 }
