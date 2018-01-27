@@ -4,10 +4,7 @@ import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
-import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
-import cs455.overlay.wireformats.Protocol;
-import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
-import cs455.overlay.wireformats.RegistrySendsNodeManifest;
+import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,6 +18,7 @@ public class MessagingNode extends Node {
     private int id = -1;
     private RoutingTable routingTable;
     private TCPConnectionsCache cache;
+    private EventFactory eventFactory;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -28,11 +26,11 @@ public class MessagingNode extends Node {
             System.exit(1);
         }
         MessagingNode node = new MessagingNode(args[0], Integer.parseInt(args[1]));
-
     }
 
     public MessagingNode(String ip, int port) throws Exception {
         this.cache = new TCPConnectionsCache();
+        this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
             server = new ServerSocket(0);
@@ -85,6 +83,10 @@ public class MessagingNode extends Node {
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
         }
+    }
+
+    public void onEvent(Event e){
+
     }
 
     /**

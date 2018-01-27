@@ -3,14 +3,11 @@ package cs455.overlay.node;
 import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
-import cs455.overlay.transport.TCPConnection.TCPReceiver;
+import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
-import cs455.overlay.wireformats.OverlayNodeSendsRegistration;
-import cs455.overlay.wireformats.Protocol;
-import cs455.overlay.wireformats.RegistryReportsRegistrationStatus;
-import cs455.overlay.wireformats.RegistrySendsNodeManifest;
+import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -24,6 +21,7 @@ public class Registry extends Node{
     private RoutingTable[] manifests;
     private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
+    private EventFactory eventFactory;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -40,56 +38,34 @@ public class Registry extends Node{
         server = new ServerSocket(port);
         System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
-        new Thread(() -> cycle(), "Registry").start();
+        new Thread(new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
+        this.eventFactory = new EventFactory(this);
     }
 
-    private void cycle(){
-        try {
-            while(true){
-                ServerWorker(server.accept());
+    public void onEvent(Event e){
+        switch (e.getType()){
+            case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
+                int id = -1;
+                String message = "";
+                OverlayNodeSendsRegistration ONSR = (OverlayNodeSendsRegistration)e;
 
-            }
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
-            System.exit(1);
-        }
-    }
-
-    private void ServerWorker(Socket socket){
-        Thread server = new Thread(() -> {
-            try{
-                byte[] data = new TCPReceiver(socket).read();
-
-                switch (data[0]) {
-                    case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
-                        OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration();
-                        ONSR.craft(data);
-
-                        int id = -1;
-                        String message = "";
-
-                        // if ONSR.ipToString().equals(socket.getInetAddress())
-                        try {
-                            id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
-                            message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
-                            socket.setKeepAlive(true);
-                            sockets.put(id, socket);
-                            cache.addConnection(id, socket);
-                        } catch (Exception e) {
-                            message = e.getMessage();
-                        }
-
-                        RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
-
-                        new TCPSender(socket).sendData(RRRS.pack());
-
+                try {
+                    id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
+                    message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
+                    cache.addConnection(id, s);
+                } catch (Exception err) {
+                    message = err.getMessage();
                 }
-            }catch (Exception e){
-                ;
-            }
-        });
-        server.start();
+
+                RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
+                try {
+                    new Thread(new TCPSender(s, RRRS.pack())).start();
+                } catch (Exception err){
+                    ;
+                }
+        }
+
     }
 
     /**
@@ -145,10 +121,9 @@ public class Registry extends Node{
         }*/
         this.cache.doForAll((Integer id) -> {
             try {
-                TCPSender send = new TCPSender(this.cache.getConnectionById(id));
                 RoutingTable r = this.manifests[id];
                 RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
-                send.sendData(RSNM.pack());
+                new Thread(new TCPSender(this.cache.getConnectionById(id), RSNM.pack())).start();
             } catch (Exception e){
                 ;
             }
@@ -163,8 +138,7 @@ public class Registry extends Node{
             byte[] data = RSNM.pack();
             Socket s = sockets.get(index);
 
-            TCPSender send = new TCPSender(s);
-            send.sendData(data);
+            new Thread(new TCPSender(s, data)).start();
 
         } catch (Exception e){
             System.out.println("Error sending manifest: " + e.getMessage());

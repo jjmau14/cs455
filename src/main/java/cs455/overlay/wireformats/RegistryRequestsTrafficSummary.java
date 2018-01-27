@@ -1,4 +1,17 @@
 package cs455.overlay.wireformats;
 
-public class RegistryRequestsTrafficSummary {
+import java.io.IOException;
+
+public class RegistryRequestsTrafficSummary extends Event {
+
+    @Override
+    public byte[] pack() throws IOException {
+        return new byte[0];
+    }
+
+    @Override
+    public void craft(byte[] b) {
+
+    }
+
 }

@@ -1,4 +1,16 @@
 package cs455.overlay.wireformats;
 
-public class RegistryReportsDeregistrationStatus {
+import java.io.IOException;
+
+public class RegistryReportsDeregistrationStatus extends Event {
+
+    @Override
+    public byte[] pack() throws IOException {
+        return new byte[0];
+    }
+
+    @Override
+    public void craft(byte[] b) {
+
+    }
 }

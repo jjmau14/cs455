@@ -1,12 +1,14 @@
 package cs455.overlay.transport.TCPConnection;
 
+import cs455.overlay.wireformats.EventFactory;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 
-public class TCPReceiver {
+public class TCPReceiver implements Runnable {
 
     private Socket socket;
     private DataInputStream din;
@@ -16,7 +18,7 @@ public class TCPReceiver {
         din = new DataInputStream(socket.getInputStream());
     }
 
-    public byte[] read(){
+    public void run(){
         int dataLength;
         byte[] data = null;
         try {
@@ -27,10 +29,9 @@ public class TCPReceiver {
             System.out.println("SocketException: " + se.getMessage());
         } catch (IOException ioe) {
             System.out.println("IOException: " + ioe.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-        return data;
+        EventFactory.getInstance().run(data);
     }
-
 }
