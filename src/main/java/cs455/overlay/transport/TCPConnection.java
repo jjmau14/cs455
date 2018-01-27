@@ -7,16 +7,59 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Queue;
 
 public class TCPConnection {
 
     private Socket socket;
+    private Queue<byte[]> queue;
+    private int id;
 
     public TCPConnection(Socket socket){
         this.socket = socket;
+        this.id = -1;
+        init();
     }
 
-    public class TCPReceiver {
+    private void init(){
+        Thread receiver = new Thread(() -> {
+            try (
+                    TCPReceiver rec = new TCPReceiver(this.socket)
+            ){
+                while(true){
+                    rec.read();
+                }
+            } catch (Exception e){
+                ;
+            }
+        });
+        receiver.start();
+
+        Thread sender = new Thread(() -> {
+            try (
+                    TCPSender send = new TCPSender(this.socket)
+            ){
+                while(true){
+                    if (queue.peek() == null)
+                        wait();
+                    send.sendData(queue.poll());
+                }
+            } catch (Exception e){
+                ;
+            }
+        });
+        sender.start();
+    }
+
+    public void sendData(byte[] b){
+        this.queue.add(b);
+    }
+
+    public void setId(int id){
+        this.id = id;
+    }
+
+    public class TCPReceiver implements AutoCloseable{
 
         private Socket socket;
         private DataInputStream din;
@@ -43,9 +86,14 @@ public class TCPConnection {
             EventFactory.getInstance().run(data);
 
         }
+
+        public void close() throws IOException {
+            if (!this.socket.isClosed())
+                this.socket.close();
+        }
     }
 
-    public class TCPSender {
+    public class TCPSender implements AutoCloseable {
 
         private Socket socket;
         private DataOutputStream dout;
@@ -65,6 +113,11 @@ public class TCPConnection {
                 System.out.println("Error sending data: " + e.getMessage());
                 return;
             }
+        }
+
+        public void close() throws IOException {
+            if (!this.socket.isClosed())
+                this.socket.close();
         }
     }
 
