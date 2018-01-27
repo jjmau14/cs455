@@ -4,6 +4,7 @@ import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
+import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
@@ -94,6 +95,14 @@ public class MessagingNode extends Node {
      * initialize function creates a socket with the registry.
      * */
     private void cycle() {
+        TCPServerThread server;
+        new Thread(() -> {
+            try {
+                server = new TCPServerThread(0);
+            } catch (Exception e){
+                ;
+            }
+        });
         try {
 
             while(true){

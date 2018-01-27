@@ -1,14 +1,7 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.node.Registry;
-import cs455.overlay.transport.TCPConnection.TCPSender;
-import cs455.overlay.wireformats.RegistrySendsNodeManifest;
-
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -17,23 +10,23 @@ import java.util.function.Predicate;
  * */
 public class TCPConnectionsCache {
 
-    HashMap<Integer, Socket> connections;
+    HashMap<Integer, TCPConnection> connections;
 
     public TCPConnectionsCache(){
         this.connections = new HashMap<>();
     }
 
-    public void addConnection(int id, Socket socket){
+    public void addConnection(int id, TCPConnection connection){
         if (!this.connections.containsKey(id))
-            this.connections.put(id, socket);
+            this.connections.put(id, connection);
     }
 
-    public Socket getConnectionById(int id){
+    public TCPConnection getConnectionById(int id){
         return this.connections.get(id);
     }
 
     public void doForAll(Predicate<Integer> func){
-        for (Map.Entry<Integer, Socket> entry : connections.entrySet()){
+        for (Map.Entry<Integer, TCPConnection> entry : connections.entrySet()){
             func.test(entry.getKey());
         }
     }
