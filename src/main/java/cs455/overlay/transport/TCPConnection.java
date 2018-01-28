@@ -27,7 +27,7 @@ public class TCPConnection {
     private void init(){
         Thread receiver = new Thread(() -> {
             try (
-                    TCPReceiver rec = new TCPReceiver(this.socket)
+                    TCPReceiver rec = new TCPReceiver(this)
             ){
                 while(true){
                     rec.read();
@@ -40,7 +40,7 @@ public class TCPConnection {
 
         Thread sender = new Thread(() -> {
             try (
-                    TCPSender send = new TCPSender(this.socket)
+                    TCPSender send = new TCPSender(this)
             ){
                 while(true){
                     if (queue.peek() == null)
@@ -72,12 +72,12 @@ public class TCPConnection {
 
     public class TCPReceiver implements AutoCloseable{
 
-        private Socket socket;
+        private TCPConnection conn;
         private DataInputStream din;
 
-        public TCPReceiver(Socket socket) throws IOException {
-            this.socket = socket;
-            this.din = new DataInputStream(socket.getInputStream());
+        public TCPReceiver(TCPConnection conn) throws IOException {
+            this.conn = conn;
+            this.din = new DataInputStream(this.conn.getSocket().getInputStream());
         }
 
         public void read() {
@@ -94,24 +94,24 @@ public class TCPConnection {
             } catch (Exception e) {
                 System.out.println("Exception: " + e.getMessage());
             }
-            EventFactory.getInstance().run(data);
+            EventFactory.getInstance().run(conn, data);
 
         }
 
         public void close() throws IOException {
-            if (!this.socket.isClosed())
-                this.socket.close();
+            if (!this.conn.getSocket().isClosed())
+                this.conn.getSocket().close();
         }
     }
 
     public class TCPSender implements AutoCloseable {
 
-        private Socket socket;
+        private TCPConnection conn;
         private DataOutputStream dout;
 
-        public TCPSender(Socket socket) throws IOException {
-            this.socket = socket;
-            this.dout = new DataOutputStream(socket.getOutputStream());
+        public TCPSender(TCPConnection conn) throws IOException {
+            this.conn = conn;
+            this.dout = new DataOutputStream(conn.getSocket().getOutputStream());
         }
 
         public void sendData(byte[] data) throws Exception {
@@ -127,8 +127,8 @@ public class TCPConnection {
         }
 
         public void close() throws IOException {
-            if (!this.socket.isClosed())
-                this.socket.close();
+            if (!this.conn.getSocket().isClosed())
+                this.conn.getSocket().close();
         }
     }
 

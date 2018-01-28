@@ -1,6 +1,7 @@
 package cs455.overlay.wireformats;
 
 import cs455.overlay.node.Node;
+import cs455.overlay.transport.TCPConnection;
 
 import java.net.Socket;
 
@@ -13,9 +14,9 @@ public class EventFactory {
         this.node = node;
     }
 
-    public void run(byte[] b){
+    public void run(TCPConnection conn, byte[] b){
         try {
-            node.onEvent(getType(b));
+            node.onEvent(conn, getType(b));
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
