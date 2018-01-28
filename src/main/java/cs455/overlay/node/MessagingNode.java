@@ -1,6 +1,7 @@
 package cs455.overlay.node;
 
 import cs455.overlay.routing.RoutingTable;
+import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPConnection.TCPReceiver;
 import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
@@ -15,11 +16,11 @@ import java.util.Arrays;
 
 public class MessagingNode extends Node {
 
-    private ServerSocket server;
+    private TCPServerThread server;
     private int id = -1;
     private RoutingTable routingTable;
-    private TCPConnectionsCache cache;
     private EventFactory eventFactory;
+    private TCPConnectionsCache cache;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -34,16 +35,15 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
-            server = new ServerSocket(0);
 
             // Register this node with the registry
             register(ip, port);
 
             // Accept all connections
-            cycle();
+            new Thread(new TCPServerThread(0), "Messenger").start();
 
-        } finally {
-            server.close();
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -86,42 +86,8 @@ public class MessagingNode extends Node {
         }
     }
 
-    public void onEvent(Event e){
+    public void onEvent(TCPConnection conn, Event e){
 
-    }
-
-    /**
-     * @author: Josh Mau | 1/20/2018
-     * initialize function creates a socket with the registry.
-     * */
-    private void cycle() {
-        TCPServerThread server;
-        new Thread(() -> {
-            try {
-                server = new TCPServerThread(0);
-            } catch (Exception e){
-                ;
-            }
-        });
-        try {
-
-            while(true){
-                Socket socket = server.accept();
-
-                byte[] data = new TCPReceiver(socket).read();
-
-                switch(data[0]){
-                    case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-                        RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
-                        RSNM.craft(data);
-                        System.out.println(RSNM.getRoutes().toString());
-                }
-            }
-
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
-            System.exit(1);
-        }
     }
 
 }
