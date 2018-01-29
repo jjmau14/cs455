@@ -2,6 +2,7 @@ package cs455.overlay.transport;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class TCPSender implements Runnable {
 
                 synchronized (queue) {
                     while (queue.peek() == null) {
+                        System.out.println("waiting");
                         queue.wait();
                     }
 
@@ -37,7 +39,6 @@ public class TCPSender implements Runnable {
 
                     try {
                         int dataLength = data.length;
-                        System.out.println(dataLength);
                         dout.writeInt(dataLength);
                         dout.write(data, 0, dataLength);
                         dout.flush();
@@ -53,10 +54,11 @@ public class TCPSender implements Runnable {
     }
 
     public void send(byte[] data) {
-        System.out.println("Sending: " + Arrays.toString(data));
         synchronized (queue){
             this.queue.add(data);
-            queue.notify();
+            this.queue.notify();
+            System.out.println("Sending: " + Arrays.toString(queue.peek()));
+
         }
     }
 

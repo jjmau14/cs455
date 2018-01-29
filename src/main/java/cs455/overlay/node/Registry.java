@@ -58,7 +58,6 @@ public class Registry extends Node{
                 }
 
                 RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
-                System.out.println(Arrays.toString(RRRS.pack()));
                 try {
                     conn.sendData(RRRS.pack());
                 } catch (Exception err){
