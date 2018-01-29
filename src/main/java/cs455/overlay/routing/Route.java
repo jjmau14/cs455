@@ -49,6 +49,10 @@ public class Route {
         return port;
     }
 
+    public void setGuid(int guid) {
+        this.guid = guid;
+    }
+
     /**
      * @Method: ipToString
      * Returns "pretty" version of the ip address (ie. 192.168.40.23).

@@ -1,9 +1,9 @@
 package cs455.overlay.node;
 
 import cs455.overlay.routing.RoutingTable;
-import cs455.overlay.transport.TCPConnection.TCPReceiver;
-import cs455.overlay.transport.TCPConnection.TCPSender;
+import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPConnectionsCache;
+import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
@@ -14,11 +14,12 @@ import java.util.Arrays;
 
 public class MessagingNode extends Node {
 
-    private ServerSocket server;
+    private TCPServerThread server;
     private int id = -1;
     private RoutingTable routingTable;
-    private TCPConnectionsCache cache;
     private EventFactory eventFactory;
+    private TCPConnectionsCache cache;
+    private TCPServerThread tcpServer;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -33,86 +34,64 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
-            server = new ServerSocket(0);
+            new Thread(this.tcpServer = new TCPServerThread(0), "Messenger").start();
 
             // Register this node with the registry
             register(ip, port);
 
-            // Accept all connections
-            cycle();
-
-        } finally {
-            server.close();
+        } catch (Exception e) {
+            throw e;
         }
     }
 
     private void register(String RegistryIP, int RegistryPort) throws Exception {
-        try (
-                Socket registerSocket = new Socket(RegistryIP, RegistryPort)
-        ){
-            registerSocket.setKeepAlive(true);
+        try {
+            Socket registerSocket = new Socket(RegistryIP, RegistryPort);
+            TCPConnection conn = new TCPConnection(registerSocket);
+            conn.init();
             OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
                     InetAddress.getLocalHost().getAddress(),
-                    server.getLocalPort());
+                    this.tcpServer.getPort());
 
-            System.out.println("Node requesting registration: " + Arrays.toString(ONSR.pack()));
-            new TCPSender(registerSocket).sendData(ONSR.pack());
-            byte[] data = new TCPReceiver(registerSocket).read();
+            conn.sendData(ONSR.pack());
 
-            RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus();
-            RRRS.craft(data);
-
-            id = RRRS.getId();
-            System.out.println("ID: " + id + ". " + RRRS.getMessage());
-
-            byte[] data2 = new TCPReceiver(registerSocket).read();
-            System.out.println(Arrays.toString(data2));
-            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
-            RSNM.craft(data2);
-            this.routingTable = RSNM.getRoutes();
-            for (int i = 0 ; i < routingTable.getTableSize() ; i++){
-                Socket s = new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort());
-                cache.addConnection(routingTable.getRoute(i).getGuid(), s);
-            }
-            System.out.println("Successfully configured overlay.");
-            cache.doForAll((Integer i) -> {
-                System.out.println(cache.getConnectionById(i).getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getPort());
-                return true;
-            });
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
         }
     }
 
-    public void onEvent(Event e){
+    public void onEvent(TCPConnection conn, Event e) throws Exception {
+        switch(e.getType()){
+            case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
+                RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
 
+                this.id = RRRS.getId();
+                System.out.println("ID: " + id + ". " + RRRS.getMessage());
+                break;
+            case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
+                RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
+
+                this.routingTable = RSNM.getRoutes();
+                try {
+                    setupOverlayConnections();
+                } catch (Exception err){
+                    System.out.println("Error creating overlay on node: " + err.getMessage());
+                }
+                break;
+        }
     }
 
-    /**
-     * @author: Josh Mau | 1/20/2018
-     * initialize function creates a socket with the registry.
-     * */
-    private void cycle() {
-        try {
-
-            while(true){
-                Socket socket = server.accept();
-
-                byte[] data = new TCPReceiver(socket).read();
-
-                switch(data[0]){
-                    case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-                        RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
-                        RSNM.craft(data);
-                        System.out.println(RSNM.getRoutes().toString());
-                }
-            }
-
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "]: Error in server thread: " + e.getMessage());
-            System.exit(1);
+    private void setupOverlayConnections() throws Exception {
+        for (int i = 0 ; i < routingTable.getTableSize() ; i++){
+            TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
+            cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
         }
+        System.out.println("Successfully configured overlay.");
+        cache.doForAll((Integer i) -> {
+            System.out.println(cache.getConnectionById(i).getSocket().getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getSocket().getPort());
+            return true;
+        });
     }
 
 }

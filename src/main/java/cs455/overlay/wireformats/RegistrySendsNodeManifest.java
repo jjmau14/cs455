@@ -60,13 +60,11 @@ public class RegistrySendsNodeManifest extends Event{
         } catch (IndexOutOfBoundsException ioobe){
             throw new IndexOutOfBoundsException("Routing table may be empty: " + ioobe.getMessage());
         }
-        System.out.println("SENT: " + data.length);
         return data;
     }
 
     @Override
     public void craft(byte[] data) {
-        System.out.println("Received: " + data.length);
 
         int index = 1; // ignore type
 
@@ -104,7 +102,8 @@ public class RegistrySendsNodeManifest extends Event{
         return routes;
     }
 
-    public byte getType() {
+    @Override
+    public int getType() {
         return type;
     }
 

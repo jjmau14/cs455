@@ -3,25 +3,23 @@ package cs455.overlay.node;
 import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
+import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
-import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class Registry extends Node{
 
-    private ServerSocket server;
     private Hashtable<Integer, RegisterItem> registry;
     private RoutingTable[] manifests;
-    private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
-    private EventFactory eventFactory;
+    private TCPServerThread tcpServer;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -34,16 +32,14 @@ public class Registry extends Node{
 
     public Registry(int port) throws Exception {
         cache = new TCPConnectionsCache();
-        sockets = new Hashtable<>();
-        server = new ServerSocket(port);
-        System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
-        new Thread(new TCPServerThread(port), "Registry").start();
+        new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
+
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
-        this.eventFactory = new EventFactory(this);
+        new EventFactory(this);
     }
 
-    public void onEvent(Event e){
+    public void onEvent(TCPConnection conn, Event e) throws Exception {
         switch (e.getType()){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 int id = -1;
@@ -53,17 +49,19 @@ public class Registry extends Node{
                 try {
                     id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
                     message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
-                    cache.addConnection(id, s);
+                    this.cache.addConnection(id, conn);
                 } catch (Exception err) {
+                    System.out.println(err);
                     message = err.getMessage();
                 }
 
                 RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
                 try {
-                    new Thread(new TCPSender(s, RRRS.pack())).start();
+                    conn.sendData(RRRS.pack());
                 } catch (Exception err){
-                    ;
+                    System.out.println(err);
                 }
+                break;
         }
 
     }
@@ -92,12 +90,12 @@ public class Registry extends Node{
     public void generateManifests(int size) throws Exception {
         this.manifests = new RoutingTable[registry.size()];
 
-        for (int i = 0 ; i < registry.size() ; i++){
+        for (int i = 0 ; i < registry.size() ; i++) {
 
             RoutingTable temp = new RoutingTable();
 
-            for (int j = 0 ; j < size ; j++){
-                int pow = (int)Math.pow(2, j);
+            for (int j = 0; j < size; j++) {
+                int pow = (int) Math.pow(2, j);
                 int index = pow + i;
 
                 if (index < registry.size()) {
@@ -111,39 +109,19 @@ public class Registry extends Node{
             }
             manifests[i] = temp;
         }
-        /*try {
-            for (int i = 0; i < this.sockets.size(); i++) {
-                TCPSender send = new TCPSender(this.sockets.get(i));
-                send.sendData(new RegistrySendsNodeManifest(this.manifests[i], this.getAllNodes()).pack());
-            }
-        }catch (Exception e){
-            System.out.println("error " + e.getMessage());
-        }*/
+
         this.cache.doForAll((Integer id) -> {
             try {
                 RoutingTable r = this.manifests[id];
                 RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
-                new Thread(new TCPSender(this.cache.getConnectionById(id), RSNM.pack())).start();
+                this.cache.getConnectionById(id).sendData(RSNM.pack());
             } catch (Exception e){
                 ;
             }
             return true;
         });
+
         printManifests();
-    }
-
-    public void sendManifest(int index) throws Exception {
-        try {
-            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
-            byte[] data = RSNM.pack();
-            Socket s = sockets.get(index);
-
-            new Thread(new TCPSender(s, data)).start();
-
-        } catch (Exception e){
-            System.out.println("Error sending manifest: " + e.getMessage());
-            throw new Exception("Error sending manifest: " + e.getMessage());
-        }
     }
 
     public void printManifests(){

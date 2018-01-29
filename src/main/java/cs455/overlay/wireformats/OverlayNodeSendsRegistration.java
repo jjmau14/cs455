@@ -72,4 +72,8 @@ public class OverlayNodeSendsRegistration extends Event{
     public int getPort() {
         return port;
     }
+
+    public int getType(){
+        return this.type;
+    }
 }

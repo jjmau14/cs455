@@ -1,9 +1,7 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.transport.TCPConnection.TCPReceiver;
-import cs455.overlay.transport.TCPConnection.TCPSender;
-
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,16 +11,24 @@ public class TCPServerThread implements Runnable {
 
     public TCPServerThread(int port) throws IOException {
         this.server = new ServerSocket(port);
+
     }
 
+    @Override
     public void run() {
+        try {
+            System.out.println("Server running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
+        } catch (Exception e){
+            System.out.println("Error: " + e.getMessage());
+        }
         try {
             while(true){
                 Socket socket = server.accept();
-                new Thread(new TCPReceiver(socket)).start();
+                TCPConnection conn = new TCPConnection(socket);
+                conn.init();
             }
         } catch (IOException ioe){
-            ;
+            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + ioe.getMessage());
         }
     }
 
