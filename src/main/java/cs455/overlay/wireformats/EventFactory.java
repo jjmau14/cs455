@@ -13,6 +13,7 @@ public class EventFactory {
 
     public EventFactory(Node node){
         this.node = node;
+        this.eventFactory = this;
     }
 
     public void run(Socket socket, byte[] b){

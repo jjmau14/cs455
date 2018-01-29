@@ -54,6 +54,11 @@ public class RegistryReportsRegistrationStatus extends Event {
         message = Arrays.copyOfRange(data, 6, 6 + length);
     }
 
+    @Override
+    public int getType(){
+        return this.type;
+    }
+
     public int getId() {
         return id;
     }

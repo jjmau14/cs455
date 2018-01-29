@@ -13,4 +13,9 @@ public class RegistryReportsDeregistrationStatus extends Event {
     public void craft(byte[] b) {
 
     }
+
+    @Override
+    public int getType(){
+        return 0;
+    }
 }

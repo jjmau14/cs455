@@ -43,7 +43,8 @@ public class TCPReceiver implements Runnable {
             }
             if (data != null) {
                 System.out.println("Received: " + Arrays.toString(data) + " from " + this.socket);
-                EventFactory.getInstance().run(socket, data);
+                EventFactory ef = EventFactory.getInstance();
+                ef.run(socket, data);
             }
         }
     }

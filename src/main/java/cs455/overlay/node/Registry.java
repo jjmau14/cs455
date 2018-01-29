@@ -11,6 +11,7 @@ import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class Registry extends Node{
@@ -39,6 +40,7 @@ public class Registry extends Node{
     }
 
     public void onEvent(Socket socket, Event e) throws Exception {
+        System.out.println(Arrays.toString(e.pack()));
         TCPConnection conn = new TCPConnection(socket);
         switch (e.getType()){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
@@ -56,6 +58,7 @@ public class Registry extends Node{
                 }
 
                 RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
+                System.out.println(Arrays.toString(RRRS.pack()));
                 try {
                     conn.sendData(RRRS.pack());
                 } catch (Exception err){

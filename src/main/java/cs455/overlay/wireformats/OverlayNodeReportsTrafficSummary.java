@@ -14,4 +14,9 @@ public class OverlayNodeReportsTrafficSummary extends Event {
 
     }
 
+    @Override
+    public int getType(){
+        return 0;
+    }
+
 }
