@@ -2,28 +2,61 @@ package cs455.overlay.transport;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-public class TCPSender {
+public class TCPSender implements Runnable {
 
-    private TCPConnection conn;
+    private Socket socket;
     private DataOutputStream dout;
+    private static Queue<byte[]> queue;
 
-    public TCPSender(TCPConnection conn) throws IOException {
-        this.conn = conn;
-        this.dout = new DataOutputStream(conn.getSocket().getOutputStream());
+    public TCPSender(Socket socket) throws IOException {
+        this.queue = new PriorityQueue<>();
+        this.socket = socket;
+        this.dout = new DataOutputStream(this.socket.getOutputStream());
     }
 
-    public void sendData(byte[] data) throws Exception {
+    @Override
+    public void run(){
+        System.out.println("Sender Running");
         try {
-            int dataLength = data.length;
-            System.out.println(dataLength);
-            dout.writeInt(dataLength);
-            dout.write(data, 0, dataLength);
-            dout.flush();
-        } catch (Exception e) {
-            System.out.println("[" + Thread.currentThread().getName() + "] Error sending data: " + e.getMessage());
-            return;
+            while(true) {
+
+                synchronized (queue) {
+                    while (queue.peek() == null) {
+                        queue.wait();
+                    }
+
+                    byte[] data = queue.poll();
+                    System.out.println(Arrays.toString(data));
+                    queue.notify();
+
+                    try {
+                        int dataLength = data.length;
+                        System.out.println(dataLength);
+                        dout.writeInt(dataLength);
+                        dout.write(data, 0, dataLength);
+                        dout.flush();
+                    } catch (Exception e) {
+                        System.out.println("[" + Thread.currentThread().getName() + "] Error sending data: " + e.getMessage());
+                    }
+
+                }
+            }
+        } catch (Exception e){
+            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
+        }
+    }
+
+    public void send(byte[] data) {
+        System.out.println("Sending: " + Arrays.toString(data));
+        synchronized (queue){
+            this.queue.add(data);
+            queue.notify();
         }
     }
 

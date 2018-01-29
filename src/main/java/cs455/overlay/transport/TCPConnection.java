@@ -1,64 +1,34 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.routing.Route;
-
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.Queue;
 
 public class TCPConnection {
 
-    private Socket socket;
-    private Queue<byte[]> queue;
+    private Socket socket = null;
+    private TCPReceiver receiver;
+    private TCPSender sender;
 
-    public TCPConnection(Socket socket) {
-        this.queue = new PriorityQueue<>();
+    public TCPConnection(Socket socket) throws IOException {
         this.socket = socket;
-        init();
+        sender = new TCPSender(socket);
+        receiver = new TCPReceiver(socket);
     }
 
-    private void init(){
-        Thread receiver = new Thread(() -> {
-            try {
-                TCPReceiver rec = new TCPReceiver(this);
-                rec.read();
+    public void init(){
+        try {
+            Thread senderThread = new Thread(sender, "Sender Thread");
+            senderThread.start();
 
-            } catch (Exception e){
-                System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }, "Connection Receiver Thread");
-        receiver.start();
-
-        Thread sender = new Thread(() -> {
-            try {
-                TCPSender send = new TCPSender(this);
-
-                while(true){
-                    synchronized (queue) {
-                        while (queue.peek() == null) {
-                            queue.wait();
-                        }
-
-                        send.sendData(queue.poll());
-
-                        queue.notify();
-                    }
-                }
-            } catch (Exception e){
-                System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }, "Connection Sender Thread");
-        sender.start();
+            Thread receiverThread = new Thread(receiver, "Receiver Thread");
+            receiverThread.start();
+        } catch (Exception e){
+            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
+        }
     }
 
     public void sendData(byte[] b){
-        synchronized (queue) {
-            this.queue.add(b);
-            queue.notify();
-        }
+        this.sender.send(b);
     }
 
     public Socket getSocket(){

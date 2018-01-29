@@ -34,7 +34,7 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
-            this.tcpServer = new TCPServerThread(0);
+            new Thread(this.tcpServer = new TCPServerThread(0), "Messenger").start();
 
             // Register this node with the registry
             register(ip, port);
@@ -45,11 +45,10 @@ public class MessagingNode extends Node {
     }
 
     private void register(String RegistryIP, int RegistryPort) throws Exception {
-        try (
-                Socket registerSocket = new Socket(RegistryIP, RegistryPort)
-        ){
+        try {
+            Socket registerSocket = new Socket(RegistryIP, RegistryPort);
             TCPConnection conn = new TCPConnection(registerSocket);
-
+            conn.init();
             OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
                     InetAddress.getLocalHost().getAddress(),
                     this.tcpServer.getPort());
@@ -63,7 +62,8 @@ public class MessagingNode extends Node {
         }
     }
 
-    public void onEvent(TCPConnection conn, Event e){
+    public void onEvent(Socket socket, Event e) throws Exception {
+        TCPConnection conn = new TCPConnection(socket);
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;

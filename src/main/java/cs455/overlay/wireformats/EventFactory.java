@@ -4,6 +4,7 @@ import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPConnection;
 
 import java.net.Socket;
+import java.util.Arrays;
 
 public class EventFactory {
 
@@ -14,9 +15,9 @@ public class EventFactory {
         this.node = node;
     }
 
-    public void run(TCPConnection conn, byte[] b){
+    public void run(Socket socket, byte[] b){
         try {
-            node.onEvent(conn, getType(b));
+            node.onEvent(socket, getType(b));
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -24,6 +25,7 @@ public class EventFactory {
     }
 
     public Event getType(byte[] b) throws Exception {
+        System.out.println("Getting type from " + Arrays.toString(b));
         switch(b[0]){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration();

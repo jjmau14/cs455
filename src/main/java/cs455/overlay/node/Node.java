@@ -7,5 +7,5 @@ import java.net.Socket;
 
 public abstract class Node {
 
-    public abstract void onEvent(TCPConnection conn, Event e);
+    public abstract void onEvent(Socket socket, Event e) throws Exception;
 }

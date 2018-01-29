@@ -11,18 +11,24 @@ public class TCPServerThread implements Runnable {
 
     public TCPServerThread(int port) throws IOException {
         this.server = new ServerSocket(port);
-        System.out.println("Server running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
 
     }
 
+    @Override
     public void run() {
+        try {
+            System.out.println("Server running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
+        } catch (Exception e){
+            System.out.println("Error: " + e.getMessage());
+        }
         try {
             while(true){
                 Socket socket = server.accept();
                 TCPConnection conn = new TCPConnection(socket);
+                conn.init();
             }
         } catch (IOException ioe){
-            ;
+            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + ioe.getMessage());
         }
     }
 

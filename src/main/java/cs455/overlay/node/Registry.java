@@ -38,7 +38,8 @@ public class Registry extends Node{
         new EventFactory(this);
     }
 
-    public void onEvent(TCPConnection conn, Event e){
+    public void onEvent(Socket socket, Event e) throws Exception {
+        TCPConnection conn = new TCPConnection(socket);
         switch (e.getType()){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 int id = -1;
