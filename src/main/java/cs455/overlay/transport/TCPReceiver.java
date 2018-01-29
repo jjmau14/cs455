@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
 
-public class TCPReceiver implements AutoCloseable{
+public class TCPReceiver {
 
     private TCPConnection conn;
     private DataInputStream din;
@@ -44,8 +44,4 @@ public class TCPReceiver implements AutoCloseable{
 
     }
 
-    public void close() throws IOException {
-        if (!this.conn.getSocket().isClosed())
-            this.conn.getSocket().close();
-    }
 }

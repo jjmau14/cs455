@@ -17,7 +17,6 @@ public class Registry extends Node{
 
     private Hashtable<Integer, RegisterItem> registry;
     private RoutingTable[] manifests;
-    private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
 
@@ -32,10 +31,8 @@ public class Registry extends Node{
 
     public Registry(int port) throws Exception {
         cache = new TCPConnectionsCache();
-        sockets = new Hashtable<>();
         registry = new Hashtable<>();
         new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
-        System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + tcpServer.getPort() + "...");
 
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         new EventFactory(this);
