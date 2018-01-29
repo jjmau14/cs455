@@ -21,6 +21,7 @@ public class MessagingNode extends Node {
     private RoutingTable routingTable;
     private EventFactory eventFactory;
     private TCPConnectionsCache cache;
+    private TCPServerThread tcpServer;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -35,12 +36,10 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
+            this.tcpServer = new TCPServerThread(0);
 
             // Register this node with the registry
             register(ip, port);
-
-            // Accept all connections
-            new Thread(new TCPServerThread(0), "Messenger").start();
 
         } catch (Exception e) {
             throw e;
@@ -51,35 +50,15 @@ public class MessagingNode extends Node {
         try (
                 Socket registerSocket = new Socket(RegistryIP, RegistryPort)
         ){
-            registerSocket.setKeepAlive(true);
+            TCPConnection conn = new TCPConnection(registerSocket);
+
             OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
                     InetAddress.getLocalHost().getAddress(),
-                    server.getLocalPort());
+                    this.tcpServer.getPort());
 
             System.out.println("Node requesting registration: " + Arrays.toString(ONSR.pack()));
-            new TCPSender(registerSocket).sendData(ONSR.pack());
-            byte[] data = new TCPReceiver(registerSocket).read();
+            conn.sendData(ONSR.pack());
 
-            RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus();
-            RRRS.craft(data);
-
-            id = RRRS.getId();
-            System.out.println("ID: " + id + ". " + RRRS.getMessage());
-
-            byte[] data2 = new TCPReceiver(registerSocket).read();
-            System.out.println(Arrays.toString(data2));
-            RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest();
-            RSNM.craft(data2);
-            this.routingTable = RSNM.getRoutes();
-            for (int i = 0 ; i < routingTable.getTableSize() ; i++){
-                Socket s = new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort());
-                cache.addConnection(routingTable.getRoute(i).getGuid(), s);
-            }
-            System.out.println("Successfully configured overlay.");
-            cache.doForAll((Integer i) -> {
-                System.out.println(cache.getConnectionById(i).getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getPort());
-                return true;
-            });
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
             System.exit(1);
@@ -87,7 +66,35 @@ public class MessagingNode extends Node {
     }
 
     public void onEvent(TCPConnection conn, Event e){
+        switch(e.getType()){
+            case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
+                RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
 
+                this.id = RRRS.getId();
+                System.out.println("ID: " + id + ". " + RRRS.getMessage());
+
+            case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
+                RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
+
+                this.routingTable = RSNM.getRoutes();
+                try {
+                    setupOverlayConnections();
+                } catch (Exception err){
+                    System.out.println("Error creating overlay on node: " + err.getMessage());
+                }
+        }
+    }
+
+    private void setupOverlayConnections() throws Exception {
+        for (int i = 0 ; i < routingTable.getTableSize() ; i++){
+            TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
+            cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
+        }
+        System.out.println("Successfully configured overlay.");
+        cache.doForAll((Integer i) -> {
+            System.out.println(cache.getConnectionById(i).getSocket().getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getSocket().getPort());
+            return true;
+        });
     }
 
 }

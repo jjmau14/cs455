@@ -6,8 +6,11 @@ import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class TCPConnection {
@@ -18,6 +21,7 @@ public class TCPConnection {
     private Route routingData;
 
     public TCPConnection(Socket socket){
+        this.queue = new PriorityQueue<>();
         this.socket = socket;
         this.routingData = new Route(socket.getInetAddress().getAddress(), socket.getPort(), -1);
         this.id = -1;
@@ -43,9 +47,17 @@ public class TCPConnection {
                     TCPSender send = new TCPSender(this)
             ){
                 while(true){
-                    if (queue.peek() == null)
-                        wait();
-                    send.sendData(queue.poll());
+                    synchronized (queue) {
+                        while (queue.peek() == null) {
+                            System.out.println("waiting");
+                            wait();
+                        }
+
+                        System.out.println("OK:" + Arrays.toString(queue.peek()));
+                        send.sendData(queue.poll());
+
+                        queue.notify();
+                    }
                 }
             } catch (Exception e){
                 ;
@@ -55,7 +67,10 @@ public class TCPConnection {
     }
 
     public void sendData(byte[] b){
-        this.queue.add(b);
+        synchronized (queue) {
+            this.queue.add(b);
+            queue.notify();
+        }
     }
 
     public Socket getSocket(){

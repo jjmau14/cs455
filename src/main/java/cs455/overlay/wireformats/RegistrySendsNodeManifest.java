@@ -104,7 +104,7 @@ public class RegistrySendsNodeManifest extends Event{
         return routes;
     }
 
-    public byte getType() {
+    public int getType() {
         return type;
     }
 

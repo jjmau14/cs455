@@ -5,23 +5,21 @@ import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
-import cs455.overlay.transport.TCPConnection.TCPSender;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 
 public class Registry extends Node{
 
-    private ServerSocket server;
     private Hashtable<Integer, RegisterItem> registry;
     private RoutingTable[] manifests;
     private Hashtable<Integer, Socket> sockets;
     private TCPConnectionsCache cache;
+    private TCPServerThread tcpServer;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -35,10 +33,10 @@ public class Registry extends Node{
     public Registry(int port) throws Exception {
         cache = new TCPConnectionsCache();
         sockets = new Hashtable<>();
-        server = new ServerSocket(port);
-        System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + server.getLocalPort() + "...");
         registry = new Hashtable<>();
-        new Thread(new TCPServerThread(port), "Registry").start();
+        new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
+        System.out.println("Registry running on " + InetAddress.getLocalHost().getHostAddress() + ":" + tcpServer.getPort() + "...");
+
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         new EventFactory(this);
     }
