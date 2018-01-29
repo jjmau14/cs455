@@ -16,7 +16,7 @@ public class TCPServerThread implements Runnable {
         try {
             while(true){
                 Socket socket = server.accept();
-
+                socket.setKeepAlive(true);
                 TCPConnection conn = new TCPConnection(socket);
             }
         } catch (IOException ioe){

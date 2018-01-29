@@ -90,12 +90,12 @@ public class Registry extends Node{
     public void generateManifests(int size) throws Exception {
         this.manifests = new RoutingTable[registry.size()];
 
-        for (int i = 0 ; i < registry.size() ; i++){
+        for (int i = 0 ; i < registry.size() ; i++) {
 
             RoutingTable temp = new RoutingTable();
 
-            for (int j = 0 ; j < size ; j++){
-                int pow = (int)Math.pow(2, j);
+            for (int j = 0; j < size; j++) {
+                int pow = (int) Math.pow(2, j);
                 int index = pow + i;
 
                 if (index < registry.size()) {
@@ -109,14 +109,7 @@ public class Registry extends Node{
             }
             manifests[i] = temp;
         }
-        /*try {
-            for (int i = 0; i < this.sockets.size(); i++) {
-                TCPSender send = new TCPSender(this.sockets.get(i));
-                send.sendData(new RegistrySendsNodeManifest(this.manifests[i], this.getAllNodes()).pack());
-            }
-        }catch (Exception e){
-            System.out.println("error " + e.getMessage());
-        }*/
+
         this.cache.doForAll((Integer id) -> {
             try {
                 RoutingTable r = this.manifests[id];
@@ -127,6 +120,7 @@ public class Registry extends Node{
             }
             return true;
         });
+
         printManifests();
     }
 

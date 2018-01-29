@@ -28,6 +28,7 @@ public class OverlayNodeSendsRegistration extends Event{
         ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
         DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
+        dout.writeInt(10);
         dout.write(type);
         dout.write(length);
         dout.write(ip);
@@ -38,6 +39,7 @@ public class OverlayNodeSendsRegistration extends Event{
 
         baOutputStream.close();
         dout.close();
+        System.out.println(Arrays.toString(data));
         return data;
     }
 
