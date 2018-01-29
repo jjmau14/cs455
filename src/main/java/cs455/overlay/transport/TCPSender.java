@@ -3,7 +3,6 @@ package cs455.overlay.transport;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -30,6 +29,7 @@ public class TCPSender implements Runnable {
 
                 synchronized (queue) {
                     while (queue.peek() == null) {
+                        System.out.println("waiting");
                         queue.wait();
                     }
 
@@ -55,7 +55,9 @@ public class TCPSender implements Runnable {
     public void send(byte[] data) {
         synchronized (queue){
             this.queue.add(data);
-            queue.notify();
+            this.queue.notify();
+            System.out.println("Sending: " + Arrays.toString(queue.peek()));
+
         }
     }
 

@@ -6,7 +6,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
 
 public class TCPReceiver implements Runnable {
 
@@ -45,6 +44,7 @@ public class TCPReceiver implements Runnable {
                 ef.run(conn, data);
             }
         }
+        System.out.println("Socket closed.");
     }
 
 }
