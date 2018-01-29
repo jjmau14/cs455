@@ -11,8 +11,8 @@ public class TCPConnection {
 
     public TCPConnection(Socket socket) throws IOException {
         this.socket = socket;
-        sender = new TCPSender(socket);
-        receiver = new TCPReceiver(socket);
+        sender = new TCPSender(this);
+        receiver = new TCPReceiver(this);
     }
 
     public void init(){

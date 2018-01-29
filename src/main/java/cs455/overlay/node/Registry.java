@@ -39,9 +39,7 @@ public class Registry extends Node{
         new EventFactory(this);
     }
 
-    public void onEvent(Socket socket, Event e) throws Exception {
-        System.out.println(Arrays.toString(e.pack()));
-        TCPConnection conn = new TCPConnection(socket);
+    public void onEvent(TCPConnection conn, Event e) throws Exception {
         switch (e.getType()){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 int id = -1;
@@ -58,12 +56,12 @@ public class Registry extends Node{
                 }
 
                 RegistryReportsRegistrationStatus RRRS = new RegistryReportsRegistrationStatus(id, message);
-                System.out.println(Arrays.toString(RRRS.pack()));
                 try {
                     conn.sendData(RRRS.pack());
                 } catch (Exception err){
                     System.out.println(err);
                 }
+                break;
         }
 
     }

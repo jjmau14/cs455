@@ -16,9 +16,9 @@ public class EventFactory {
         this.eventFactory = this;
     }
 
-    public void run(Socket socket, byte[] b){
+    public void run(TCPConnection conn, byte[] b){
         try {
-            node.onEvent(socket, getType(b));
+            node.onEvent(conn, getType(b));
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();

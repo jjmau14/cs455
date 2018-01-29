@@ -10,11 +10,13 @@ import java.util.Arrays;
 
 public class TCPReceiver implements Runnable {
 
+    private TCPConnection conn;
     private Socket socket;
     private DataInputStream din;
 
-    public TCPReceiver(Socket socket) throws IOException {
-        this.socket = socket;
+    public TCPReceiver(TCPConnection conn) throws IOException {
+        this.socket = conn.getSocket();
+        this.conn = conn;
         this.din = new DataInputStream(this.socket.getInputStream());
     }
 
@@ -44,7 +46,7 @@ public class TCPReceiver implements Runnable {
             if (data != null) {
                 System.out.println("Received: " + Arrays.toString(data) + " from " + this.socket);
                 EventFactory ef = EventFactory.getInstance();
-                ef.run(socket, data);
+                ef.run(conn, data);
             }
         }
     }

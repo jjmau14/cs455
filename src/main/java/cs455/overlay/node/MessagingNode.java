@@ -62,15 +62,14 @@ public class MessagingNode extends Node {
         }
     }
 
-    public void onEvent(Socket socket, Event e) throws Exception {
-        TCPConnection conn = new TCPConnection(socket);
+    public void onEvent(TCPConnection conn, Event e) throws Exception {
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
 
                 this.id = RRRS.getId();
                 System.out.println("ID: " + id + ". " + RRRS.getMessage());
-
+                break;
             case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
                 RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
 
@@ -80,6 +79,7 @@ public class MessagingNode extends Node {
                 } catch (Exception err){
                     System.out.println("Error creating overlay on node: " + err.getMessage());
                 }
+                break;
         }
     }
 

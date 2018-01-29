@@ -13,10 +13,12 @@ public class TCPSender implements Runnable {
     private Socket socket;
     private DataOutputStream dout;
     private static Queue<byte[]> queue;
+    private TCPConnection conn;
 
-    public TCPSender(Socket socket) throws IOException {
+    public TCPSender(TCPConnection conn) throws IOException {
+        this.conn = conn;
         this.queue = new PriorityQueue<>();
-        this.socket = socket;
+        this.socket = conn.getSocket();
         this.dout = new DataOutputStream(this.socket.getOutputStream());
     }
 
@@ -32,7 +34,7 @@ public class TCPSender implements Runnable {
                     }
 
                     byte[] data = queue.poll();
-                    System.out.println(Arrays.toString(data));
+                    System.out.println("Popped from queue: " + Arrays.toString(data));
                     queue.notify();
 
                     try {
