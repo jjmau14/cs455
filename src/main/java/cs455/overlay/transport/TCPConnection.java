@@ -65,7 +65,4 @@ public class TCPConnection {
         return this.socket;
     }
 
-    public Queue<byte[]> getQueue() {
-        return queue;
-    }
 }

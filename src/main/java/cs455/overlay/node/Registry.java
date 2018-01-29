@@ -50,6 +50,7 @@ public class Registry extends Node{
                     message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
                     this.cache.addConnection(id, conn);
                 } catch (Exception err) {
+                    System.out.println(err);
                     message = err.getMessage();
                 }
 
@@ -57,7 +58,7 @@ public class Registry extends Node{
                 try {
                     conn.sendData(RRRS.pack());
                 } catch (Exception err){
-                    ;
+                    System.out.println(err);
                 }
         }
 
