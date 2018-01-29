@@ -12,7 +12,7 @@ public class TCPSender implements Runnable {
 
     private Socket socket;
     private DataOutputStream dout;
-    private static Queue<byte[]> queue;
+    private Queue<byte[]> queue;
     private TCPConnection conn;
 
     public TCPSender(TCPConnection conn) throws IOException {

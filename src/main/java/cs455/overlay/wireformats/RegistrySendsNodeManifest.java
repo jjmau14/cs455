@@ -104,6 +104,7 @@ public class RegistrySendsNodeManifest extends Event{
         return routes;
     }
 
+    @Override
     public int getType() {
         return type;
     }
