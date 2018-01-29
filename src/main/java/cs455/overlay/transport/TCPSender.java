@@ -24,7 +24,7 @@ public class TCPSender implements Runnable {
 
     @Override
     public void run(){
-        System.out.println("Sender Running");
+        System.out.println("Sender ready to send data from me (" + socket.getInetAddress() + ":" + socket.getLocalPort() + ") to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
         try {
             while(true) {
 
@@ -34,12 +34,10 @@ public class TCPSender implements Runnable {
                     }
 
                     byte[] data = queue.poll();
-                    System.out.println("Popped from queue: " + Arrays.toString(data));
                     queue.notify();
 
                     try {
                         int dataLength = data.length;
-                        System.out.println(dataLength);
                         dout.writeInt(dataLength);
                         dout.write(data, 0, dataLength);
                         dout.flush();
@@ -55,7 +53,6 @@ public class TCPSender implements Runnable {
     }
 
     public void send(byte[] data) {
-        System.out.println("Sending: " + Arrays.toString(data));
         synchronized (queue){
             this.queue.add(data);
             queue.notify();

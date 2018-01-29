@@ -53,7 +53,6 @@ public class MessagingNode extends Node {
                     InetAddress.getLocalHost().getAddress(),
                     this.tcpServer.getPort());
 
-            System.out.println("Node requesting registration: " + Arrays.toString(ONSR.pack()));
             conn.sendData(ONSR.pack());
 
         } catch (IOException ioe){

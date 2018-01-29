@@ -26,7 +26,6 @@ public class EventFactory {
     }
 
     public Event getType(byte[] b) throws Exception {
-        System.out.println("Getting type from " + Arrays.toString(b));
         switch(b[0]){
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration();

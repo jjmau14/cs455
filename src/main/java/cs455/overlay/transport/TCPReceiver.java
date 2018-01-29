@@ -22,17 +22,14 @@ public class TCPReceiver implements Runnable {
 
     @Override
     public void run(){
-        System.out.println("Receiver running.");
+        System.out.println("Receiver listening for data from " + socket.getInetAddress() + ":" + socket.getPort() + " to me(" + socket.getLocalAddress() + ":" + socket.getLocalPort() + ")");
         int dataLength;
         byte[] data = null;
         while(socket != null) {
             try {
                 dataLength = din.readInt();
-                System.out.println("Data length: " + dataLength);
-                System.out.println(dataLength);
                 data = new byte[dataLength];
                 din.readFully(data, 0, dataLength);
-                System.out.println(Arrays.toString(data));
             } catch (SocketException se) {
                 System.out.println("[" + Thread.currentThread().getName() + "] SocketException: " + se.getMessage());
                 break;
@@ -44,7 +41,6 @@ public class TCPReceiver implements Runnable {
                 break;
             }
             if (data != null) {
-                System.out.println("Received: " + Arrays.toString(data) + " from " + this.socket);
                 EventFactory ef = EventFactory.getInstance();
                 ef.run(conn, data);
             }
