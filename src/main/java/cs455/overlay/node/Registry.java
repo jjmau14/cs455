@@ -132,9 +132,11 @@ public class Registry extends Node{
 
     public void printManifests(){
         int counter = 0;
-        for (RoutingTable r : manifests){
-            System.out.println("Node " + counter++);
-            System.out.println(r.toString());
+        synchronized (System.out) {
+            for (RoutingTable r : manifests) {
+                System.out.println("Node " + counter++);
+                System.out.println(r.toString());
+            }
         }
     }
 
