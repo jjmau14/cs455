@@ -23,13 +23,12 @@ public class TCPSender implements Runnable {
 
     @Override
     public void run(){
-        System.out.println("Sender ready to send data from me (" + socket.getInetAddress() + ":" + socket.getLocalPort() + ") to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
+        System.out.println("Sender ready to send data from me(" + socket.getInetAddress() + ":" + socket.getLocalPort() + ") to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
         try {
             while(true) {
 
                 synchronized (queue) {
                     while (queue.peek() == null) {
-                        System.out.println("waiting");
                         queue.wait();
                     }
 

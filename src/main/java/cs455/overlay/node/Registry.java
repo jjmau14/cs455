@@ -67,11 +67,11 @@ public class Registry extends Node{
     }
 
     /**
-     * @author: Josh Mau | 1/21/2018
-     * Synchronized register so two nodes will not have the same ID if two
-     * nodes request registration at the same time.
-     * Must setID as current size first (since 0 based), then add the item
-     * to the registry so the size will be incremented next time.
+     * @method: Synchronized register:
+     *  two nodes will not have the same ID if two
+     *  nodes request registration at the same time.
+     *  Must setID as current size first (since 0 based), then add the item
+     *  to the registry so the size will be incremented next time.
      * */
     private synchronized int register(RegisterItem ri) throws Exception {
         if (!registry.containsValue(ri)){

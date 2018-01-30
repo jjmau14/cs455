@@ -67,7 +67,6 @@ public class MessagingNode extends Node {
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
 
                 this.id = RRRS.getId();
-                System.out.println("ID: " + id + ". " + RRRS.getMessage());
                 break;
             case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
                 RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
