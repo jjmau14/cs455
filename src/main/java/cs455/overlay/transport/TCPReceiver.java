@@ -45,6 +45,8 @@ public class TCPReceiver implements Runnable {
             }
         }
         System.out.println("Socket closed.");
+        if (conn.getExitOnClose())
+            System.exit(1);
     }
 
 }

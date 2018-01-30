@@ -8,6 +8,7 @@ public class TCPConnection {
     private Socket socket = null;
     private TCPReceiver receiver;
     private TCPSender sender;
+    private boolean EXIT_ON_CLOSE = false;
 
     public TCPConnection(Socket socket) throws IOException {
         this.socket = socket;
@@ -33,6 +34,14 @@ public class TCPConnection {
 
     public Socket getSocket(){
         return this.socket;
+    }
+
+    public void exitOnClose(){
+        this.EXIT_ON_CLOSE = true;
+    }
+
+    public boolean getExitOnClose(){
+        return this.EXIT_ON_CLOSE;
     }
 
 }
