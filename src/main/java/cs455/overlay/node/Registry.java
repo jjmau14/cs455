@@ -9,6 +9,8 @@ import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
+
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class Registry extends Node{
@@ -51,6 +53,7 @@ public class Registry extends Node{
                 try {
                     id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
                     message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
+                    conn.notifyOnClose();
                     this.cache.addConnection(id, conn);
                 } catch (Exception err) {
                     System.out.println(err);
@@ -70,6 +73,11 @@ public class Registry extends Node{
                     this.registry.get(NROSS.getStatusOrId()).setReady();
                     System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
                 }
+                break;
+            case 100:
+                ReportNodeCrashToRegistry RNCTR = (ReportNodeCrashToRegistry)e;
+                System.out.println(Arrays.toString(RNCTR.getErr()));
+                break;
         }
 
     }

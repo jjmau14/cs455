@@ -71,6 +71,9 @@ public class EventFactory {
                 OverlayNodeReportsTrafficSummary ONTS = new OverlayNodeReportsTrafficSummary();
                 ONTS.craft(b);
                 return ONTS;
+            case 100:
+                ReportNodeCrashToRegistry RNCTR = new ReportNodeCrashToRegistry(b);
+                return RNCTR;
             default:
                 throw new Exception("Unrecognized wireformat.");
         }

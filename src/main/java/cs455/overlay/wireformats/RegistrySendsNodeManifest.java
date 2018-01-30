@@ -3,8 +3,6 @@ package cs455.overlay.wireformats;
 import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class RegistrySendsNodeManifest extends Event{
 

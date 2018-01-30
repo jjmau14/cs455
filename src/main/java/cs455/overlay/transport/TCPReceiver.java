@@ -1,6 +1,7 @@
 package cs455.overlay.transport;
 
 import cs455.overlay.wireformats.EventFactory;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -51,6 +52,19 @@ public class TCPReceiver implements Runnable {
         if (conn.getExitOnClose()) {
             System.out.println("Connection with the registry failed. System exiting...");
             System.exit(1);
+        }
+        if (conn.getNotifyOnClose()){
+            EventFactory ef = EventFactory.getInstance();
+            byte[] errData = new byte[1];
+            errData[0] = 100;
+            errData = ArrayUtils.addAll(errData, conn.getSocket().getInetAddress().getAddress());
+            byte[] port = new byte[4];
+            port[0] = (byte)(conn.getSocket().getPort() >> 24);
+            port[1] = (byte)(conn.getSocket().getPort() >> 16);
+            port[2] = (byte)(conn.getSocket().getPort() >> 8);
+            port[3] = (byte)(conn.getSocket().getPort());
+            errData = ArrayUtils.addAll(errData, port);
+            ef.run(conn, errData);
         }
     }
 
