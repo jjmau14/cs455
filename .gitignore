@@ -1,0 +1,12 @@
+# IntelliJ generated files #
+.idea/
+*.iml
+
+# Maven generated files #
+**/target/
+**/out/
+
+# Packages #
+*.tar
+*.class
+*.zip

@@ -31,6 +31,7 @@ public class TCPReceiver implements Runnable {
                 din.readFully(data, 0, dataLength);
             } catch (SocketException se) {
                 System.out.println("[" + Thread.currentThread().getName() + "] SocketException: " + se.getMessage());
+                se.printStackTrace();
                 break;
             } catch (IOException ioe) {
                 System.out.println("[" + Thread.currentThread().getName() + "] IOException: " + ioe.getMessage());
@@ -38,6 +39,7 @@ public class TCPReceiver implements Runnable {
                 break;
             } catch (Exception e) {
                 System.out.println("[" + Thread.currentThread().getName() + "] Exception: " + e.getMessage());
+                e.printStackTrace();
                 break;
             }
             if (data != null) {
