@@ -34,6 +34,7 @@ public class TCPReceiver implements Runnable {
                 break;
             } catch (IOException ioe) {
                 System.out.println("[" + Thread.currentThread().getName() + "] IOException: " + ioe.getMessage());
+                ioe.printStackTrace();
                 break;
             } catch (Exception e) {
                 System.out.println("[" + Thread.currentThread().getName() + "] Exception: " + e.getMessage());
@@ -45,8 +46,10 @@ public class TCPReceiver implements Runnable {
             }
         }
         System.out.println("Socket closed.");
-        if (conn.getExitOnClose())
+        if (conn.getExitOnClose()) {
+            System.out.println("Connection with the registry failed. System exiting...");
             System.exit(1);
+        }
     }
 
 }
