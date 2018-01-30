@@ -126,8 +126,6 @@ public class Registry extends Node{
             }
             return true;
         });
-
-        printManifests();
     }
 
     public void printManifests(){

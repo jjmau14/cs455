@@ -36,6 +36,14 @@ public class CommandParser {
                         break;
 
                     /**
+                     * @Case: list-routing-tables
+                     *  Lists routing tables for each node in the overlay
+                     * */
+                    case "list-routing-tables":
+                        registry.printManifests();
+                        break;
+
+                    /**
                      * @Case: setup-overlay
                      * Takes one parameter argument that is the routing table size. This will determine
                      * the number of other nodes in each node's routing table.
