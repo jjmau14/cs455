@@ -8,4 +8,5 @@ import java.net.Socket;
 public abstract class Node {
 
     public abstract void onEvent(TCPConnection conn, Event e) throws Exception;
+
 }

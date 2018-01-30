@@ -62,6 +62,9 @@ public class Registry extends Node{
                     System.out.println(err);
                 }
                 break;
+            case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
+                NodeReportsOverlaySetupStatus NROSS = (NodeReportsOverlaySetupStatus)e;
+                System.out.println(NROSS.getStatusOrId() + ":" + NROSS.getMessage());
         }
 
     }

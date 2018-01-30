@@ -20,6 +20,7 @@ public class MessagingNode extends Node {
     private EventFactory eventFactory;
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
+    private int[] nodes;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -65,15 +66,18 @@ public class MessagingNode extends Node {
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
-
+                System.out.println(RRRS.getMessage());
                 this.id = RRRS.getId();
                 break;
             case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
                 RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
 
                 this.routingTable = RSNM.getRoutes();
+                this.nodes = RSNM.getNodes();
                 try {
                     setupOverlayConnections();
+                    NodeReportsOverlaySetupStatus NROSS = new NodeReportsOverlaySetupStatus(this.id, "Overlay connections have been initialized.");
+                    conn.sendData(NROSS.pack());
                 } catch (Exception err){
                     System.out.println("Error creating overlay on node: " + err.getMessage());
                 }
