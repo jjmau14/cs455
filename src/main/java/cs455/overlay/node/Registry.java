@@ -64,7 +64,10 @@ public class Registry extends Node{
                 break;
             case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
                 NodeReportsOverlaySetupStatus NROSS = (NodeReportsOverlaySetupStatus)e;
-                System.out.println(NROSS.getStatusOrId() + ":" + NROSS.getMessage());
+                if (NROSS.getStatusOrId() != -1) {
+                    this.registry.get(NROSS.getStatusOrId()).setReady();
+                    System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
+                }
         }
 
     }

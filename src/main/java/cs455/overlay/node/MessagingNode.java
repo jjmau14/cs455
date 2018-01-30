@@ -90,11 +90,10 @@ public class MessagingNode extends Node {
             TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
             cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
         }
-        System.out.println("Successfully configured overlay.");
-        cache.doForAll((Integer i) -> {
+        /*cache.doForAll((Integer i) -> {
             System.out.println(cache.getConnectionById(i).getSocket().getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getSocket().getPort());
             return true;
-        });
+        });*/
     }
 
 }

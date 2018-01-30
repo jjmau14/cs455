@@ -55,7 +55,7 @@ public class TCPSender implements Runnable {
         synchronized (queue){
             this.queue.add(data);
             this.queue.notify();
-            System.out.println("Sending: " + Arrays.toString(queue.peek()));
+            //System.out.println("Sending: " + Arrays.toString(queue.peek()));
 
         }
     }

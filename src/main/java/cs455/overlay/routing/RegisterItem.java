@@ -5,6 +5,7 @@ public class RegisterItem {
     private byte[] ip;
     private int port;
     private int id;
+    private boolean overlayReady = false;
 
     public RegisterItem(byte[] ip, int port){
         this.ip = ip;
@@ -22,6 +23,10 @@ public class RegisterItem {
     public int getId(){ return id; }
 
     public void setId(int id){ this.id = id; }
+
+    public void setReady(){
+        this.overlayReady = true;
+    }
 
     @Override
     public boolean equals(Object o){
