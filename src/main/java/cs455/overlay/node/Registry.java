@@ -17,6 +17,7 @@ public class Registry extends Node{
     private RoutingTable[] manifests;
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
+    private int port;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -24,14 +25,18 @@ public class Registry extends Node{
             System.exit(1);
         }
         Registry registry = new Registry(Integer.parseInt(args[0]));
+        registry.init();
 
     }
 
     public Registry(int port) throws Exception {
-        cache = new TCPConnectionsCache();
-        registry = new Hashtable<>();
-        new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
+        this.cache = new TCPConnectionsCache();
+        this.registry = new Hashtable<>();
+        this.port = port;
+    }
 
+    public void init() throws Exception {
+        new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         new EventFactory(this);
     }
@@ -91,47 +96,55 @@ public class Registry extends Node{
     }
 
     public void generateManifests(int size) throws Exception {
-        this.manifests = new RoutingTable[registry.size()];
+        if (this.registry.size() != 0) {
+            this.manifests = new RoutingTable[registry.size()];
 
-        for (int i = 0 ; i < registry.size() ; i++) {
+            for (int i = 0; i < registry.size(); i++) {
 
-            RoutingTable temp = new RoutingTable();
+                RoutingTable temp = new RoutingTable();
 
-            for (int j = 0; j < size; j++) {
-                int pow = (int) Math.pow(2, j);
-                int index = pow + i;
+                for (int j = 0; j < size; j++) {
+                    int pow = (int) Math.pow(2, j);
+                    int index = pow + i;
 
-                if (index < registry.size()) {
-                    RegisterItem ri = registry.get(index);
-                    temp.addRoute(new Route(ri.getIp(), ri.getPort(), ri.getId()));
-                } else {
-                    index -= registry.size();
-                    RegisterItem ri = registry.get(index);
-                    temp.addRoute(new Route(ri.getIp(), ri.getPort(), ri.getId()));
+                    if (index < registry.size()) {
+                        RegisterItem ri = registry.get(index);
+                        temp.addRoute(new Route(ri.getIp(), ri.getPort(), ri.getId()));
+                    } else {
+                        index -= registry.size();
+                        RegisterItem ri = registry.get(index);
+                        temp.addRoute(new Route(ri.getIp(), ri.getPort(), ri.getId()));
+                    }
                 }
+                manifests[i] = temp;
             }
-            manifests[i] = temp;
-        }
 
-        this.cache.doForAll((Integer id) -> {
-            try {
-                RoutingTable r = this.manifests[id];
-                RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
-                this.cache.getConnectionById(id).sendData(RSNM.pack());
-            } catch (Exception e){
-                ;
-            }
-            return true;
-        });
+            this.cache.doForAll((Integer id) -> {
+                try {
+                    RoutingTable r = this.manifests[id];
+                    RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
+                    this.cache.getConnectionById(id).sendData(RSNM.pack());
+                } catch (Exception e) {
+                    ;
+                }
+                return true;
+            });
+        } else {
+            System.out.println("No nodes have been registered with the system.");
+        }
     }
 
     public void printManifests(){
-        int counter = 0;
-        synchronized (System.out) {
-            for (RoutingTable r : manifests) {
-                System.out.println("Node " + counter++);
-                System.out.println(r.toString());
+        if (this.manifests != null) {
+            int counter = 0;
+            synchronized (System.out) {
+                for (RoutingTable r : manifests) {
+                    System.out.println("Node " + counter++);
+                    System.out.println(r.toString());
+                }
             }
+        } else {
+            System.out.println("No overlay has been configured. Use command \"setup-overlay [manifest size]\" to configure an overlay.");
         }
     }
 
