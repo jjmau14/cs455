@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class NodeReportsOverlaySetupStatus extends Event {
 
-    private int type = Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS;
+    private byte type = Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS;
     private int statusOrId;
     private String message;
 
@@ -18,7 +18,6 @@ public class NodeReportsOverlaySetupStatus extends Event {
     public NodeReportsOverlaySetupStatus(){
         // Nothing
     }
-
 
     @Override
     public byte[] pack() throws IOException {

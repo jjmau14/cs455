@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public abstract class Event {
 
-    private int type;
+    private byte type;
 
     public abstract byte[] pack() throws IOException;
     public abstract void craft(byte[] b);
