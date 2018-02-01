@@ -176,4 +176,15 @@ public class Registry extends Node{
         }
         return nodes;
     }
+
+    public void initDataStream(int numDataPackets){
+        this.cache.doForAll((Integer i) -> {
+            try {
+                this.cache.getConnectionById(i).sendData(new RegistryRequestsTaskInitiate(numDataPackets).pack());
+            } catch (Exception e){
+                ;
+            }
+            return true;
+        });
+    }
 }

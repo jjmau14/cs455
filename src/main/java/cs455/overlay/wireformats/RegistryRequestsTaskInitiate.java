@@ -29,13 +29,13 @@ public class RegistryRequestsTaskInitiate extends Event {
     @Override
     public void craft(byte[] b) {
         type = b[0];
-        numDataPackets = b[1];
+        numDataPackets = (b[1] & 0xFF);
         numDataPackets <<= 8;
-        numDataPackets |= b[2];
+        numDataPackets |= (b[2] & 0xFF);
         numDataPackets <<= 8;
-        numDataPackets |= b[3];
+        numDataPackets |= (b[3] & 0xFF);
         numDataPackets <<= 8;
-        numDataPackets |= b[4];
+        numDataPackets |= (b[4] & 0xFF);
     }
 
     @Override

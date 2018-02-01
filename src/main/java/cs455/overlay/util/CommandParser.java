@@ -16,6 +16,7 @@ public class CommandParser {
             String cmd = scnr.nextLine();
 
             try {
+                String[] cmdArray;
                 switch (cmd.toLowerCase().split(" ")[0]) {
                     /**
                      * @Case: help
@@ -43,13 +44,22 @@ public class CommandParser {
                         registry.printManifests();
                         break;
 
+                    case "start":
+                        cmdArray = cmd.split(" ");
+                        if (cmdArray.length != 2) {
+                            System.out.println("USAGE: start [number of data packets]");
+                            break;
+                        }
+                        registry.initDataStream(Integer.parseInt(cmdArray[1]));
+                        break;
+
                     /**
                      * @Case: setup-overlay
                      * Takes one parameter argument that is the routing table size. This will determine
                      * the number of other nodes in each node's routing table.
                      * */
                     case "setup-overlay":
-                        String[] cmdArray = cmd.split(" ");
+                        cmdArray = cmd.split(" ");
                         if (cmdArray.length != 2) {
                             System.out.println("USAGE: setup-overlay [routing table size]");
                             break;

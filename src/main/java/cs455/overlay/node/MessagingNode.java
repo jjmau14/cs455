@@ -9,6 +9,7 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Random;
 
 public class MessagingNode extends Node {
 
@@ -81,6 +82,9 @@ public class MessagingNode extends Node {
                     System.out.println("Error creating overlay on node: " + err.getMessage());
                 }
                 break;
+            case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
+                RegistryRequestsTaskInitiate RRTI = (RegistryRequestsTaskInitiate)e;
+                initDataStream(RRTI.getNumDataPackets());
         }
     }
 
@@ -93,6 +97,18 @@ public class MessagingNode extends Node {
             System.out.println(cache.getConnectionById(i).getSocket().getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getSocket().getPort());
             return true;
         });*/
+    }
+
+    private void initDataStream(int numDataPackets){
+        Random r = new Random();
+        int nodeId = 0;
+        OverlayNodeSendsData ONSD;
+        for (int i = 0 ; i < numDataPackets ; i++){
+            while ((nodeId = r.nextInt() % this.nodes.length) == this.id){
+                ;
+            }
+            ONSD = new OverlayNodeSendsData(1);
+        }
     }
 
 }
