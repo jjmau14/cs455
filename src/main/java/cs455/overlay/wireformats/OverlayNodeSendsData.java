@@ -1,6 +1,8 @@
 package cs455.overlay.wireformats;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class OverlayNodeSendsData extends Event {
 
@@ -15,28 +17,125 @@ public class OverlayNodeSendsData extends Event {
         this.destinationId = destinationId;
         this.sourceId = sourceId;
         this.payload = payload;
-        this.hopCount = 0;
+        this.hopCount = 3;
         this.trace = trace;
+    }
+
+    public OverlayNodeSendsData(){
+        // nothing
     }
 
     @Override
     public byte[] pack() throws IOException {
-        return new byte[0];
+        byte[] data = new byte[1+4+4+4+4+(4*trace.length)];
+        int index = 0;
+        data[index++] = this.type;
+        data[index++] = (byte)(this.destinationId >> 24);
+        data[index++] = (byte)(this.destinationId >> 16);
+        data[index++] = (byte)(this.destinationId >> 8);
+        data[index++] = (byte)(this.destinationId);
+        data[index++] = (byte)(this.sourceId >> 24);
+        data[index++] = (byte)(this.sourceId >> 16);
+        data[index++] = (byte)(this.sourceId >> 8);
+        data[index++] = (byte)(this.sourceId);
+        data[index++] = (byte)(this.payload >> 24);
+        data[index++] = (byte)(this.payload >> 16);
+        data[index++] = (byte)(this.payload >> 8);
+        data[index++] = (byte)(this.payload);
+        data[index++] = (byte)(this.hopCount >> 24);
+        data[index++] = (byte)(this.hopCount >> 16);
+        data[index++] = (byte)(this.hopCount >> 8);
+        data[index++] = (byte)(this.hopCount);
+
+        for (int i = 0 ; i < this.trace.length ; i++){
+            data[index++] = (byte)(this.trace[i] >> 24);
+            data[index++] = (byte)(this.trace[i] >> 16);
+            data[index++] = (byte)(this.trace[i] >> 8);
+            data[index++] = (byte)(this.trace[i]);
+        }
+        return data;
     }
 
     @Override
     public void craft(byte[] b) {
+        int index = 0;
+        this.type = b[index++];
 
+        this.destinationId = b[index++];
+        this.destinationId <<= 8;
+        this.destinationId |= b[index++];
+        this.destinationId <<= 8;
+        this.destinationId |= b[index++];
+        this.destinationId <<= 8;
+        this.destinationId |= b[index++];
+
+        this.sourceId = b[index++];
+        this.sourceId <<= 8;
+        this.sourceId |= b[index++];
+        this.sourceId <<= 8;
+        this.sourceId |= b[index++];
+        this.sourceId <<= 8;
+        this.sourceId |= b[index++];
+
+        this.payload = (b[index++] & 0xFF);
+        this.payload <<= 8;
+        this.payload |= (b[index++] & 0xFF);
+        this.payload <<= 8;
+        this.payload |= (b[index++] & 0xFF);
+        this.payload <<= 8;
+        this.payload |= (b[index++] & 0xFF);
+
+        this.hopCount = b[index++];
+        this.hopCount <<= 8;
+        this.hopCount |= b[index++];
+        this.hopCount <<= 8;
+        this.hopCount |= b[index++];
+        this.hopCount <<= 8;
+        this.hopCount |= b[index++];
+
+        this.trace = new int[hopCount];
+        for (int i = 0 ; i < hopCount ; i++){
+            int temp = b[index++];
+            temp <<= 8;
+            temp |= b[index++];
+            temp <<= 8;
+            temp |= b[index++];
+            temp <<= 8;
+            temp |= b[index++];
+            this.trace[i] = temp;
+        }
     }
 
     @Override
     public int getType(){
         return this.type;
     }
-
+    public static int getDestinationId(byte[] b){
+        int id = b[1];
+        id <<= 8;
+        id |= b[2];
+        id <<= 8;
+        id |= b[3];
+        id <<= 8;
+        id |= b[4];
+        return id;
+    }
     public int getDestinationId() { return this.destinationId; }
     public int getHopCount() { return hopCount; }
     public int getPayload() { return payload; }
     public int getSourceId() { return sourceId; }
     public int[] getTrace() { return trace; }
+
+    public static void main(String[] args) throws Exception {
+        OverlayNodeSendsData ONSD = new OverlayNodeSendsData(1, 2, 0, new int[]{3, 4, 5});
+        byte[] data = ONSD.pack();
+        System.out.println(Arrays.toString(data));
+        OverlayNodeSendsData ONSD2 = new OverlayNodeSendsData();
+        ONSD2.craft(data);
+        System.out.println(ONSD2.destinationId);
+        System.out.println(ONSD2.sourceId);
+        System.out.println(ONSD2.payload);
+        System.out.println(Arrays.toString(ONSD2.getTrace()));
+        System.out.println(OverlayNodeSendsData.getDestinationId(data));
+    }
 }
