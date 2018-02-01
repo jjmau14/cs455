@@ -8,9 +8,7 @@ import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class MessagingNode extends Node {
 
