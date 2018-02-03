@@ -66,6 +66,7 @@ public class MessagingNode extends Node {
     }
 
     public void onEvent(TCPConnection conn, Event e) throws Exception {
+        System.out.println(e.getType() == Protocol.OVERLAY_NODE_SENDS_DATA);
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
@@ -93,7 +94,7 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                System.out.println("Received " + ONSD.getPayload());
+                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId());
                 if (ONSD.getDestinationId() == this.id){
                     synchronized (this.dataTotal){
                         this.dataTotal += ONSD.getPayload();
@@ -105,6 +106,7 @@ public class MessagingNode extends Node {
                     ONSD.addTrace(this.id);
                     this.cache.getConnectionById(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
+                break;
         }
     }
 
@@ -115,7 +117,7 @@ public class MessagingNode extends Node {
         }
     }
 
-    private void initDataStream(int numDataPackets){
+    private void initDataStream(int numDataPackets) {
         Random randomId = new Random();
         Random randomInt = new Random();
         int nodeId;
@@ -123,7 +125,7 @@ public class MessagingNode extends Node {
         for (int i = 0 ; i < numDataPackets ; i++){
             while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
             int payload = randomInt.nextInt() - 2147483647 - 1;
-            System.out.println(this.id + " sending " + payload + " to " + nodeId);
+            //System.out.println(this.id + " sending " + payload + " to " + nodeId);
             ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
             TCPConnection conn = this.cache.getNearestId(nodeId);
             try {
@@ -136,6 +138,10 @@ public class MessagingNode extends Node {
                 e.printStackTrace();
             }
         }
+        try {
+            Thread.sleep(1000);
+        }catch(Exception e){}
+        System.out.println("Total Receiver: " + this.packetsReceived);
     }
 
 }

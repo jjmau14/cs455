@@ -36,7 +36,10 @@ public class TCPConnectionsCache {
         int currentMax = -1;
         for (Map.Entry<Integer, TCPConnection> entry : connections.entrySet()){
             int val = entry.getKey().intValue();
-            if (val <= id){
+            if (val == id){
+                return this.connections.get(val);
+            }
+            if (val < id){
                 currentMin = val;
             }
             if (val > currentMax) {

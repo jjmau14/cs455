@@ -32,25 +32,26 @@ public class TCPSender implements Runnable {
         System.out.println("Sender ready to send data from me(" + socket.getInetAddress() + ":" + socket.getLocalPort() + ") to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
         try {
             while(true) {
+                byte[] data;
 
                 synchronized (queue) {
                     while (queue.peek() == null) {
                         queue.wait();
                     }
 
-                    byte[] data = queue.poll();
+                    data = queue.poll();
+                    System.out.println(Arrays.toString(data));
                     queue.notify();
-
-                    try {
-                        int dataLength = data.length;
-                        dout.writeInt(dataLength);
-                        dout.write(data, 0, dataLength);
-                        dout.flush();
-                    } catch (Exception e) {
-                        System.out.println("[" + Thread.currentThread().getName() + "] Error sending data: " + e.getMessage());
-                    }
-
                 }
+                try {
+                    int dataLength = data.length;
+                    dout.writeInt(dataLength);
+                    dout.write(data, 0, dataLength);
+                    dout.flush();
+                } catch (Exception e) {
+                    System.out.println("[" + Thread.currentThread().getName() + "] Error sending data: " + e.getMessage());
+                }
+
             }
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
@@ -61,7 +62,7 @@ public class TCPSender implements Runnable {
         synchronized (queue){
             this.queue.add(data);
             this.queue.notify();
-            //System.out.println("Sending: " + Arrays.toString(queue.peek()));
+            System.out.println("Sending: " + Arrays.toString(queue.peek()));
 
         }
     }
