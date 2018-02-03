@@ -31,4 +31,21 @@ public class TCPConnectionsCache {
         }
     }
 
+    public TCPConnection getNearestId(int id){
+        int currentMin = -1;
+        int currentMax = -1;
+        for (Map.Entry<Integer, TCPConnection> entry : connections.entrySet()){
+            int val = entry.getKey().intValue();
+            if (val <= id){
+                currentMin = val;
+            }
+            if (val > currentMax) {
+                currentMax = val;
+            }
+        }
+        if (currentMin == -1)
+            return this.connections.get(currentMax);
+        return this.connections.get(currentMin);
+    }
+
 }

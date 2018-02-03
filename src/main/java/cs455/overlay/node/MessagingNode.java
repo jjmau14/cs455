@@ -20,6 +20,9 @@ public class MessagingNode extends Node {
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int[] nodes;
+    private Long dataTotal = 0l;
+    private Integer packetsReceived = 0;
+    private Integer packetsSent = 0;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -84,7 +87,24 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
                 RegistryRequestsTaskInitiate RRTI = (RegistryRequestsTaskInitiate)e;
-                initDataStream(RRTI.getNumDataPackets());
+                new Thread(() -> {
+                    initDataStream(RRTI.getNumDataPackets());
+                }).start();
+                break;
+            case Protocol.OVERLAY_NODE_SENDS_DATA:
+                OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
+                System.out.println("Received " + ONSD.getPayload());
+                if (ONSD.getDestinationId() == this.id){
+                    synchronized (this.dataTotal){
+                        this.dataTotal += ONSD.getPayload();
+                    }
+                    synchronized (this.packetsReceived){
+                        this.packetsReceived += 1;
+                    }
+                } else {
+                    ONSD.addTrace(this.id);
+                    this.cache.getConnectionById(ONSD.getDestinationId()).sendData(ONSD.pack());
+                }
         }
     }
 
@@ -93,21 +113,28 @@ public class MessagingNode extends Node {
             TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
             cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
         }
-        /*cache.doForAll((Integer i) -> {
-            System.out.println(cache.getConnectionById(i).getSocket().getInetAddress().getHostAddress() + ":" + cache.getConnectionById(i).getSocket().getPort());
-            return true;
-        });*/
     }
 
     private void initDataStream(int numDataPackets){
-        Random r = new Random();
-        int nodeId = 0;
+        Random randomId = new Random();
+        Random randomInt = new Random();
+        int nodeId;
         OverlayNodeSendsData ONSD;
         for (int i = 0 ; i < numDataPackets ; i++){
-            while ((nodeId = r.nextInt() % this.nodes.length) == this.id){
-                ;
+            while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
+            int payload = randomInt.nextInt() - 2147483647 - 1;
+            System.out.println(this.id + " sending " + payload + " to " + nodeId);
+            ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
+            TCPConnection conn = this.cache.getNearestId(nodeId);
+            try {
+                conn.sendData(ONSD.pack());
+                synchronized (this.packetsSent){
+                    this.packetsSent += 1;
+                }
+            } catch (Exception e){
+                System.out.println("[" + Thread.currentThread().getName() + "] Error sending datagram: " + e.getMessage());
+                e.printStackTrace();
             }
-            ONSD = new OverlayNodeSendsData(1);
         }
     }
 

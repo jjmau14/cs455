@@ -17,7 +17,7 @@ public class OverlayNodeSendsData extends Event {
         this.destinationId = destinationId;
         this.sourceId = sourceId;
         this.payload = payload;
-        this.hopCount = 3;
+        this.hopCount = 0;
         this.trace = trace;
     }
 
@@ -110,21 +110,21 @@ public class OverlayNodeSendsData extends Event {
     public int getType(){
         return this.type;
     }
-    public static int getDestinationId(byte[] b){
-        int id = b[1];
-        id <<= 8;
-        id |= b[2];
-        id <<= 8;
-        id |= b[3];
-        id <<= 8;
-        id |= b[4];
-        return id;
-    }
     public int getDestinationId() { return this.destinationId; }
     public int getHopCount() { return hopCount; }
     public int getPayload() { return payload; }
     public int getSourceId() { return sourceId; }
     public int[] getTrace() { return trace; }
+
+    public void addTrace(int id){
+        this.hopCount += 1;
+        int[] newTrace = new int[this.trace.length+1];
+        for (int i = 0 ; i < this.trace.length ; i++){
+            newTrace[i] = this.trace[i];
+        }
+        newTrace[newTrace.length-1] = id;
+        this.trace = newTrace;
+    }
 
     public static void main(String[] args) throws Exception {
         OverlayNodeSendsData ONSD = new OverlayNodeSendsData(1, 2, 0, new int[]{3, 4, 5});
@@ -136,6 +136,5 @@ public class OverlayNodeSendsData extends Event {
         System.out.println(ONSD2.sourceId);
         System.out.println(ONSD2.payload);
         System.out.println(Arrays.toString(ONSD2.getTrace()));
-        System.out.println(OverlayNodeSendsData.getDestinationId(data));
     }
 }

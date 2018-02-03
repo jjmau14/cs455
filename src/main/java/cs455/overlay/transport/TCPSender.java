@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -16,7 +17,12 @@ public class TCPSender implements Runnable {
 
     public TCPSender(TCPConnection conn) throws IOException {
         this.conn = conn;
-        this.queue = new PriorityQueue<>();
+        this.queue = new PriorityQueue(new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                return 0;
+            }
+        });
         this.socket = conn.getSocket();
         this.dout = new DataOutputStream(this.socket.getOutputStream());
     }
