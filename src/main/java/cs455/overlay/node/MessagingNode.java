@@ -9,11 +9,12 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class MessagingNode extends Node {
 
-    private TCPServerThread server;
     private int id = -1;
     private RoutingTable routingTable;
     private EventFactory eventFactory;
@@ -23,6 +24,7 @@ public class MessagingNode extends Node {
     private Long dataTotal = 0l;
     private Integer packetsReceived = 0;
     private Integer packetsSent = 0;
+    private Integer packetsForwarded = 0;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -37,8 +39,9 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         try {
             // Initialize server to get port to send to registry
-            new Thread(this.tcpServer = new TCPServerThread(0), "Messenger").start();
-
+            Thread server = new Thread(this.tcpServer = new TCPServerThread(0), "Messenger");
+            server.start();
+            System.out.println("TCP SERVER: " + this.tcpServer.getPort());
             // Register this node with the registry
             register(ip, port);
 
@@ -66,7 +69,6 @@ public class MessagingNode extends Node {
     }
 
     public void onEvent(TCPConnection conn, Event e) throws Exception {
-        System.out.println(e.getType() == Protocol.OVERLAY_NODE_SENDS_DATA);
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
@@ -75,7 +77,6 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
                 RegistrySendsNodeManifest RSNM = (RegistrySendsNodeManifest)e;
-
                 this.routingTable = RSNM.getRoutes();
                 this.nodes = RSNM.getNodes();
                 try {
@@ -94,7 +95,7 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId());
+                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
                     synchronized (this.dataTotal){
                         this.dataTotal += ONSD.getPayload();
@@ -103,7 +104,11 @@ public class MessagingNode extends Node {
                         this.packetsReceived += 1;
                     }
                 } else {
+                    synchronized (this.packetsForwarded){
+                        this.packetsForwarded += 1;
+                    }
                     ONSD.addTrace(this.id);
+                    System.out.println("Forwarding packet to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()));
                     this.cache.getConnectionById(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
                 break;
@@ -111,9 +116,15 @@ public class MessagingNode extends Node {
     }
 
     private void setupOverlayConnections() throws Exception {
+
         for (int i = 0 ; i < routingTable.getTableSize() ; i++){
-            TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
-            cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
+            try {
+                TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
+                cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -125,7 +136,7 @@ public class MessagingNode extends Node {
         for (int i = 0 ; i < numDataPackets ; i++){
             while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
             int payload = randomInt.nextInt() - 2147483647 - 1;
-            //System.out.println(this.id + " sending " + payload + " to " + nodeId);
+            System.out.println(this.id + " sending " + payload + " to " + nodeId);
             ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
             TCPConnection conn = this.cache.getNearestId(nodeId);
             try {
@@ -139,9 +150,11 @@ public class MessagingNode extends Node {
             }
         }
         try {
-            Thread.sleep(1000);
+            Thread.sleep(5000);
         }catch(Exception e){}
+        System.out.println("Total Sent: " + this.packetsSent);
         System.out.println("Total Receiver: " + this.packetsReceived);
+        System.out.println("Total Forwarded: " + this.packetsForwarded);
     }
 
 }

@@ -72,7 +72,7 @@ public class EventFactory {
                 ONTS.craft(b);
                 return ONTS;
             default:
-                throw new Exception("Unrecognized wireformat.");
+                throw new Exception("Unrecognized wireformat: " + Arrays.toString(b));
         }
     }
 

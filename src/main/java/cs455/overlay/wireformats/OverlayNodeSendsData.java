@@ -1,7 +1,6 @@
 package cs455.overlay.wireformats;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.*;
 import java.util.Arrays;
 
 public class OverlayNodeSendsData extends Event {
@@ -27,82 +26,44 @@ public class OverlayNodeSendsData extends Event {
 
     @Override
     public byte[] pack() throws IOException {
-        byte[] data = new byte[1+4+4+4+4+(4*trace.length)];
-        int index = 0;
-        data[index++] = this.type;
-        data[index++] = (byte)(this.destinationId >> 24);
-        data[index++] = (byte)(this.destinationId >> 16);
-        data[index++] = (byte)(this.destinationId >> 8);
-        data[index++] = (byte)(this.destinationId);
-        data[index++] = (byte)(this.sourceId >> 24);
-        data[index++] = (byte)(this.sourceId >> 16);
-        data[index++] = (byte)(this.sourceId >> 8);
-        data[index++] = (byte)(this.sourceId);
-        data[index++] = (byte)(this.payload >> 24);
-        data[index++] = (byte)(this.payload >> 16);
-        data[index++] = (byte)(this.payload >> 8);
-        data[index++] = (byte)(this.payload);
-        data[index++] = (byte)(this.hopCount >> 24);
-        data[index++] = (byte)(this.hopCount >> 16);
-        data[index++] = (byte)(this.hopCount >> 8);
-        data[index++] = (byte)(this.hopCount);
+        byte[] data = null;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(bout));
 
+        dout.writeByte(this.type);
+        dout.writeInt(this.destinationId);
+        dout.writeInt(this.sourceId);
+        dout.writeInt(this.payload);
+        dout.writeInt(this.hopCount);
         for (int i = 0 ; i < this.trace.length ; i++){
-            data[index++] = (byte)(this.trace[i] >> 24);
-            data[index++] = (byte)(this.trace[i] >> 16);
-            data[index++] = (byte)(this.trace[i] >> 8);
-            data[index++] = (byte)(this.trace[i]);
+            dout.writeInt(this.trace[i]);
         }
+        dout.flush();
+        data = bout.toByteArray();
+
+        bout.close();
+        dout.close();
         return data;
     }
 
     @Override
     public void craft(byte[] b) {
-        int index = 0;
-        this.type = b[index++];
-
-        this.destinationId = b[index++];
-        this.destinationId <<= 8;
-        this.destinationId |= b[index++];
-        this.destinationId <<= 8;
-        this.destinationId |= b[index++];
-        this.destinationId <<= 8;
-        this.destinationId |= b[index++];
-
-        this.sourceId = b[index++];
-        this.sourceId <<= 8;
-        this.sourceId |= b[index++];
-        this.sourceId <<= 8;
-        this.sourceId |= b[index++];
-        this.sourceId <<= 8;
-        this.sourceId |= b[index++];
-
-        this.payload = (b[index++] & 0xFF);
-        this.payload <<= 8;
-        this.payload |= (b[index++] & 0xFF);
-        this.payload <<= 8;
-        this.payload |= (b[index++] & 0xFF);
-        this.payload <<= 8;
-        this.payload |= (b[index++] & 0xFF);
-
-        this.hopCount = b[index++];
-        this.hopCount <<= 8;
-        this.hopCount |= b[index++];
-        this.hopCount <<= 8;
-        this.hopCount |= b[index++];
-        this.hopCount <<= 8;
-        this.hopCount |= b[index++];
-
-        this.trace = new int[hopCount];
-        for (int i = 0 ; i < hopCount ; i++){
-            int temp = b[index++];
-            temp <<= 8;
-            temp |= b[index++];
-            temp <<= 8;
-            temp |= b[index++];
-            temp <<= 8;
-            temp |= b[index++];
-            this.trace[i] = temp;
+        try {
+            ByteArrayInputStream bin = new ByteArrayInputStream(b);
+            DataInputStream din = new DataInputStream(new BufferedInputStream(bin));
+            this.type = din.readByte();
+            this.destinationId = din.readInt();
+            this.sourceId = din.readInt();
+            this.payload = din.readInt();
+            this.hopCount = din.readInt();
+            this.trace = new int[hopCount];
+            for (int i = 0 ; i < this.trace.length ; i++){
+                this.trace[i] = din.readInt();
+            }
+            bin.close();
+            din.close();
+        } catch (Exception e){
+            ;
         }
     }
 
@@ -124,5 +85,18 @@ public class OverlayNodeSendsData extends Event {
         }
         newTrace[newTrace.length-1] = id;
         this.trace = newTrace;
+    }
+
+    public static void main(String[] args) throws Exception {
+        OverlayNodeSendsData ONSD = new OverlayNodeSendsData(1,2,3, new int[]{});
+        ONSD.addTrace(1);
+        System.out.println(Arrays.toString(ONSD.getTrace()));
+        OverlayNodeSendsData ONSD2 = new OverlayNodeSendsData();
+        ONSD2.craft(ONSD.pack());
+        ONSD2.addTrace(2);
+        ONSD2.addTrace(2);
+        ONSD2.addTrace(2);
+        System.out.println(Arrays.toString(ONSD2.getTrace()));
+        System.out.println(ONSD2.getType());
     }
 }

@@ -11,6 +11,8 @@ public class TCPServerThread implements Runnable {
 
     public TCPServerThread(int port) throws IOException {
         this.server = new ServerSocket(port);
+        System.out.println("TCP SERVER: " + this.server.getLocalPort());
+        System.out.println("TCP HOST: " + InetAddress.getLocalHost().getHostAddress());
 
     }
 
@@ -35,5 +37,12 @@ public class TCPServerThread implements Runnable {
     public int getPort(){
         return this.server.getLocalPort();
     }
-
+    public String getHost(){
+        try{
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e){
+            ;
+        }
+        return null;
+    }
 }

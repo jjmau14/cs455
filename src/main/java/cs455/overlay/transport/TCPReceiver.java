@@ -48,10 +48,10 @@ public class TCPReceiver implements Runnable {
             }
         }
         System.out.println("Socket closed.");
-        if (conn.getExitOnClose()) {
+        //if (conn.getExitOnClose()) {
             System.out.println("Connection with the registry failed. System exiting...");
             System.exit(1);
-        }
+        //}
     }
 
 }
