@@ -41,22 +41,14 @@ public class TCPConnection {
         }
     }
 
-    private void sender(){
+    private synchronized void sender(byte[] data){
+        //System.out.println("Sending " + Arrays.toString(data) + " to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
         try {
-            while(true) {
-                byte[] data;
-                synchronized (queue) {
-                    if (this.queue.peek() == null)
-                        queue.wait();
 
-                    data = queue.poll();
-                    queue.notify();
-                }
-                int dataLength = data.length;
-                dout.writeInt(dataLength);
-                dout.write(data, 0, dataLength);
-                dout.flush();
-            }
+            int dataLength = data.length;
+            dout.writeInt(dataLength);
+            dout.write(data, 0, dataLength);
+            dout.flush();
 
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
@@ -64,11 +56,7 @@ public class TCPConnection {
     }
 
     public void sendData(byte[] b){
-        synchronized (queue){
-            queue.add(b);
-            queue.notify();
-        }
-        //sender(b);
+        sender(b);
         //new Thread(() -> this.sender(b)).start();
     }
 
@@ -96,7 +84,7 @@ public class TCPConnection {
             }
             if (data != null ) {
                 EventFactory ef = EventFactory.getInstance();
-                System.out.println("[" + Thread.currentThread().getName() + "] Received array: " + Arrays.toString(data));
+                //System.out.println("[" + Thread.currentThread().getName() + "] Received array: " + Arrays.toString(data));
                 ef.run(this, data);
             }
         }

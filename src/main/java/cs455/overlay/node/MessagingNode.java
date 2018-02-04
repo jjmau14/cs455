@@ -95,7 +95,7 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
+                //System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
                     synchronized (this.dataTotal){
                         this.dataTotal += ONSD.getPayload();
@@ -108,7 +108,7 @@ public class MessagingNode extends Node {
                         this.packetsForwarded += 1;
                     }
                     ONSD.addTrace(this.id);
-                    System.out.println("Forwarding packet to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()));
+                    //System.out.println("Forwarding packet to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()));
                     this.cache.getConnectionById(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
                 break;
@@ -136,11 +136,11 @@ public class MessagingNode extends Node {
         for (int i = 0 ; i < numDataPackets ; i++){
             while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
             int payload = randomInt.nextInt() - 2147483647 - 1;
-            System.out.println(this.id + " sending " + payload + " to " + nodeId);
+            //System.out.println(this.id + " sending " + payload + " to " + nodeId);
             ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
-            TCPConnection conn = this.cache.getNearestId(nodeId);
+
             try {
-                conn.sendData(ONSD.pack());
+                this.cache.getNearestId(nodeId).sendData(ONSD.pack());
                 synchronized (this.packetsSent){
                     this.packetsSent += 1;
                 }
@@ -150,7 +150,7 @@ public class MessagingNode extends Node {
             }
         }
         try {
-            Thread.sleep(5000);
+            Thread.sleep(20*1000);
         }catch(Exception e){}
         System.out.println("Total Sent: " + this.packetsSent);
         System.out.println("Total Receiver: " + this.packetsReceived);
