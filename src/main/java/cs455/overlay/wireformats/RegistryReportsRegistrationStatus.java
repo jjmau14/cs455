@@ -1,22 +1,17 @@
 package cs455.overlay.wireformats;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 
 public class RegistryReportsRegistrationStatus extends Event {
 
     private byte type = Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS;
     private int id;
-    private byte length;
-    private byte[] message;
+    private String message;
 
     public RegistryReportsRegistrationStatus(int id, String message){
         this.id = id;
-        this.message = message.getBytes();
-        this.length = (byte)message.getBytes().length;
+        this.message = message;
     }
 
     public RegistryReportsRegistrationStatus(){
@@ -26,43 +21,49 @@ public class RegistryReportsRegistrationStatus extends Event {
     @Override
     public byte[] pack() throws IOException {
         byte[] data = null;
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(bout));
 
         dout.write(type);
         dout.writeInt(id);
-        dout.write(length);
-        dout.write(message, 0, length);
+        dout.write(this.message.getBytes().length);
+        dout.write(message.getBytes(), 0, this.message.getBytes().length);
 
         dout.flush();
-        data = baOutputStream.toByteArray();
+        data = bout.toByteArray();
 
-        baOutputStream.close();
+        bout.close();
         dout.close();
         return data;
     }
 
     @Override
     public void craft(byte[] data) {
-        byte[] idArray = Arrays.copyOfRange(data, 1, 1+4);
-        id = 0;
-        for (int i = 0 ; i < 4 ; i++){
-            id <<= 8;
-            id |= (int) idArray[i] & 0xFF;
+        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        DataInputStream din = new DataInputStream(new BufferedInputStream(bin));
+
+        try {
+            this.type = din.readByte();
+            this.id = din.readInt();
+            int length = din.readByte();
+            byte[] messageBytes = new byte[length];
+            din.readFully(messageBytes);
+            this.message = new String(messageBytes);
+
+            bin.close();
+            din.close();
+        } catch (Exception e){
+            ;
         }
-        int length = (data[5] & 0xFF);
-        message = Arrays.copyOfRange(data, 6, 6 + length);
     }
 
     @Override
     public int getType(){
         return this.type;
     }
-
     public int getId() {
         return id;
     }
-
     public String getMessage() {
         return new String(message);
     }

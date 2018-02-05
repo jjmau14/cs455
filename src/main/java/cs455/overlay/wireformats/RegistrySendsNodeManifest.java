@@ -2,8 +2,13 @@ package cs455.overlay.wireformats;
 
 import cs455.overlay.routing.Route;
 import cs455.overlay.routing.RoutingTable;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.util.Arrays;
 
 public class RegistrySendsNodeManifest extends Event{
@@ -18,82 +23,75 @@ public class RegistrySendsNodeManifest extends Event{
     }
 
     public RegistrySendsNodeManifest(){
-        // Nothing - for use by craft.
+        this.routes = new RoutingTable();
     }
 
     @Override
     public byte[] pack() {
-        byte tableSize = routes.getTableSize();
-        byte ipSize = (byte) routes.getRoute(0).getIp().length;
-        byte[] data = new byte[1+1+(tableSize * (9+ipSize)) + 1 + (4*nodes.length)];
-        int index = 0;
+        byte[] data = null;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(bout));
+
         try {
-            data[index++] = this.type;
-            data[index++] = tableSize;
+            dout.writeByte(this.type);
+            dout.writeByte(this.routes.getTableSize());
 
             for (int i = 0 ; i < routes.getTableSize() ; i++){
                 Route r = routes.getRoute(i);
-                byte[] guidBytes = r.getGuidBytes();
-                data[index++] = guidBytes[0];
-                data[index++] = guidBytes[1];
-                data[index++] = guidBytes[2];
-                data[index++] = guidBytes[3];
-                data[index++] = (byte)r.getIp().length;
-                byte[] ipBytes = r.getIp();
-                for (int j = 0 ; j < (byte) r.getIp().length ; j++){
-                    data[index++] = ipBytes[j];
-                }
-                byte[] portBytes = r.getPortBytes();
-                data[index++] = portBytes[0];
-                data[index++] = portBytes[1];
-                data[index++] = portBytes[2];
-                data[index++] = portBytes[3];
+
+                dout.writeInt(r.getGuid());
+                dout.writeByte(r.getIp().length);
+                for (int j = 0 ; j < r.getIp().length ; j++)
+                    dout.writeByte(r.getIp()[j]);
+                dout.writeInt(r.getPort());
             }
-            data[index++] = (byte)nodes.length;
+
+            dout.writeByte(nodes.length);
             for (int i = 0 ; i < (byte)nodes.length ; i++){
-                data[index++] = (byte)(nodes[i] >> 24);
-                data[index++] = (byte)(nodes[i] >> 16);
-                data[index++] = (byte)(nodes[i] >> 8);
-                data[index++] = (byte)(nodes[i]);
+                dout.writeInt(nodes[i]);
             }
+
+            dout.flush();
+            data = bout.toByteArray();
+            bout.close();
+            dout.close();
 
         } catch (IndexOutOfBoundsException ioobe){
             throw new IndexOutOfBoundsException("Routing table may be empty: " + ioobe.getMessage());
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
+
         return data;
     }
 
     @Override
     public void craft(byte[] data) {
+        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        DataInputStream din = new DataInputStream(new BufferedInputStream(bin));
 
-        int index = 1; // ignore type
+        try {
+            this.type = din.readByte();
+            int tableSize = din.readByte();
 
-        byte tableSize = data[index++];
-        this.routes = new RoutingTable();
-        for (int i = 0 ; i < tableSize ; i++){
-            ByteBuffer guid = ByteBuffer.wrap(new byte[]{data[index], data[index+1], data[index+2], data[index+3]});
-            index += 4; // for guid
-            byte ipSize = data[index++];
-            byte[] ip = new byte[ipSize];
-            for (int j = 0 ; j < ipSize ; j++){
-                ip[j] = data[index++];
-            }
-            ByteBuffer port = ByteBuffer.wrap(new byte[]{data[index], data[index+1], data[index+2], data[index+3]});
-            index += 4; // for port
-            try {
-                routes.addRoute(new Route(ip, port.getInt(), guid.getInt()));
-            } catch (Exception e){
-
+            for (int i = 0 ; i < tableSize ; i++){
+                int guid = din.readInt();
+                int length = din.readByte();
+                byte[] ip = new byte[length];
+                din.readFully(ip, 0, length);
+                int port = din.readInt();
+                this.routes.addRoute(new Route(ip, port, guid));
             }
 
-        }
+            int length = din.readByte();
+            this.nodes = new int[length];
+            for (int i = 0 ; i < length ; i++){
+                this.nodes[i] = din.readInt();
+            }
+            bin.close();
+            din.close();
+        } catch (Exception e){
 
-        byte nodeSize = data[index++];
-        this.nodes = new int[nodeSize];
-        for (int i = 0 ; i < nodeSize ; i++){
-            ByteBuffer byteNodes = ByteBuffer.wrap(new byte[]{data[index], data[index+1], data[index+2], data[index+3]});
-            index += 4;
-            this.nodes[i] = byteNodes.getInt();
         }
 
     }

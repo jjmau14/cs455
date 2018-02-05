@@ -1,10 +1,12 @@
 package cs455.overlay.wireformats;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class OverlayNodeSendsRegistration extends Event{
 
@@ -25,32 +27,36 @@ public class OverlayNodeSendsRegistration extends Event{
 
     public byte[] pack() throws IOException{
         byte[] data = null;
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(bout));
 
-        dout.write(type);
-        dout.write(length);
+        dout.writeByte(type);
+        dout.writeByte(length);
         dout.write(ip);
         dout.writeInt(port);
 
         dout.flush();
-        data = baOutputStream.toByteArray();
+        data = bout.toByteArray();
 
-        baOutputStream.close();
+        bout.close();
         dout.close();
         return data;
     }
 
     public void craft(byte[] data) {
-        byte length = data[1];
-        this.ip = Arrays.copyOfRange(data, 2, 2+length);
-        byte[] portArray = Arrays.copyOfRange(data, 2+length, 6+length);
-        int port = 0;
-        for (int i = 0 ; i < 4 ; i++) {
-            port <<= 8;
-            port |= (int) portArray[i] & 0xFF;
+        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        DataInputStream din = new DataInputStream(new BufferedInputStream(bin));
+
+        try {
+            this.type = din.readByte();
+            int length = din.readByte();
+            this.ip = new byte[length];
+            din.readFully(this.ip);
+            this.port = din.readInt();
+
+        } catch (Exception e){
+
         }
-        this.port = port;
 
     }
 
@@ -64,15 +70,12 @@ public class OverlayNodeSendsRegistration extends Event{
         }
         return ipString;
     }
-
     public byte[] getIp() {
         return ip;
     }
-
     public int getPort() {
         return port;
     }
-
     public int getType(){
         return this.type;
     }

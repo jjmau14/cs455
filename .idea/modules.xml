@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/jjmau14.iml" filepath="$PROJECT_DIR$/jjmau14.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cs455.overlay.iml" filepath="$PROJECT_DIR$/cs455.overlay.iml" />
     </modules>
   </component>
 </project>
