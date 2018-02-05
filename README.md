@@ -1,4 +1,5 @@
-# cs455
+# CS455 - PC1: Overlay Network
+#### Josh Mau
 
 ### Configuring the Registry
 * `java cs455.overlay.node.Registry [Port Number]` - must provide a port for the Registry to run on. This port will be required to start all messenger nodes.
