@@ -109,7 +109,7 @@ public class MessagingNode extends Node {
                     }
                     ONSD.addTrace(this.id);
                     //System.out.println("Forwarding packet to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()));
-                    this.cache.getConnectionById(ONSD.getDestinationId()).sendData(ONSD.pack());
+                    this.cache.getNearestId(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
                 break;
         }
