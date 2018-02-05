@@ -25,6 +25,7 @@ public class MessagingNode extends Node {
     private Integer packetsReceived = 0;
     private Integer packetsSent = 0;
     private Integer packetsForwarded = 0;
+    private TCPConnection registryConnection;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -41,7 +42,7 @@ public class MessagingNode extends Node {
             // Initialize server to get port to send to registry
             Thread server = new Thread(this.tcpServer = new TCPServerThread(0), "Messenger");
             server.start();
-            System.out.println("TCP SERVER: " + this.tcpServer.getPort());
+
             // Register this node with the registry
             register(ip, port);
 
@@ -53,14 +54,14 @@ public class MessagingNode extends Node {
     private void register(String RegistryIP, int RegistryPort) throws Exception {
         try {
             Socket registerSocket = new Socket(RegistryIP, RegistryPort);
-            TCPConnection conn = new TCPConnection(registerSocket);
-            conn.exitOnClose();
-            conn.init();
+            this.registryConnection = new TCPConnection(registerSocket);
+            this.registryConnection.exitOnClose();
+            this.registryConnection.init();
             OverlayNodeSendsRegistration ONSR = new OverlayNodeSendsRegistration(
                     InetAddress.getLocalHost().getAddress(),
                     this.tcpServer.getPort());
 
-            conn.sendData(ONSR.pack());
+            this.registryConnection.sendData(ONSR.pack());
 
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error registering node: " + ioe.getMessage());
@@ -150,7 +151,7 @@ public class MessagingNode extends Node {
             }
         }
         try {
-            Thread.sleep(20*1000);
+            Thread.sleep(20*500);
         }catch(Exception e){}
         System.out.println("Total Sent: " + this.packetsSent);
         System.out.println("Total Receiver: " + this.packetsReceived);
