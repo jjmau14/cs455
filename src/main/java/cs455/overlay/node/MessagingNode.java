@@ -150,7 +150,7 @@ public class MessagingNode extends Node {
             }
         }
         try {
-            Thread.sleep(10*1000);
+            Thread.sleep(20*1000);
         }catch(Exception e){}
         System.out.println("Total Sent: " + this.packetsSent);
         System.out.println("Total Receiver: " + this.packetsReceived);
