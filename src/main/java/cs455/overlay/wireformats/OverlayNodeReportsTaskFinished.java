@@ -79,6 +79,7 @@ public class OverlayNodeReportsTaskFinished extends Event {
         System.out.println(ONRTF2.ipToString());
         System.out.println(ONRTF2.getGuid());
         System.out.println(ONRTF2.getPort());
+        assert(ONRTF2.getType() == Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED);
     }
 
 }
