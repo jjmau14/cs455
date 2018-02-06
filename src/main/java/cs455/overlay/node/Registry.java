@@ -77,6 +77,7 @@ public class Registry extends Node{
                 int completeCount = 0;
                 OverlayNodeReportsTaskFinished ONRTF = (OverlayNodeReportsTaskFinished)e;
                 this.registry.get(ONRTF.getGuid()).setComplete();
+                System.out.println("Task complete for node " + ONRTF.getGuid());
                 for (Map.Entry<Integer, RegisterItem> entry : this.registry.entrySet()){
                     if (this.registry.get(entry.getKey()).isComplete()){
                         completeCount += 1;
@@ -203,6 +204,6 @@ public class Registry extends Node{
     }
 
     private void gatherTaskData(){
-        
+
     }
 }
