@@ -21,10 +21,11 @@ public class MessagingNode extends Node {
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int[] nodes;
-    private Long dataTotal = 0l;
+    private Long sumSent = 0l;
+    private Long sumReceived = 0l;
     private Integer packetsReceived = 0;
     private Integer packetsSent = 0;
-    private Integer packetsForwarded = 0;
+    private Integer packetsRelayed = 0;
     private TCPConnection registryConnection;
 
     public static void main(String[] args) throws Exception {
@@ -98,23 +99,29 @@ public class MessagingNode extends Node {
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
                 //System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
-                    synchronized (this.dataTotal){
-                        this.dataTotal += ONSD.getPayload();
+                    synchronized (this.sumReceived){
+                        this.sumReceived += ONSD.getPayload();
                     }
                     synchronized (this.packetsReceived){
                         this.packetsReceived += 1;
                     }
                 } else {
-                    synchronized (this.packetsForwarded){
-                        this.packetsForwarded += 1;
+                    synchronized (this.packetsRelayed){
+                        this.packetsRelayed += 1;
                     }
                     ONSD.addTrace(this.id);
-                    //System.out.println("Forwarding packet to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()));
                     this.cache.getNearestId(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
                 break;
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
                 System.out.println("Sending traffic summary to Registry...");
+                this.registryConnection.sendData(new OverlayNodeReportsTrafficSummary(this.id,
+                        this.packetsSent,
+                        this.packetsRelayed,
+                        this.sumSent,
+                        this.packetsReceived,
+                        this.sumReceived).pack()
+                );
         }
     }
 
@@ -139,6 +146,7 @@ public class MessagingNode extends Node {
         for (int i = 0 ; i < numDataPackets ; i++){
             while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
             int payload = randomInt.nextInt() - 2147483647 - 1;
+            this.sumSent += payload;
             //System.out.println(this.id + " sending " + payload + " to " + nodeId);
             ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
 
