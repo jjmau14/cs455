@@ -11,6 +11,7 @@ import cs455.overlay.wireformats.*;
 
 import dnl.utils.text.table.TextTable;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class Registry extends Node{
 
@@ -70,6 +71,19 @@ public class Registry extends Node{
                 if (NROSS.getStatusOrId() != -1) {
                     this.registry.get(NROSS.getStatusOrId()).setReady();
                     System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
+                }
+                break;
+            case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
+                int completeCount = 0;
+                OverlayNodeReportsTaskFinished ONRTF = (OverlayNodeReportsTaskFinished)e;
+                this.registry.get(ONRTF.getGuid()).setComplete();
+                for (Map.Entry<Integer, RegisterItem> entry : this.registry.entrySet()){
+                    if (this.registry.get(entry.getKey()).isComplete()){
+                        completeCount += 1;
+                    }
+                }
+                if (completeCount == this.registry.size()){
+                    gatherTaskData();
                 }
         }
 
@@ -186,5 +200,9 @@ public class Registry extends Node{
             }
             return true;
         });
+    }
+
+    private void gatherTaskData(){
+        
     }
 }

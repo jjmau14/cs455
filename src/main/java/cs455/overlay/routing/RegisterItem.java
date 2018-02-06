@@ -6,6 +6,7 @@ public class RegisterItem {
     private int port;
     private int id;
     private boolean overlayReady = false;
+    private boolean taskComplete = false;
 
     public RegisterItem(byte[] ip, int port){
         this.ip = ip;
@@ -26,6 +27,14 @@ public class RegisterItem {
 
     public void setReady(){
         this.overlayReady = true;
+    }
+
+    public void setComplete(){
+        this.taskComplete = true;
+    }
+
+    public boolean isComplete(){
+        return this.taskComplete;
     }
 
     @Override

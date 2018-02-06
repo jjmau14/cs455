@@ -151,11 +151,13 @@ public class MessagingNode extends Node {
             }
         }
         try {
-            Thread.sleep(20*500);
-        }catch(Exception e){}
-        System.out.println("Total Sent: " + this.packetsSent);
-        System.out.println("Total Receiver: " + this.packetsReceived);
-        System.out.println("Total Forwarded: " + this.packetsForwarded);
+            this.registryConnection.sendData(new OverlayNodeReportsTaskFinished(
+                    this.tcpServer.getHostBytes(),
+                    this.tcpServer.getPort(),
+                    this.id).pack());
+        } catch (Exception e){
+            System.out.println("[" + Thread.currentThread().getName() + "] Error sending task finished: " + e.getMessage());
+        }
     }
 
 }

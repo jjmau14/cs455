@@ -42,4 +42,7 @@ public class TCPServerThread implements Runnable {
         }
         return null;
     }
+    public byte[] getHostBytes(){
+        return this.server.getInetAddress().getAddress();
+    }
 }
