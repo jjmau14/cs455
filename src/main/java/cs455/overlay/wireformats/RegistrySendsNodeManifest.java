@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedInputStream;
-import java.util.Arrays;
 
 public class RegistrySendsNodeManifest extends Event{
 

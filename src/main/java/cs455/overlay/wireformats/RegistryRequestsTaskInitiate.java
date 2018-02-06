@@ -1,6 +1,12 @@
 package cs455.overlay.wireformats;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 
 public class RegistryRequestsTaskInitiate extends Event {
 
