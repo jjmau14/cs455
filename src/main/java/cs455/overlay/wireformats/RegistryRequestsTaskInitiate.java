@@ -1,6 +1,6 @@
 package cs455.overlay.wireformats;
 
-import java.io.IOException;
+import java.io.*;
 
 public class RegistryRequestsTaskInitiate extends Event {
 
@@ -17,25 +17,34 @@ public class RegistryRequestsTaskInitiate extends Event {
 
     @Override
     public byte[] pack() throws IOException {
-        byte[] data = new byte[5];
-        data[0] = (byte)type;
-        data[1] = (byte)(numDataPackets >> 24);
-        data[2] = (byte)(numDataPackets >> 16);
-        data[3] = (byte)(numDataPackets >> 8);
-        data[4] = (byte)(numDataPackets);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(bout));
+
+        dout.writeByte(this.type);
+        dout.writeInt(numDataPackets);
+        dout.flush();
+
+        byte[] data = bout.toByteArray();
+        bout.close();
+        dout.close();
+
         return data;
     }
 
     @Override
-    public void craft(byte[] b) {
-        type = b[0];
-        numDataPackets = (b[1] & 0xFF);
-        numDataPackets <<= 8;
-        numDataPackets |= (b[2] & 0xFF);
-        numDataPackets <<= 8;
-        numDataPackets |= (b[3] & 0xFF);
-        numDataPackets <<= 8;
-        numDataPackets |= (b[4] & 0xFF);
+    public void craft(byte[] data) {
+        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        DataInputStream din = new DataInputStream(new BufferedInputStream(bin));
+
+        try {
+            this.type = din.readByte();
+            this.numDataPackets = din.readInt();
+
+            bin.close();
+            din.close();
+        } catch (Exception e){
+            ;
+        }
     }
 
     @Override
