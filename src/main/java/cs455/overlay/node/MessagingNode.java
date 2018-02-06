@@ -113,6 +113,8 @@ public class MessagingNode extends Node {
                     this.cache.getNearestId(ONSD.getDestinationId()).sendData(ONSD.pack());
                 }
                 break;
+            case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
+                System.out.println("Sending traffic summary to Registry...");
         }
     }
 

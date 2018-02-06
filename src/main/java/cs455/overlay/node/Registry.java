@@ -204,6 +204,14 @@ public class Registry extends Node{
     }
 
     private void gatherTaskData(){
-
+        this.cache.doForAll((Integer i) -> {
+            try {
+                this.cache.getConnectionById(i).sendData(new RegistryRequestsTrafficSummary().pack());
+            } catch (Exception e){
+                System.out.println("[" + Thread.currentThread().getName() + "] Error requesting task summary: " + e.getMessage());
+                e.printStackTrace();
+            }
+            return true;
+        });
     }
 }
