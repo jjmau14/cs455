@@ -27,7 +27,13 @@ public class TCPConnectionsCache {
         return this.connections.get(id);
     }
 
-    public void doForAll(Predicate<Integer> func){
+    public void doForAll(Predicate<TCPConnection> func){
+        for (Map.Entry<Integer, TCPConnection> entry : connections.entrySet()){
+            func.test(connections.get(entry.getKey()));
+        }
+    }
+
+    public void doForEach(Predicate<Integer> func){
         for (Map.Entry<Integer, TCPConnection> entry : connections.entrySet()){
             func.test(entry.getKey());
         }

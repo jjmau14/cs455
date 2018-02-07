@@ -7,11 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="cs455" />
+        <module name="cs455.overlay" />
         <module name="jjmau14" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="cs455" target="1.8" />
+      <module name="cs455.overlay" target="1.8" />
       <module name="jjmau14" target="1.8" />
     </bytecodeTargetLevel>
   </component>

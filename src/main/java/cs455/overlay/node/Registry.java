@@ -135,7 +135,7 @@ public class Registry extends Node{
                 manifests[i] = temp;
             }
 
-            this.cache.doForAll((Integer id) -> {
+            this.cache.doForEach((Integer id) -> {
                 try {
                     RoutingTable r = this.manifests[id];
                     RegistrySendsNodeManifest RSNM = new RegistrySendsNodeManifest(r, this.getAllNodes());
@@ -193,9 +193,9 @@ public class Registry extends Node{
     }
 
     public void initDataStream(int numDataPackets){
-        this.cache.doForAll((Integer i) -> {
+        this.cache.doForAll((TCPConnection conn) -> {
             try {
-                this.cache.getConnectionById(i).sendData(new RegistryRequestsTaskInitiate(numDataPackets).pack());
+                conn.sendData(new RegistryRequestsTaskInitiate(numDataPackets).pack());
             } catch (Exception e){
                 ;
             }
@@ -204,9 +204,9 @@ public class Registry extends Node{
     }
 
     private void gatherTaskData(){
-        this.cache.doForAll((Integer i) -> {
+        this.cache.doForAll((TCPConnection conn) -> {
             try {
-                this.cache.getConnectionById(i).sendData(new RegistryRequestsTrafficSummary().pack());
+                conn.sendData(new RegistryRequestsTrafficSummary().pack());
             } catch (Exception e){
                 System.out.println("[" + Thread.currentThread().getName() + "] Error requesting task summary: " + e.getMessage());
                 e.printStackTrace();
