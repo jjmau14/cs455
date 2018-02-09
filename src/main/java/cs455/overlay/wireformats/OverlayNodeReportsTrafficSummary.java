@@ -104,23 +104,23 @@ public class OverlayNodeReportsTrafficSummary extends Event {
         this.id = id;
     }
 
-    public void addPacketsReceived(int packetsReceived) {
+    public synchronized void addPacketsReceived(int packetsReceived) {
         this.packetsReceived += packetsReceived;
     }
 
-    public void addPacketsRelayed(int packetsRelayed) {
+    public synchronized void addPacketsRelayed(int packetsRelayed) {
         this.packetsRelayed += packetsRelayed;
     }
 
-    public void addPacketsSent(int packetsSent) {
+    public synchronized void addPacketsSent(int packetsSent) {
         this.packetsSent += packetsSent;
     }
 
-    public void addSumReceived(long sumReceived) {
+    public synchronized void addSumReceived(long sumReceived) {
         this.sumReceived += sumReceived;
     }
 
-    public void addSumSent(long sumSent) {
+    public synchronized void addSumSent(long sumSent) {
         this.sumSent += sumSent;
     }
 

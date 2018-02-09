@@ -120,7 +120,7 @@ public class Registry extends Node{
                                 this.count = 0;
                                 this.overlaySummary.reset();
                                 Thread.sleep(3000);
-                                new Thread(() -> this.gatherTaskData()).start();
+                                gatherTaskData();
                             } else {
                                 System.out.println("FINAL");
                             }
