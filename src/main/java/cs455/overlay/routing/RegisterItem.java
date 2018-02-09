@@ -37,6 +37,10 @@ public class RegisterItem {
         return this.taskComplete;
     }
 
+    public void unsetComplete(){
+        this.taskComplete = false;
+    }
+
     @Override
     public boolean equals(Object o){
         RegisterItem other = (RegisterItem) o;

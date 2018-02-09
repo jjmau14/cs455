@@ -12,6 +12,7 @@ import cs455.overlay.wireformats.*;
 import dnl.utils.text.table.TextTable;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 public class Registry extends Node{
 
@@ -20,6 +21,13 @@ public class Registry extends Node{
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int port;
+    private Long totalSent = 0l;
+    private Long totalReceived = 0l;
+    private Integer count = 0;
+    private Integer completeCount = 0;
+    private Integer totalPacketsSent = 0;
+    private Integer totalPacketsReceived = 0;
+    private OverlayNodeReportsTrafficSummary overlaySummary;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1){
@@ -41,10 +49,12 @@ public class Registry extends Node{
         new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
         new EventFactory(this);
+        overlaySummary = new OverlayNodeReportsTrafficSummary();
     }
 
     public void onEvent(TCPConnection conn, Event e) throws Exception {
         switch (e.getType()){
+
             case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
                 int id = -1;
                 String message = "";
@@ -66,6 +76,8 @@ public class Registry extends Node{
                     System.out.println(err);
                 }
                 break;
+
+
             case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
                 NodeReportsOverlaySetupStatus NROSS = (NodeReportsOverlaySetupStatus)e;
                 if (NROSS.getStatusOrId() != -1) {
@@ -73,19 +85,49 @@ public class Registry extends Node{
                     System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
                 }
                 break;
+
+
             case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
-                int completeCount = 0;
                 OverlayNodeReportsTaskFinished ONRTF = (OverlayNodeReportsTaskFinished)e;
                 this.registry.get(ONRTF.getGuid()).setComplete();
                 System.out.println("Task complete for node " + ONRTF.getGuid());
-                for (Map.Entry<Integer, RegisterItem> entry : this.registry.entrySet()){
-                    if (this.registry.get(entry.getKey()).isComplete()){
-                        completeCount += 1;
+                synchronized (this.completeCount) {
+                    completeCount += 1;
+                    if (completeCount == this.registry.size()) {
+                        gatherTaskData();
                     }
                 }
-                if (completeCount == this.registry.size()){
-                    gatherTaskData();
+                break;
+
+
+            case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
+                OverlayNodeReportsTrafficSummary ONRTS = (OverlayNodeReportsTrafficSummary)e;
+                synchronized (this.overlaySummary) {
+                    this.overlaySummary.addSumReceived(ONRTS.getSumReceived());
+                    this.overlaySummary.addSumSent(ONRTS.getSumSent());
+                    this.overlaySummary.addPacketsReceived(ONRTS.getPacketsReceived());
+                    this.overlaySummary.addPacketsSent(ONRTS.getPacketsSent());
                 }
+                synchronized (this.count) {
+                    this.count+=1;
+                    if (this.count == this.registry.size()) {
+                        synchronized (this.overlaySummary) {
+                            System.out.print(this.overlaySummary.getSumReceived() + "/");
+                            System.out.print(this.overlaySummary.getSumSent() + " received. ");
+                            System.out.print(this.overlaySummary.getPacketsReceived() + "/");
+                            System.out.println(this.overlaySummary.getPacketsSent() + " packets received.");
+                            if (!this.overlaySummary.getSumReceived().equals(this.overlaySummary.getSumSent())) {
+                                this.count = 0;
+                                this.overlaySummary.reset();
+                                Thread.sleep(3000);
+                                new Thread(() -> this.gatherTaskData()).start();
+                            } else {
+                                System.out.println("FINAL");
+                            }
+                        }
+                    }
+                }
+                break;
         }
 
     }
@@ -193,6 +235,9 @@ public class Registry extends Node{
     }
 
     public void initDataStream(int numDataPackets){
+        synchronized (this.completeCount) {
+            this.completeCount = 0;
+        }
         this.cache.doForAll((TCPConnection conn) -> {
             try {
                 conn.sendData(new RegistryRequestsTaskInitiate(numDataPackets).pack());

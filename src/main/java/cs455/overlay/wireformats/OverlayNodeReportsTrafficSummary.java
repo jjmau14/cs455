@@ -14,9 +14,9 @@ public class OverlayNodeReportsTrafficSummary extends Event {
     private int id;
     private int packetsSent;
     private int packetsRelayed;
-    private long sumSent;
+    private Long sumSent;
     private int packetsReceived;
-    private long sumReceived;
+    private Long sumReceived;
 
     public OverlayNodeReportsTrafficSummary(int id, int packetsSent, int packetsRelayed,
                                             long sumSent, int packetsReceived, long sumReceived) {
@@ -29,7 +29,11 @@ public class OverlayNodeReportsTrafficSummary extends Event {
     }
 
     public OverlayNodeReportsTrafficSummary(){
-        // Nothing
+        this.packetsSent = 0;
+        this.packetsRelayed = 0;
+        this.packetsReceived = 0;
+        this.sumSent = 0l;
+        this.sumReceived = 0l;
     }
 
     @Override
@@ -79,5 +83,52 @@ public class OverlayNodeReportsTrafficSummary extends Event {
     public int getType(){
         return this.type;
     }
+    public int getId(){ return this.id; }
+    public int getPacketsReceived() {
+        return packetsReceived;
+    }
+    public int getPacketsRelayed() {
+        return packetsRelayed;
+    }
+    public int getPacketsSent() {
+        return packetsSent;
+    }
+    public Long getSumReceived() {
+        return sumReceived;
+    }
+    public Long getSumSent() {
+        return sumSent;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void addPacketsReceived(int packetsReceived) {
+        this.packetsReceived += packetsReceived;
+    }
+
+    public void addPacketsRelayed(int packetsRelayed) {
+        this.packetsRelayed += packetsRelayed;
+    }
+
+    public void addPacketsSent(int packetsSent) {
+        this.packetsSent += packetsSent;
+    }
+
+    public void addSumReceived(long sumReceived) {
+        this.sumReceived += sumReceived;
+    }
+
+    public void addSumSent(long sumSent) {
+        this.sumSent += sumSent;
+    }
+
+    public void reset(){
+        this.sumReceived = 0l;
+        this.sumSent = 0l;
+        this.packetsRelayed = 0;
+        this.packetsReceived = 0;
+        this.packetsSent = 0;
+    }
 }

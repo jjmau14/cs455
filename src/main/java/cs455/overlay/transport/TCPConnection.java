@@ -7,26 +7,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 
 public class TCPConnection {
 
     private Socket socket = null;
     private boolean EXIT_ON_CLOSE = false;
-    private Queue<byte[]> queue;
+    private PriorityQueue<byte[]> queue;
     private DataInputStream din;
     private DataOutputStream dout;
 
     public TCPConnection(Socket socket) throws IOException {
-        this.queue = new PriorityQueue(new Comparator() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                return 0;
-            }
-        });
         this.socket = socket;
         this.din = new DataInputStream(this.socket.getInputStream());
         this.dout = new DataOutputStream(this.socket.getOutputStream());
@@ -34,34 +25,51 @@ public class TCPConnection {
 
     public void init(){
         try {
+            this.queue = new PriorityQueue<>(new Comparator<byte[]>() {
+                @Override
+                public int compare(byte[] o1, byte[] o2) {
+                    return 0;
+                }
+            });
             Thread receiverThread = new Thread(() -> receiver(), "Receiver Thread");
             receiverThread.start();
+            Thread senderThread = new Thread(() -> new Sender(), "Sender Thread");
+            senderThread.start();
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
         }
     }
 
-    private synchronized void sender(byte[] data){
-        //System.out.println("Sending " + Arrays.toString(data) + " to " + socket.getLocalAddress() + ":" + socket.getPort() + "");
-        try {
+    private class Sender{
+        public Sender(){
+            try {
+                while (true) {
+                    byte[] data = null;
+                    synchronized (queue) {
+                        if (queue.peek() == null)
+                            queue.wait();
+                        data = queue.poll();
+                    }
+                    int dataLength = data.length;
+                    dout.writeInt(dataLength);
+                    dout.write(data, 0, dataLength);
+                    dout.flush();
+                }
+            } catch (Exception e){
 
-            int dataLength = data.length;
-            dout.writeInt(dataLength);
-            dout.write(data, 0, dataLength);
-            dout.flush();
-
-        } catch (Exception e){
-            System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
+            }
         }
     }
 
-    public void sendData(byte[] b){
-        sender(b);
-        //new Thread(() -> this.sender(b)).start();
+    public void sendData(byte[] data){
+        synchronized (this.queue){
+            this.queue.add(data);
+            this.queue.notify();
+        }
     }
 
     private void receiver(){
-        System.out.println("Receiver listening for data from " + socket.getInetAddress() + ":" + socket.getPort() + " to me(" + socket.getLocalAddress() + ":" + socket.getLocalPort() + ")");
+        //System.out.println("Receiver listening for data from " + socket.getInetAddress() + ":" + socket.getPort() + " to me(" + socket.getLocalAddress() + ":" + socket.getLocalPort() + ")");
         int dataLength;
         byte[] data = null;
         while(socket != null) {

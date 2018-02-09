@@ -21,12 +21,8 @@ public class MessagingNode extends Node {
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int[] nodes;
-    private Long sumSent = 0l;
-    private Long sumReceived = 0l;
-    private Integer packetsReceived = 0;
-    private Integer packetsSent = 0;
-    private Integer packetsRelayed = 0;
     private TCPConnection registryConnection;
+    private OverlayNodeReportsTrafficSummary ONRTS;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -91,23 +87,24 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
                 RegistryRequestsTaskInitiate RRTI = (RegistryRequestsTaskInitiate)e;
-                new Thread(() -> {
-                    initDataStream(RRTI.getNumDataPackets());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initDataStream(RRTI.getNumDataPackets());
+                    }
                 }).start();
                 break;
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                //System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
+                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
-                    synchronized (this.sumReceived){
-                        this.sumReceived += ONSD.getPayload();
-                    }
-                    synchronized (this.packetsReceived){
-                        this.packetsReceived += 1;
+                    synchronized (this.ONRTS){
+                        this.ONRTS.addSumReceived(ONSD.getPayload());
+                        this.ONRTS.addPacketsReceived(1);
                     }
                 } else {
-                    synchronized (this.packetsRelayed){
-                        this.packetsRelayed += 1;
+                    synchronized (this.ONRTS){
+                        this.ONRTS.addPacketsRelayed(1);
                     }
                     ONSD.addTrace(this.id);
                     this.cache.getNearestId(ONSD.getDestinationId()).sendData(ONSD.pack());
@@ -115,13 +112,11 @@ public class MessagingNode extends Node {
                 break;
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
                 System.out.println("Sending traffic summary to Registry...");
-                this.registryConnection.sendData(new OverlayNodeReportsTrafficSummary(this.id,
-                        this.packetsSent,
-                        this.packetsRelayed,
-                        this.sumSent,
-                        this.packetsReceived,
-                        this.sumReceived).pack()
-                );
+                synchronized (this.ONRTS) {
+                    this.registryConnection.sendData(this.ONRTS.pack());
+                    System.out.println("Pakcets sent: " + this.ONRTS.getPacketsSent());
+                    System.out.println("Pakcets received: " + this.ONRTS.getPacketsReceived());
+                }
         }
     }
 
@@ -130,6 +125,7 @@ public class MessagingNode extends Node {
         for (int i = 0 ; i < routingTable.getTableSize() ; i++){
             try {
                 TCPConnection conn = new TCPConnection(new Socket(routingTable.getRoute(i).ipToString(), routingTable.getRoute(i).getPort()));
+                conn.init();
                 cache.addConnection(routingTable.getRoute(i).getGuid(), conn);
             } catch (Exception e){
                 System.out.println(e.getMessage());
@@ -139,21 +135,23 @@ public class MessagingNode extends Node {
     }
 
     private void initDataStream(int numDataPackets) {
+        this.ONRTS = new OverlayNodeReportsTrafficSummary();
         Random randomId = new Random();
         Random randomInt = new Random();
         int nodeId;
+        synchronized (this.ONRTS){
+            this.ONRTS.reset();
+        }
         OverlayNodeSendsData ONSD;
         for (int i = 0 ; i < numDataPackets ; i++){
             while ((nodeId = randomId.nextInt(this.nodes.length)) == this.id);
             int payload = randomInt.nextInt() - 2147483647 - 1;
-            this.sumSent += payload;
-            //System.out.println(this.id + " sending " + payload + " to " + nodeId);
             ONSD = new OverlayNodeSendsData(nodeId, this.id, payload, new int[0]);
-
             try {
                 this.cache.getNearestId(nodeId).sendData(ONSD.pack());
-                synchronized (this.packetsSent){
-                    this.packetsSent += 1;
+                synchronized (this.ONRTS){
+                    this.ONRTS.addSumSent(payload);
+                    this.ONRTS.addPacketsSent(1);
                 }
             } catch (Exception e){
                 System.out.println("[" + Thread.currentThread().getName() + "] Error sending datagram: " + e.getMessage());
@@ -165,9 +163,11 @@ public class MessagingNode extends Node {
                     this.tcpServer.getHostBytes(),
                     this.tcpServer.getPort(),
                     this.id).pack());
+            System.out.println("Sending Task Finished");
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error sending task finished: " + e.getMessage());
         }
+        System.out.println("Done sending data.");
     }
 
 }
