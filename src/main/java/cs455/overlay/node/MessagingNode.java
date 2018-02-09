@@ -104,12 +104,12 @@ public class MessagingNode extends Node {
 
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
+                //System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
                     synchronized (this.ONRTS){
                         this.ONRTS.addSumReceived(ONSD.getPayload());
                         this.ONRTS.addPacketsReceived(1);
-                        System.out.println(this.ONRTS.getPacketsReceived() + " from " + Arrays.toString(ONSD.pack()));
+                        //System.out.println(this.ONRTS.getPacketsReceived() + " from " + Arrays.toString(ONSD.pack()));
                     }
                 } else {
                     synchronized (this.ONRTS){
@@ -122,11 +122,11 @@ public class MessagingNode extends Node {
 
 
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
-                System.out.println("Sending traffic summary to Registry...");
+                //System.out.println("Sending traffic summary to Registry...");
                 synchronized (this.ONRTS) {
                     this.registryConnection.sendData(this.ONRTS.pack());
-                    System.out.println("Pakcets sent: " + this.ONRTS.getPacketsSent());
-                    System.out.println("Pakcets received: " + this.ONRTS.getPacketsReceived());
+                    //System.out.println("Pakcets sent: " + this.ONRTS.getPacketsSent());
+                    //System.out.println("Pakcets received: " + this.ONRTS.getPacketsReceived());
                 }
         }
     }
