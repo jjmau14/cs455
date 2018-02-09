@@ -11,8 +11,6 @@ import cs455.overlay.wireformats.*;
 
 import dnl.utils.text.table.TextTable;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 
 public class Registry extends Node{
 
@@ -107,6 +105,7 @@ public class Registry extends Node{
                     this.overlaySummary.addSumSent(ONRTS.getSumSent());
                     this.overlaySummary.addPacketsReceived(ONRTS.getPacketsReceived());
                     this.overlaySummary.addPacketsSent(ONRTS.getPacketsSent());
+                    this.overlaySummary.addPacketsRelayed(ONRTS.getPacketsRelayed());
                 }
                 synchronized (this.count) {
                     this.count+=1;
@@ -116,6 +115,7 @@ public class Registry extends Node{
                             System.out.print(this.overlaySummary.getSumSent() + " received. ");
                             System.out.print(this.overlaySummary.getPacketsReceived() + "/");
                             System.out.println(this.overlaySummary.getPacketsSent() + " packets received.");
+                            System.out.println("Forwarded " + this.overlaySummary.getPacketsRelayed() + " packets.");
                             if (!this.overlaySummary.getSumReceived().equals(this.overlaySummary.getSumSent())) {
                                 this.count = 0;
                                 this.overlaySummary.reset();
