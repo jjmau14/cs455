@@ -119,22 +119,27 @@ public class Registry extends Node{
                         synchronized (this.overlaySummary) {
                             long sumSent = 0l;
                             long sumRec = 0l;
-                            System.out.print(this.overlaySummary.getSumReceived() + "/");
-                            System.out.print(this.overlaySummary.getSumSent() + " received. ");
-                            System.out.print(this.overlaySummary.getPacketsReceived() + "/");
-                            System.out.println(this.overlaySummary.getPacketsSent() + " packets received.");
-                            System.out.println("Forwarded " + this.overlaySummary.getPacketsRelayed() + " packets.");
+                            System.out.print(String.format("| %-8s ", "Node ID"));
+                            System.out.print(String.format("| %-12s ", "Packets Sent"));
+                            System.out.print(String.format("| %-16s ", "Packets Received"));
+                            System.out.print(String.format("| %-15s ", "Packets Relayed"));
+                            System.out.print(String.format("| %-15s ", "Sum Sent"));
+                            System.out.println(String.format("| %-15s |", "Sum Received"));
+                            System.out.println("===============================================================================================");
                             for (Integer i : this.registry.keySet()){
-                                System.out.print(this.registry.get(i).ONRTS.getPacketsSent() + " :: ");
-                                System.out.print(this.registry.get(i).ONRTS.getPacketsReceived() + " :: ");
-                                System.out.print(this.registry.get(i).ONRTS.getPacketsRelayed() + " :: ");
-                                System.out.print(this.registry.get(i).ONRTS.getSumSent() + " :: ");
-                                System.out.println(this.registry.get(i).ONRTS.getSumReceived());
-                                sumSent += this.registry.get(i).ONRTS.getSumSent();
-                                sumRec += this.registry.get(i).ONRTS.getSumReceived();
+                                System.out.print(String.format("| %-8s |", i));
+                                System.out.print(String.format(" %-12s ",  this.registry.get(i).ONRTS.getPacketsSent()));
+                                System.out.print(String.format("| %-16s ", this.registry.get(i).ONRTS.getPacketsReceived()));
+                                System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getPacketsRelayed()));
+                                System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getSumSent()));
+                                System.out.println(String.format("| %-15s |", this.registry.get(i).ONRTS.getSumReceived()));
                             }
-                            System.out.println("Sum sent: " + sumSent);
-                            System.out.println("Sum rec: " + sumRec);
+                            System.out.print(String.format("| %-8s ", "Sum"));
+                            System.out.print(String.format("| %-12s ", this.overlaySummary.getPacketsSent()));
+                            System.out.print(String.format("| %-16s ", this.overlaySummary.getPacketsReceived()));
+                            System.out.print(String.format("| %-15s ", this.overlaySummary.getPacketsRelayed()));
+                            System.out.print(String.format("| %-15s ", this.overlaySummary.getSumReceived()));
+                            System.out.println(String.format("| %-15s |", this.overlaySummary.getSumSent()));
                             this.overlaySummary.reset();
                             this.count = 0;
                         }
