@@ -84,7 +84,7 @@ public class TCPConnection {
                 //se.printStackTrace();
                 break;
             } catch (IOException ioe) {
-                System.out.println("[" + Thread.currentThread().getName() + "] IOException: " + ioe.getMessage());
+                System.out.println("[" + Thread.currentThread().getName() + "] A Node has exited the overlay");
                 //ioe.printStackTrace();
                 break;
             } catch (Exception e) {
@@ -98,7 +98,7 @@ public class TCPConnection {
                 ef.run(this, data);
             }
         }
-        System.out.println("Socket closed.");
+        //System.out.println("Socket closed.");
         if (this.EXIT_ON_CLOSE) {
             System.out.println("Connection with the registry failed. System exiting...");
             System.exit(1);

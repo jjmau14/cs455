@@ -127,6 +127,9 @@ public class Registry extends Node{
             case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
                 OverlayNodeSendsDeregistration ONSD = (OverlayNodeSendsDeregistration)e;
                 RegisterItem reg = this.registry.remove(ONSD.getId());
+                for (Integer i : this.registry.keySet()){
+                    System.out.println(this.registry.get(i).getId() + ": " + this.registry.get(i).ipToString());
+                }
                 if (reg != null) {
                     this.cache.getConnectionById(ONSD.getId()).sendData(new RegistryReportsDeregistrationStatus((byte) 1).pack());
                     this.cache.delete(ONSD.getId());
@@ -148,8 +151,13 @@ public class Registry extends Node{
     private synchronized int register(RegisterItem ri) throws Exception {
         if (!registry.containsValue(ri)){
             if (registry.size() < 127) {
-                ri.setId(registry.size());
-                registry.put(registry.size(), ri);
+                for (int i = 0 ; i < 127 ; i++){
+                    if (this.registry.get(i) == null){
+                        ri.setId(i);
+                        registry.put(i, ri);
+                        break;
+                    }
+                }
             } else {
                 throw new Exception("Registry is full.");
             }
@@ -214,11 +222,14 @@ public class Registry extends Node{
 
     public void listMessagingNodes(){
         String[][] data = new String[this.getSize()][3];
-        for (int i = 0 ; i < registry.size() ; i++) {
-            data[i][0] = registry.get(i).ipToString();
-            data[i][1] = Integer.toString(registry.get(i).getPort());
-            data[i][2] = Integer.toString(registry.get(i).getId());
-
+        int counter = 0;
+        for (Integer i : this.registry.keySet()) {
+            if (this.registry.get(i) != null) {
+                data[counter][0] = registry.get(i).ipToString();
+                data[counter][1] = Integer.toString(registry.get(i).getPort());
+                data[counter][2] = Integer.toString(registry.get(i).getId());
+                counter++;
+            }
         }
         System.out.println("There " + (this.getSize() == 1 ? "is 1 node registered with the registry." :
                 "are " + this.getSize() + " nodes registered with the registry."));
