@@ -28,6 +28,8 @@ public class TCPServerThread implements Runnable {
             }
         } catch (IOException ioe){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + ioe.getMessage());
+        } catch (Exception e){
+
         }
     }
 

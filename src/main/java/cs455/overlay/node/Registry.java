@@ -116,14 +116,9 @@ public class Registry extends Node{
                             System.out.print(this.overlaySummary.getPacketsReceived() + "/");
                             System.out.println(this.overlaySummary.getPacketsSent() + " packets received.");
                             System.out.println("Forwarded " + this.overlaySummary.getPacketsRelayed() + " packets.");
-                            if (!this.overlaySummary.getSumReceived().equals(this.overlaySummary.getSumSent())) {
-                                this.count = 0;
-                                this.overlaySummary.reset();
-                                Thread.sleep(3000);
-                                gatherTaskData();
-                            } else {
-                                System.out.println("FINAL");
-                            }
+                            System.out.println("FINAL");
+                            this.overlaySummary.reset();
+                            this.count = 0;
                         }
                     }
                 }

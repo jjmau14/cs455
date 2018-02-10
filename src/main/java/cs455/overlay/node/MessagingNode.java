@@ -9,8 +9,6 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public class MessagingNode extends Node {
@@ -92,7 +90,9 @@ public class MessagingNode extends Node {
 
 
             case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
+                this.ONRTS.reset();
                 RegistryRequestsTaskInitiate RRTI = (RegistryRequestsTaskInitiate)e;
+                System.out.println("New task requested for " + RRTI.getNumDataPackets() + " messages.");
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -104,12 +104,10 @@ public class MessagingNode extends Node {
 
             case Protocol.OVERLAY_NODE_SENDS_DATA:
                 OverlayNodeSendsData ONSD = (OverlayNodeSendsData)e;
-                //System.out.println("Received " + ONSD.getPayload() + " from " + ONSD.getSourceId() + " en route to " + ONSD.getDestinationId() + ": " + Arrays.toString(ONSD.pack()) );
                 if (ONSD.getDestinationId() == this.id){
                     synchronized (this.ONRTS){
                         this.ONRTS.addSumReceived(ONSD.getPayload());
                         this.ONRTS.addPacketsReceived(1);
-                        //System.out.println(this.ONRTS.getPacketsReceived() + " from " + Arrays.toString(ONSD.pack()));
                     }
                 } else {
                     synchronized (this.ONRTS){
@@ -122,11 +120,15 @@ public class MessagingNode extends Node {
 
 
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
-                //System.out.println("Sending traffic summary to Registry...");
+                int packetsReceived = 0;
+                do {
+                    synchronized (ONRTS) {
+                        packetsReceived = this.ONRTS.getPacketsReceived();
+                    }
+                    Thread.sleep(500);
+                } while (packetsReceived != ONRTS.getPacketsReceived());
                 synchronized (this.ONRTS) {
                     this.registryConnection.sendData(this.ONRTS.pack());
-                    //System.out.println("Pakcets sent: " + this.ONRTS.getPacketsSent());
-                    //System.out.println("Pakcets received: " + this.ONRTS.getPacketsReceived());
                 }
         }
     }
