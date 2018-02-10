@@ -4,6 +4,7 @@ import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class MessagingNode extends Node {
         this.cache = new TCPConnectionsCache();
         this.eventFactory = new EventFactory(this);
         this.ONRTS = new OverlayNodeReportsTrafficSummary();
-
+        new Thread(() -> new CommandParser().messengerParser(this), "Command Parser").start();
         try {
             // Initialize server to get port to send to registry
             Thread server = new Thread(this.tcpServer = new TCPServerThread(0), "Messenger");
@@ -130,6 +131,17 @@ public class MessagingNode extends Node {
                 synchronized (this.ONRTS) {
                     this.registryConnection.sendData(this.ONRTS.pack());
                 }
+                break;
+
+            case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
+                RegistryReportsDeregistrationStatus RRDS = (RegistryReportsDeregistrationStatus)e;
+                if (RRDS.getStatus() == 1){
+                    System.out.println("Overlay exit succeeded. Terminating program...");
+                    System.exit(0);
+                } else {
+                    System.out.println("Error exiting overlay");
+                }
+                break;
         }
     }
 
@@ -177,6 +189,18 @@ public class MessagingNode extends Node {
             System.out.println("[" + Thread.currentThread().getName() + "] Error sending task finished: " + e.getMessage());
         }
         System.out.println("Done sending data.");
+    }
+
+    public void printDiagnostics(){
+
+    }
+
+    public void exitOverlay(){
+        try {
+            this.registryConnection.sendData(new OverlayNodeSendsDeregistration(this.tcpServer.getHostBytes(), this.tcpServer.getPort(), this.id).pack());
+        } catch (Exception e){
+
+        }
     }
 
 }

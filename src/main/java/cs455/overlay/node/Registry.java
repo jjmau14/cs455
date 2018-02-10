@@ -123,6 +123,17 @@ public class Registry extends Node{
                     }
                 }
                 break;
+
+            case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
+                OverlayNodeSendsDeregistration ONSD = (OverlayNodeSendsDeregistration)e;
+                RegisterItem reg = this.registry.remove(ONSD.getId());
+                if (reg != null) {
+                    this.cache.getConnectionById(ONSD.getId()).sendData(new RegistryReportsDeregistrationStatus((byte) 1).pack());
+                    this.cache.delete(ONSD.getId());
+                } else {
+                    this.cache.getConnectionById(ONSD.getId()).sendData(new RegistryReportsDeregistrationStatus((byte) 0).pack());
+                }
+                break;
         }
 
     }

@@ -59,4 +59,8 @@ public class TCPConnectionsCache {
         return this.connections.get(currentMin);
     }
 
+    public void delete(int id){
+        this.connections.remove(id);
+    }
+
 }

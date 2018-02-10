@@ -16,6 +16,8 @@ public class TCPConnection {
     private PriorityQueue<byte[]> queue;
     private DataInputStream din;
     private DataOutputStream dout;
+    private Thread senderThread;
+    private Thread receiverThread;
 
     public TCPConnection(Socket socket) throws IOException {
         this.socket = socket;
@@ -79,15 +81,15 @@ public class TCPConnection {
                 din.readFully(data, 0, dataLength);
             } catch (SocketException se) {
                 System.out.println("[" + Thread.currentThread().getName() + "] SocketException: " + se.getMessage());
-                se.printStackTrace();
+                //se.printStackTrace();
                 break;
             } catch (IOException ioe) {
                 System.out.println("[" + Thread.currentThread().getName() + "] IOException: " + ioe.getMessage());
-                ioe.printStackTrace();
+                //ioe.printStackTrace();
                 break;
             } catch (Exception e) {
                 System.out.println("[" + Thread.currentThread().getName() + "] Exception: " + e.getMessage());
-                e.printStackTrace();
+                //e.printStackTrace();
                 break;
             }
             if (data != null ) {
@@ -110,5 +112,4 @@ public class TCPConnection {
     public void exitOnClose(){
         this.EXIT_ON_CLOSE = true;
     }
-
 }

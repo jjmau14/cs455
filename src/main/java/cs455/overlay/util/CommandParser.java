@@ -1,5 +1,6 @@
 package cs455.overlay.util;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.node.Registry;
 import dnl.utils.text.table.TextTable;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 
 public class CommandParser {
 
-    public void registryParser(Registry registry){
+    public void registryParser(Registry registry) {
         Scanner scnr = new Scanner(System.in);
         while(true) {
             System.out.print("[" + Thread.currentThread().getName() + "] Enter a Registry Command: ");
@@ -84,6 +85,53 @@ public class CommandParser {
                 }
             } catch (Exception e){
                 System.out.println("Error parsing command:" + e.getMessage());
+            }
+        }
+    }
+
+    public void messengerParser(MessagingNode messager){
+        Scanner scnr = new Scanner(System.in);
+        while(true) {
+            System.out.print("[" + Thread.currentThread().getName() + "] Enter a Messenger Command: ");
+            String cmd = scnr.nextLine();
+
+            try {
+                String[] cmdArray;
+                switch (cmd.toLowerCase().split(" ")[0]) {
+                    case "print-counters-and-diagnostics":
+                        System.out.println("Printing diagnostics...");
+                        messager.printDiagnostics();
+                        break;
+
+                    case "exit-overlay":
+                        messager.exitOverlay();
+                        System.out.println("Exiting overlay...");
+                        break;
+                    /**
+                     * @Case: Help
+                     * Prints list of available commands
+                     * */
+                    case "help":
+                        break;
+
+                    /**
+                     * @Case: Empty String
+                     * Prints new line for entering command rather than returning
+                     * the default error "Unrecognized command"
+                     * */
+                    case "":
+                        break;
+
+                    /**
+                     * @Case: Default
+                     * Error: Command was not one of the available commands.
+                     * */
+                    default:
+                        System.out.println("Unrecognized command \"" + cmd + "\". Try \"help\".");
+
+                }
+            } catch (Exception e){
+
             }
         }
     }
