@@ -73,6 +73,7 @@ public class MessagingNode extends Node {
                 RegistryReportsRegistrationStatus RRRS = (RegistryReportsRegistrationStatus)e;
                 System.out.println(RRRS.getMessage());
                 this.id = RRRS.getId();
+                this.ONRTS.setId(this.id);
                 break;
 
 

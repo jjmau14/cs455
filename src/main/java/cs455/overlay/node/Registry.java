@@ -107,16 +107,34 @@ public class Registry extends Node{
                     this.overlaySummary.addPacketsSent(ONRTS.getPacketsSent());
                     this.overlaySummary.addPacketsRelayed(ONRTS.getPacketsRelayed());
                 }
+                System.out.println("Received info for " + ONRTS.getId());
+                this.registry.get(ONRTS.getId()).ONRTS.addPacketsRelayed(ONRTS.getPacketsRelayed());
+                this.registry.get(ONRTS.getId()).ONRTS.addPacketsReceived(ONRTS.getPacketsReceived());
+                this.registry.get(ONRTS.getId()).ONRTS.addPacketsSent(ONRTS.getPacketsSent());
+                this.registry.get(ONRTS.getId()).ONRTS.addSumReceived(ONRTS.getSumReceived());
+                this.registry.get(ONRTS.getId()).ONRTS.addSumSent(ONRTS.getSumSent());
                 synchronized (this.count) {
                     this.count+=1;
                     if (this.count == this.registry.size()) {
                         synchronized (this.overlaySummary) {
+                            long sumSent = 0l;
+                            long sumRec = 0l;
                             System.out.print(this.overlaySummary.getSumReceived() + "/");
                             System.out.print(this.overlaySummary.getSumSent() + " received. ");
                             System.out.print(this.overlaySummary.getPacketsReceived() + "/");
                             System.out.println(this.overlaySummary.getPacketsSent() + " packets received.");
                             System.out.println("Forwarded " + this.overlaySummary.getPacketsRelayed() + " packets.");
-                            System.out.println("FINAL");
+                            for (Integer i : this.registry.keySet()){
+                                System.out.print(this.registry.get(i).ONRTS.getPacketsSent() + " :: ");
+                                System.out.print(this.registry.get(i).ONRTS.getPacketsReceived() + " :: ");
+                                System.out.print(this.registry.get(i).ONRTS.getPacketsRelayed() + " :: ");
+                                System.out.print(this.registry.get(i).ONRTS.getSumSent() + " :: ");
+                                System.out.println(this.registry.get(i).ONRTS.getSumReceived());
+                                sumSent += this.registry.get(i).ONRTS.getSumSent();
+                                sumRec += this.registry.get(i).ONRTS.getSumReceived();
+                            }
+                            System.out.println("Sum sent: " + sumSent);
+                            System.out.println("Sum rec: " + sumRec);
                             this.overlaySummary.reset();
                             this.count = 0;
                         }
@@ -127,9 +145,6 @@ public class Registry extends Node{
             case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
                 OverlayNodeSendsDeregistration ONSD = (OverlayNodeSendsDeregistration)e;
                 RegisterItem reg = this.registry.remove(ONSD.getId());
-                for (Integer i : this.registry.keySet()){
-                    System.out.println(this.registry.get(i).getId() + ": " + this.registry.get(i).ipToString());
-                }
                 if (reg != null) {
                     this.cache.getConnectionById(ONSD.getId()).sendData(new RegistryReportsDeregistrationStatus((byte) 1).pack());
                     this.cache.delete(ONSD.getId());
@@ -252,6 +267,9 @@ public class Registry extends Node{
     }
 
     public void initDataStream(int numDataPackets){
+        for (Integer i : this.registry.keySet()){
+            this.registry.get(i).ONRTS.reset();
+        }
         synchronized (this.completeCount) {
             this.completeCount = 0;
         }

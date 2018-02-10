@@ -1,5 +1,7 @@
 package cs455.overlay.routing;
 
+import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
+
 public class RegisterItem {
 
     private byte[] ip;
@@ -7,8 +9,10 @@ public class RegisterItem {
     private int id;
     private boolean overlayReady = false;
     private boolean taskComplete = false;
+    public OverlayNodeReportsTrafficSummary ONRTS;
 
     public RegisterItem(byte[] ip, int port){
+        this.ONRTS = new OverlayNodeReportsTrafficSummary();
         this.ip = ip;
         this.port = port;
     }
