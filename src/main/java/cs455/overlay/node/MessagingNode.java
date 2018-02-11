@@ -12,6 +12,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Random;
 
+/**
+ * @Class: MessagingNode
+ *  On start, node will register itself with the registry specified
+ *  by the command line args host/port. Node contains methods to configure
+ *  an overlay based on the routing table provided by the registry, as well
+ *  as execute a task determined by the registry and store/return task
+ *  summaries to the registry.
+ * */
 public class MessagingNode extends Node {
 
     private int id = -1;
@@ -31,6 +39,12 @@ public class MessagingNode extends Node {
         MessagingNode node = new MessagingNode(args[0], Integer.parseInt(args[1]));
     }
 
+    /**
+     * @Method: Constructor
+     *  Initialize the TCP Connection cache, set the singleton instance
+     *  of the event factory to use `this`, starts a command parser thread,
+     *  and a server thread to accept connection.
+     * */
     public MessagingNode(String ip, int port) throws Exception {
         this.cache = new TCPConnectionsCache();
         this.eventFactory = new EventFactory(this);
@@ -49,6 +63,12 @@ public class MessagingNode extends Node {
         }
     }
 
+    /**
+     * @Method: register
+     *  Registers this MessagingNode with the registry and sets
+     *  the instance variable `id` equal to the id returned from
+     *  the registry.
+     * */
     private void register(String RegistryIP, int RegistryPort) throws Exception {
         try {
             Socket registerSocket = new Socket(RegistryIP, RegistryPort);
@@ -67,6 +87,10 @@ public class MessagingNode extends Node {
         }
     }
 
+    /**
+     * @Method: onEvent - extended from Node
+     *  Handles all event types for MessagingNodes
+     * */
     public void onEvent(TCPConnection conn, Event e) throws Exception {
         switch(e.getType()){
             case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
@@ -120,7 +144,14 @@ public class MessagingNode extends Node {
                 }
                 break;
 
-
+                
+            /**
+             * @Case: Registry Requests Traffic Summary
+             *  On request for traffic summary, store the packets received and relayed
+             *  in variables and wait a short time period. When Thread wakes, check if
+             *  those values have changed, if so, wait again: if not, send summary to the
+             *  registry.
+             * */
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
                 int packetsRelayed = 0;
                 int packetsReceived = 0;
@@ -136,6 +167,7 @@ public class MessagingNode extends Node {
                 }
                 break;
 
+
             case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
                 RegistryReportsDeregistrationStatus RRDS = (RegistryReportsDeregistrationStatus)e;
                 if (RRDS.getStatus() == 1){
@@ -148,6 +180,11 @@ public class MessagingNode extends Node {
         }
     }
 
+    /**
+     * @Method: setupOverlayConnections
+     *  Configures/initializes TCPConnections to each route
+     *  in this nodes routing table as described by the registry.
+     * */
     private void setupOverlayConnections() throws Exception {
 
         for (int i = 0 ; i < routingTable.getTableSize() ; i++){
@@ -162,6 +199,11 @@ public class MessagingNode extends Node {
         }
     }
 
+    /**
+     * @Method: initDataStream
+     *  Initializes a task requested by the registry. Upon completion of sending
+     *  data, notifies the registry of its completion.
+     * */
     private void initDataStream(int numDataPackets) {
         Random randomId = new Random();
         Random randomInt = new Random();
@@ -198,6 +240,11 @@ public class MessagingNode extends Node {
 
     }
 
+    /**
+     * @Method: exitOverlay
+     *  Requests removal from the overlay network to the registry.
+     *  Upon approval, process is terminated.
+     * */
     public void exitOverlay(){
         try {
             this.registryConnection.sendData(new OverlayNodeSendsDeregistration(this.tcpServer.getHostBytes(), this.tcpServer.getPort(), this.id).pack());
