@@ -122,13 +122,15 @@ public class MessagingNode extends Node {
 
 
             case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
+                int packetsRelayed = 0;
                 int packetsReceived = 0;
                 do {
                     synchronized (ONRTS) {
+                        packetsRelayed = this.ONRTS.getPacketsRelayed();
                         packetsReceived = this.ONRTS.getPacketsReceived();
                     }
                     Thread.sleep(300);
-                } while (packetsReceived != ONRTS.getPacketsReceived());
+                } while (packetsRelayed != ONRTS.getPacketsRelayed() || packetsReceived != ONRTS.getPacketsReceived());
                 synchronized (this.ONRTS) {
                     this.registryConnection.sendData(this.ONRTS.pack());
                 }

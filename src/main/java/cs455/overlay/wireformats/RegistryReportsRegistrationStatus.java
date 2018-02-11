@@ -1,7 +1,12 @@
 package cs455.overlay.wireformats;
 
-import java.io.*;
-import java.util.Arrays;
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 
 public class RegistryReportsRegistrationStatus extends Event {
 

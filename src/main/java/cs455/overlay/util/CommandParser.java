@@ -95,7 +95,6 @@ public class CommandParser {
                 String[] cmdArray;
                 switch (cmd.toLowerCase().split(" ")[0]) {
                     case "print-counters-and-diagnostics":
-                        System.out.println("Printing diagnostics...");
                         messager.printDiagnostics();
                         break;
 

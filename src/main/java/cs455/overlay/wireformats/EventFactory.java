@@ -3,7 +3,6 @@ package cs455.overlay.wireformats;
 import cs455.overlay.node.Node;
 import cs455.overlay.transport.TCPConnection;
 
-import java.net.Socket;
 import java.util.Arrays;
 
 public class EventFactory {

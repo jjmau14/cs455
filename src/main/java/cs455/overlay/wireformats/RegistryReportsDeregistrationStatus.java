@@ -1,7 +1,5 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.Registry;
-
 import java.io.IOException;
 
 public class RegistryReportsDeregistrationStatus extends Event {

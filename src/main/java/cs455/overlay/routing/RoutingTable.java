@@ -57,6 +57,15 @@ public class RoutingTable {
      * route in this instance of the routing table.
      * */
     public String toString() {
+        System.out.print(String.format("| %-17s ", "Host"));
+        System.out.print(String.format("| %-7s ", "Port"));
+        System.out.println(String.format("| %-7s |", "Node ID"));
+        System.out.println("==========================================");
+        for(Route r : this.routes){
+            System.out.print(String.format("| %-17s ", r.ipToString()));
+            System.out.print(String.format("| %-7s ", r.getPort()));
+            System.out.println(String.format("| %-7s |", r.getGuid()));
+        }
         return "";
     }
 

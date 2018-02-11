@@ -18,7 +18,7 @@ public class TCPConnectionsCache {
 
     public void addConnection(int id, TCPConnection connection){
         if (!this.connections.containsKey(id)) {
-            System.out.println("Connection saved from " + connection.getSocket().getLocalPort() + " to " + connection.getSocket().getPort());
+            //System.out.println("Connection saved from " + connection.getSocket().getLocalPort() + " to " + connection.getSocket().getPort());
             this.connections.put(id, connection);
         }
     }

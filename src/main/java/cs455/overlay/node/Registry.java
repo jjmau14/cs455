@@ -79,7 +79,7 @@ public class Registry extends Node{
                 NodeReportsOverlaySetupStatus NROSS = (NodeReportsOverlaySetupStatus)e;
                 if (NROSS.getStatusOrId() != -1) {
                     this.registry.get(NROSS.getStatusOrId()).setReady();
-                    System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
+                    //System.out.println("Node id: " + NROSS.getStatusOrId() + ": " + NROSS.getMessage() + ".. Node set to ready state.");
                 }
                 break;
 
@@ -87,7 +87,7 @@ public class Registry extends Node{
             case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
                 OverlayNodeReportsTaskFinished ONRTF = (OverlayNodeReportsTaskFinished)e;
                 this.registry.get(ONRTF.getGuid()).setComplete();
-                System.out.println("Task complete for node " + ONRTF.getGuid());
+                //System.out.println("Task complete for node " + ONRTF.getGuid());
                 synchronized (this.completeCount) {
                     completeCount += 1;
                     if (completeCount == this.registry.size()) {
@@ -106,7 +106,7 @@ public class Registry extends Node{
                     this.overlaySummary.addPacketsSent(ONRTS.getPacketsSent());
                     this.overlaySummary.addPacketsRelayed(ONRTS.getPacketsRelayed());
                 }
-                System.out.println("Received info for " + ONRTS.getId());
+                //System.out.println("Received info for " + ONRTS.getId());
                 this.registry.get(ONRTS.getId()).ONRTS.addPacketsRelayed(ONRTS.getPacketsRelayed());
                 this.registry.get(ONRTS.getId()).ONRTS.addPacketsReceived(ONRTS.getPacketsReceived());
                 this.registry.get(ONRTS.getId()).ONRTS.addPacketsSent(ONRTS.getPacketsSent());
@@ -115,6 +115,7 @@ public class Registry extends Node{
                 synchronized (this.count) {
                     this.count+=1;
                     if (this.count == this.registry.size()) {
+                        System.out.println("\nTask Summary:\n");
                         synchronized (this.overlaySummary) {
                             System.out.print(String.format("| %-8s ", "Node ID"));
                             System.out.print(String.format("| %-12s ", "Packets Sent"));
@@ -228,6 +229,7 @@ public class Registry extends Node{
         if (this.manifests != null) {
             int counter = 0;
             synchronized (System.out) {
+                System.out.println();
                 for (RoutingTable r : manifests) {
                     System.out.println("Node " + counter++);
                     System.out.println(r.toString());
@@ -239,6 +241,7 @@ public class Registry extends Node{
     }
 
     public void listMessagingNodes(){
+        System.out.println();
         System.out.print(String.format("| %-17s ", "Host"));
         System.out.print(String.format("| %-7s ", "Port"));
         System.out.println(String.format("| %-7s |", "Node ID"));
