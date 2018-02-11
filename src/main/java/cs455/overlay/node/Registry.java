@@ -9,7 +9,6 @@ import cs455.overlay.transport.TCPConnectionsCache;
 import cs455.overlay.util.CommandParser;
 import cs455.overlay.wireformats.*;
 
-import dnl.utils.text.table.TextTable;
 import java.util.Hashtable;
 
 public class Registry extends Node{
@@ -117,15 +116,13 @@ public class Registry extends Node{
                     this.count+=1;
                     if (this.count == this.registry.size()) {
                         synchronized (this.overlaySummary) {
-                            long sumSent = 0l;
-                            long sumRec = 0l;
                             System.out.print(String.format("| %-8s ", "Node ID"));
                             System.out.print(String.format("| %-12s ", "Packets Sent"));
                             System.out.print(String.format("| %-16s ", "Packets Received"));
                             System.out.print(String.format("| %-15s ", "Packets Relayed"));
                             System.out.print(String.format("| %-15s ", "Sum Sent"));
                             System.out.println(String.format("| %-15s |", "Sum Received"));
-                            System.out.println("===============================================================================================");
+                            System.out.println("====================================================================================================");
                             for (Integer i : this.registry.keySet()){
                                 System.out.print(String.format("| %-8s |", i));
                                 System.out.print(String.format(" %-12s ",  this.registry.get(i).ONRTS.getPacketsSent()));
@@ -134,6 +131,7 @@ public class Registry extends Node{
                                 System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getSumSent()));
                                 System.out.println(String.format("| %-15s |", this.registry.get(i).ONRTS.getSumReceived()));
                             }
+                            System.out.println("----------------------------------------------------------------------------------------------------");
                             System.out.print(String.format("| %-8s ", "Sum"));
                             System.out.print(String.format("| %-12s ", this.overlaySummary.getPacketsSent()));
                             System.out.print(String.format("| %-16s ", this.overlaySummary.getPacketsReceived()));
@@ -241,20 +239,20 @@ public class Registry extends Node{
     }
 
     public void listMessagingNodes(){
-        String[][] data = new String[this.getSize()][3];
-        int counter = 0;
+        System.out.print(String.format("| %-17s ", "Host"));
+        System.out.print(String.format("| %-7s ", "Port"));
+        System.out.println(String.format("| %-7s |", "Node ID"));
+        System.out.println("=========================================");
         for (Integer i : this.registry.keySet()) {
             if (this.registry.get(i) != null) {
-                data[counter][0] = registry.get(i).ipToString();
-                data[counter][1] = Integer.toString(registry.get(i).getPort());
-                data[counter][2] = Integer.toString(registry.get(i).getId());
-                counter++;
+                System.out.print(String.format("| %-17s ", registry.get(i).ipToString()));
+                System.out.print(String.format("| %-7s ", registry.get(i).getPort()));
+                System.out.println(String.format("| %-7s |", registry.get(i).getId()));
             }
         }
+        System.out.println("-----------------------------------------");
         System.out.println("There " + (this.getSize() == 1 ? "is 1 node registered with the registry." :
                 "are " + this.getSize() + " nodes registered with the registry."));
-        TextTable tt = new TextTable(new String[]{"Host", "Port", "Node ID"}, data);
-        tt.printTable();
         System.out.println();
     }
 

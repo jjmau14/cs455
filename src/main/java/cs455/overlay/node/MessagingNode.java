@@ -127,7 +127,7 @@ public class MessagingNode extends Node {
                     synchronized (ONRTS) {
                         packetsReceived = this.ONRTS.getPacketsReceived();
                     }
-                    Thread.sleep(500);
+                    Thread.sleep(300);
                 } while (packetsReceived != ONRTS.getPacketsReceived());
                 synchronized (this.ONRTS) {
                     this.registryConnection.sendData(this.ONRTS.pack());
