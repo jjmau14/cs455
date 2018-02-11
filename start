@@ -1,0 +1,6 @@
+test_home=/s/bach/m/under/jjmau14/cs/cs455/src/main/java
+for i in `cat machine_list`
+do
+echo 'logging into '${i}
+gnome-terminal -x bash --command="ssh ${i} 'cd ${test_home}; java cs455.overlay.node.MessagingNode denver 7891'" &
+done
