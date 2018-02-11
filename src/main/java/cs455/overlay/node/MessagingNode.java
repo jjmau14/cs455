@@ -144,7 +144,7 @@ public class MessagingNode extends Node {
                 }
                 break;
 
-                
+
             /**
              * @Case: Registry Requests Traffic Summary
              *  On request for traffic summary, store the packets received and relayed
@@ -236,8 +236,26 @@ public class MessagingNode extends Node {
         System.out.println("Done sending data.");
     }
 
+    /**
+     * @Method: printDiagnostics
+     *  Prints current statistics for this Node.
+     * */
     public void printDiagnostics(){
-
+        System.out.println();
+        System.out.print(String.format("| %-8s ", "Node ID"));
+        System.out.print(String.format("| %-12s ", "Packets Sent"));
+        System.out.print(String.format("| %-16s ", "Packets Received"));
+        System.out.print(String.format("| %-15s ", "Packets Relayed"));
+        System.out.print(String.format("| %-15s ", "Sum Sent"));
+        System.out.println(String.format("| %-15s |", "Sum Received"));
+        System.out.println("====================================================================================================");
+        System.out.print(String.format("| %-8s |", this.id));
+        System.out.print(String.format(" %-12s ",  ONRTS.getPacketsSent()));
+        System.out.print(String.format("| %-16s ", ONRTS.getPacketsReceived()));
+        System.out.print(String.format("| %-15s ", ONRTS.getPacketsRelayed()));
+        System.out.print(String.format("| %-15s ", ONRTS.getSumSent()));
+        System.out.println(String.format("| %-15s |", ONRTS.getSumReceived()));
+        System.out.println();
     }
 
     /**
