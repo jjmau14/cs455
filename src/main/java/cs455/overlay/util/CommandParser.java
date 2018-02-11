@@ -20,8 +20,16 @@ public class CommandParser {
                      * Prints list of available commands.
                      * */
                     case "help":
-                        System.out.println("list-messaging-nodes\t\tDisplays list of messaging nodes registered with the registry.");
-                        System.out.println("setup-overlay [routing table size]\t\tSends routing manifest to messaging nodes.\n");
+                        System.out.println();
+                        System.out.print(String.format("%-35s", "list-messaging-nodes"));
+                        System.out.println("- Displays list of messaging nodes registered with the registry");
+                        System.out.print(String.format("%-35s","setup-overlay [routing table size]"));
+                        System.out.println("- Sends routing manifest to messaging nodes");
+                        System.out.print(String.format("%-35s","list-routing-tables"));
+                        System.out.println("- Lists routing tables for each node currently configured in the overlay");
+                        System.out.print(String.format("%-35s","start [number of messages]"));
+                        System.out.println("- Starts a task on the overlay with \"x\" number of messages per MessagingNode");
+                        System.out.println();
                         break;
 
                     /**
@@ -41,6 +49,10 @@ public class CommandParser {
                         registry.printManifests();
                         break;
 
+                    /**
+                     * @Case: start
+                     * Executes a task on the overlay with `x` number of messages per node
+                     * */
                     case "start":
                         cmdArray = cmd.split(" ");
                         if (cmdArray.length != 2) {
@@ -94,19 +106,35 @@ public class CommandParser {
             try {
                 String[] cmdArray;
                 switch (cmd.toLowerCase().split(" ")[0]) {
+
+                    /**
+                     * @Case: print-counters-and-diagnostics
+                     * Displays information about the nodes current or previous task.
+                     * */
                     case "print-counters-and-diagnostics":
                         messager.printDiagnostics();
                         break;
 
+                    /**
+                     * @Case: exit-overlay
+                     * Removes this MessagingNode from the overlay.
+                     * */
                     case "exit-overlay":
                         messager.exitOverlay();
                         System.out.println("Exiting overlay...");
                         break;
+
                     /**
                      * @Case: Help
                      * Prints list of available commands
                      * */
                     case "help":
+                        System.out.println();
+                        System.out.print(String.format("%-35s", "print-counters-and-diagnostics"));
+                        System.out.println("- Displays diagnostics for the Messaging Node.");
+                        System.out.print(String.format("%-35s", "exit-overlay"));
+                        System.out.println("- Removes this Messaging Node from the overlay.");
+                        System.out.println();
                         break;
 
                     /**
