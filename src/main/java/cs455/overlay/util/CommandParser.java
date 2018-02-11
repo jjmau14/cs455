@@ -1,11 +1,7 @@
 package cs455.overlay.util;
 
 import cs455.overlay.node.MessagingNode;
-import cs455.overlay.routing.RegisterItem;
 import cs455.overlay.node.Registry;
-import dnl.utils.text.table.TextTable;
-
-import java.util.Hashtable;
 import java.util.Scanner;
 
 public class CommandParser {
