@@ -13,7 +13,8 @@ public class TCPConnection {
 
     private Socket socket = null;
     private boolean EXIT_ON_CLOSE = false;
-    private PriorityQueue<byte[]> queue;
+    private PriorityQueue<byte[]> outQueue;
+    private PriorityQueue<byte[]> inQueue;
     private DataInputStream din;
     private DataOutputStream dout;
     private Thread senderThread;
@@ -27,7 +28,13 @@ public class TCPConnection {
 
     public void init(){
         try {
-            this.queue = new PriorityQueue<>(new Comparator<byte[]>() {
+            this.outQueue = new PriorityQueue<>(new Comparator<byte[]>() {
+                @Override
+                public int compare(byte[] o1, byte[] o2) {
+                    return 0;
+                }
+            });
+            this.inQueue = new PriorityQueue<>(new Comparator<byte[]>() {
                 @Override
                 public int compare(byte[] o1, byte[] o2) {
                     return 0;
@@ -37,6 +44,8 @@ public class TCPConnection {
             receiverThread.start();
             Thread senderThread = new Thread(() -> new Sender(), "Sender Thread");
             senderThread.start();
+            Thread receiverWorker = new Thread(() -> receiverWorker(), "Receiver Worker");
+            receiverWorker.start();
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
         }
@@ -47,10 +56,10 @@ public class TCPConnection {
             try {
                 while (true) {
                     byte[] data = null;
-                    synchronized (queue) {
-                        if (queue.peek() == null)
-                            queue.wait();
-                        data = queue.poll();
+                    synchronized (outQueue) {
+                        if (outQueue.peek() == null)
+                            outQueue.wait();
+                        data = outQueue.poll();
                     }
                     int dataLength = data.length;
                     dout.writeInt(dataLength);
@@ -64,9 +73,9 @@ public class TCPConnection {
     }
 
     public void sendData(byte[] data){
-        synchronized (this.queue){
-            this.queue.add(data);
-            this.queue.notify();
+        synchronized (this.outQueue){
+            this.outQueue.add(data);
+            this.outQueue.notify();
         }
     }
 
@@ -93,15 +102,38 @@ public class TCPConnection {
                 break;
             }
             if (data != null ) {
-                EventFactory ef = EventFactory.getInstance();
-                //System.out.println("[" + Thread.currentThread().getName() + "] Received array: " + Arrays.toString(data));
-                ef.run(this, data);
+                synchronized (this.inQueue){
+                    this.inQueue.add(data);
+                    this.inQueue.notify();
+                }
             }
         }
         //System.out.println("Socket closed.");
         if (this.EXIT_ON_CLOSE) {
             System.out.println("Connection with the registry failed. System exiting...");
             System.exit(1);
+        }
+    }
+
+    public void receiverWorker(){
+        while(true) {
+            try {
+                byte[] data = null;
+                synchronized (this.inQueue) {
+                    if (this.inQueue.peek() == null) {
+                        this.inQueue.wait();
+                    }
+
+                    data = this.inQueue.poll();
+                    this.inQueue.notify();
+                }
+
+                EventFactory ef = EventFactory.getInstance();
+                //System.out.println("[" + Thread.currentThread().getName() + "] Received array: " + Arrays.toString(data));
+                ef.run(this, data);
+            } catch (Exception e) {
+
+            }
         }
     }
 
