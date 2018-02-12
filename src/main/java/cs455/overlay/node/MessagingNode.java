@@ -229,11 +229,9 @@ public class MessagingNode extends Node {
                     this.tcpServer.getHostBytes(),
                     this.tcpServer.getPort(),
                     this.id).pack());
-            System.out.println("Sending Task Finished");
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error sending task finished: " + e.getMessage());
         }
-        System.out.println("Done sending data.");
     }
 
     /**
