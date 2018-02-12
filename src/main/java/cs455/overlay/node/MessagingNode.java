@@ -30,6 +30,8 @@ public class MessagingNode extends Node {
     private int[] nodes;
     private TCPConnection registryConnection;
     private OverlayNodeReportsTrafficSummary ONRTS;
+    private OverlayNodeReportsTrafficSummary prevONRTS;
+    private Boolean useCurrent = true;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2){
@@ -49,6 +51,7 @@ public class MessagingNode extends Node {
         this.cache = new TCPConnectionsCache();
         this.eventFactory = new EventFactory(this);
         this.ONRTS = new OverlayNodeReportsTrafficSummary();
+        this.prevONRTS = new OverlayNodeReportsTrafficSummary();
         new Thread(() -> new CommandParser().messengerParser(this), "Command Parser").start();
         try {
             // Initialize server to get port to send to registry
@@ -116,7 +119,6 @@ public class MessagingNode extends Node {
 
 
             case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
-                this.ONRTS.reset();
                 RegistryRequestsTaskInitiate RRTI = (RegistryRequestsTaskInitiate)e;
                 System.out.println("New task requested for " + RRTI.getNumDataPackets() + " messages.");
                 new Thread(new Runnable() {
@@ -156,14 +158,29 @@ public class MessagingNode extends Node {
                 int packetsRelayed = 0;
                 int packetsReceived = 0;
                 do {
-                    synchronized (ONRTS) {
-                        packetsRelayed = this.ONRTS.getPacketsRelayed();
-                        packetsReceived = this.ONRTS.getPacketsReceived();
-                    }
-                    Thread.sleep(1000);
+                    packetsRelayed = this.ONRTS.getPacketsRelayed();
+                    packetsReceived = this.ONRTS.getPacketsReceived();
+                    Thread.sleep(50);
                 } while (packetsRelayed != ONRTS.getPacketsRelayed() || packetsReceived != ONRTS.getPacketsReceived());
                 synchronized (this.ONRTS) {
-                    this.registryConnection.sendData(this.ONRTS.pack());
+                    synchronized (this.prevONRTS) {
+                        synchronized (this.useCurrent) {
+                            if (this.useCurrent) {
+                                this.prevONRTS = new OverlayNodeReportsTrafficSummary(this.ONRTS);
+                                this.registryConnection.sendData(prevONRTS.pack());
+                                this.ONRTS.reset();
+                                this.useCurrent = false;
+                            } else {
+                                this.prevONRTS.addSumSent(this.ONRTS.getSumSent());
+                                this.prevONRTS.addSumReceived(this.ONRTS.getSumReceived());
+                                this.prevONRTS.addPacketsSent(this.ONRTS.getPacketsSent());
+                                this.prevONRTS.addPacketsReceived(this.ONRTS.getPacketsReceived());
+                                this.prevONRTS.addPacketsRelayed(this.ONRTS.getPacketsRelayed());
+                                this.ONRTS.reset();
+                                this.registryConnection.sendData(this.prevONRTS.pack());
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -205,6 +222,9 @@ public class MessagingNode extends Node {
      *  data, notifies the registry of its completion.
      * */
     private void initDataStream(int numDataPackets) {
+        synchronized (this.useCurrent){
+            this.useCurrent = true;
+        }
         Random randomId = new Random();
         Random randomInt = new Random();
         int nodeId;
@@ -248,7 +268,7 @@ public class MessagingNode extends Node {
         System.out.println(String.format("| %-15s |", "Sum Received"));
         System.out.println("====================================================================================================");
         System.out.print(String.format("| %-8s |", this.id));
-        System.out.print(String.format(" %-12s ",  ONRTS.getPacketsSent()));
+        System.out.print(String.format(" %-12s ", ONRTS.getPacketsSent()));
         System.out.print(String.format("| %-16s ", ONRTS.getPacketsReceived()));
         System.out.print(String.format("| %-15s ", ONRTS.getPacketsRelayed()));
         System.out.print(String.format("| %-15s ", ONRTS.getSumSent()));

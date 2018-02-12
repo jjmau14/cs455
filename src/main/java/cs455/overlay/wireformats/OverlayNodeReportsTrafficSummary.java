@@ -36,6 +36,15 @@ public class OverlayNodeReportsTrafficSummary extends Event {
         this.sumReceived = 0l;
     }
 
+    public OverlayNodeReportsTrafficSummary(OverlayNodeReportsTrafficSummary other){
+        this.sumReceived = other.getSumReceived();
+        this.sumSent = other.getSumSent();
+        this.packetsRelayed = other.getPacketsRelayed();
+        this.packetsReceived = other.getPacketsReceived();
+        this.packetsSent = other.getPacketsSent();
+        this.id = other.getId();
+    }
+
     @Override
     public byte[] pack() throws IOException {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();

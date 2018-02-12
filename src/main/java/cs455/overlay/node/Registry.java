@@ -115,32 +115,43 @@ public class Registry extends Node{
                 synchronized (this.count) {
                     this.count+=1;
                     if (this.count == this.registry.size()) {
-                        System.out.println("\nTask Summary:\n");
-                        synchronized (this.overlaySummary) {
-                            System.out.print(String.format("| %-8s ", "Node ID"));
-                            System.out.print(String.format("| %-12s ", "Packets Sent"));
-                            System.out.print(String.format("| %-16s ", "Packets Received"));
-                            System.out.print(String.format("| %-15s ", "Packets Relayed"));
-                            System.out.print(String.format("| %-15s ", "Sum Sent"));
-                            System.out.println(String.format("| %-15s |", "Sum Received"));
-                            System.out.println("====================================================================================================");
-                            for (Integer i : this.registry.keySet()){
-                                System.out.print(String.format("| %-8s |", i));
-                                System.out.print(String.format(" %-12s ",  this.registry.get(i).ONRTS.getPacketsSent()));
-                                System.out.print(String.format("| %-16s ", this.registry.get(i).ONRTS.getPacketsReceived()));
-                                System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getPacketsRelayed()));
-                                System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getSumSent()));
-                                System.out.println(String.format("| %-15s |", this.registry.get(i).ONRTS.getSumReceived()));
+                        if (this.overlaySummary.getPacketsSent() == this.overlaySummary.getPacketsReceived()) {
+                            System.out.println("\nTask Summary:\n");
+                            synchronized (this.overlaySummary) {
+                                System.out.print(String.format("| %-8s ", "Node ID"));
+                                System.out.print(String.format("| %-12s ", "Packets Sent"));
+                                System.out.print(String.format("| %-16s ", "Packets Received"));
+                                System.out.print(String.format("| %-15s ", "Packets Relayed"));
+                                System.out.print(String.format("| %-15s ", "Sum Sent"));
+                                System.out.println(String.format("| %-15s |", "Sum Received"));
+                                System.out.println("====================================================================================================");
+                                for (Integer i : this.registry.keySet()) {
+                                    System.out.print(String.format("| %-8s |", i));
+                                    System.out.print(String.format(" %-12s ", this.registry.get(i).ONRTS.getPacketsSent()));
+                                    System.out.print(String.format("| %-16s ", this.registry.get(i).ONRTS.getPacketsReceived()));
+                                    System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getPacketsRelayed()));
+                                    System.out.print(String.format("| %-15s ", this.registry.get(i).ONRTS.getSumSent()));
+                                    System.out.println(String.format("| %-15s |", this.registry.get(i).ONRTS.getSumReceived()));
+                                }
+                                System.out.println("----------------------------------------------------------------------------------------------------");
+                                System.out.print(String.format("| %-8s ", "Sum"));
+                                System.out.print(String.format("| %-12s ", this.overlaySummary.getPacketsSent()));
+                                System.out.print(String.format("| %-16s ", this.overlaySummary.getPacketsReceived()));
+                                System.out.print(String.format("| %-15s ", this.overlaySummary.getPacketsRelayed()));
+                                System.out.print(String.format("| %-15s ", this.overlaySummary.getSumReceived()));
+                                System.out.println(String.format("| %-15s |", this.overlaySummary.getSumSent()));
+                                this.overlaySummary.reset();
+                                this.count = 0;
                             }
-                            System.out.println("----------------------------------------------------------------------------------------------------");
-                            System.out.print(String.format("| %-8s ", "Sum"));
-                            System.out.print(String.format("| %-12s ", this.overlaySummary.getPacketsSent()));
-                            System.out.print(String.format("| %-16s ", this.overlaySummary.getPacketsReceived()));
-                            System.out.print(String.format("| %-15s ", this.overlaySummary.getPacketsRelayed()));
-                            System.out.print(String.format("| %-15s ", this.overlaySummary.getSumReceived()));
-                            System.out.println(String.format("| %-15s |", this.overlaySummary.getSumSent()));
-                            this.overlaySummary.reset();
+                        } else {
+                            System.out.println(this.overlaySummary.getPacketsReceived() + "/" + this.overlaySummary.getPacketsSent());
+                            synchronized (this.overlaySummary){
+                                this.overlaySummary.reset();
+                            }
                             this.count = 0;
+                            System.out.println("Packets did not match. Resending request for summary...");
+                            Thread.sleep(2500);
+                            gatherTaskData();
                         }
                     }
                 }
