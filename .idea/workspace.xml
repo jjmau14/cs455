@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b328017e-ec39-47e1-ac4b-79e4053bcca7" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPConnection.java" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPConnection.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" />
     </list>
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,10 +20,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="TCPConnection.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TCPConnection.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPConnection.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
+            <state relative-caret-position="306">
               <caret line="136" column="9" lean-forward="false" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
               <folding>
                 <element signature="e#1244#1245#0" expanded="true" />
@@ -52,10 +52,10 @@
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
-                <marker date="1518476899294" expanded="true" signature="59650:59667" ph="..." />
-                <marker date="1518476899294" expanded="true" signature="59650:59685" ph="..." />
-                <marker date="1518476899294" expanded="true" signature="59650:59698" ph="..." />
-                <marker date="1518476899294" expanded="true" signature="59650:59713" ph="..." />
+                <marker date="1518480501433" expanded="true" signature="59670:59687" ph="..." />
+                <marker date="1518480501433" expanded="true" signature="59670:59705" ph="..." />
+                <marker date="1518480501433" expanded="true" signature="59670:59718" ph="..." />
+                <marker date="1518480501433" expanded="true" signature="59670:59733" ph="..." />
               </folding>
             </state>
           </provider>
@@ -71,10 +71,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MessagingNode.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MessagingNode.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="648">
+            <state relative-caret-position="270">
               <caret line="162" column="35" lean-forward="false" selection-start-line="162" selection-start-column="35" selection-end-line="162" selection-end-column="35" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -174,9 +174,9 @@
       <list>
         <option value="$PROJECT_DIR$/.idea/workspace.xml" />
         <option value="$PROJECT_DIR$/src/main/java/cs455/overlay/wireformats/OverlayNodeReportsTrafficSummary.java" />
-        <option value="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" />
         <option value="$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java" />
         <option value="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPConnection.java" />
+        <option value="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" />
       </list>
     </option>
   </component>
@@ -431,6 +431,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="808" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289855" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -440,7 +441,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28695652" sideWeight="0.3941345" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28695652" sideWeight="0.60586554" order="2" side_tool="false" content_ui="tabs" x="3930" y="529" width="1615" height="772" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28695652" sideWeight="0.60586554" order="2" side_tool="false" content_ui="tabs" x="3930" y="529" width="1615" height="772" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -860,10 +861,10 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1518476899294" expanded="true" signature="59650:59667" ph="..." />
-            <marker date="1518476899294" expanded="true" signature="59650:59685" ph="..." />
-            <marker date="1518476899294" expanded="true" signature="59650:59698" ph="..." />
-            <marker date="1518476899294" expanded="true" signature="59650:59713" ph="..." />
+            <marker date="1518480501433" expanded="true" signature="59670:59687" ph="..." />
+            <marker date="1518480501433" expanded="true" signature="59670:59705" ph="..." />
+            <marker date="1518480501433" expanded="true" signature="59670:59718" ph="..." />
+            <marker date="1518480501433" expanded="true" signature="59670:59733" ph="..." />
           </folding>
         </state>
       </provider>
@@ -890,16 +891,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="648">
-          <caret line="162" column="35" lean-forward="false" selection-start-line="162" selection-start-column="35" selection-end-line="162" selection-end-column="35" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="599">
@@ -910,11 +901,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPConnection.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
+        <state relative-caret-position="306">
           <caret line="136" column="9" lean-forward="false" selection-start-line="136" selection-start-column="9" selection-end-line="136" selection-end-column="9" />
           <folding>
             <element signature="e#1244#1245#0" expanded="true" />
             <element signature="e#1292#1293#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="162" column="35" lean-forward="false" selection-start-line="162" selection-start-column="35" selection-end-line="162" selection-end-column="35" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

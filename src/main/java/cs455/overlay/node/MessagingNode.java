@@ -160,7 +160,7 @@ public class MessagingNode extends Node {
                 do {
                     packetsRelayed = this.ONRTS.getPacketsRelayed();
                     packetsReceived = this.ONRTS.getPacketsReceived();
-                    Thread.sleep(50);
+                    Thread.sleep(20);
                 } while (packetsRelayed != ONRTS.getPacketsRelayed() || packetsReceived != ONRTS.getPacketsReceived());
                 synchronized (this.ONRTS) {
                     synchronized (this.prevONRTS) {
