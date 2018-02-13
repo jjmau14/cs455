@@ -18,12 +18,8 @@ public class Registry extends Node{
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int port;
-    private Long totalSent = 0l;
-    private Long totalReceived = 0l;
     private Integer count = 0;
     private Integer completeCount = 0;
-    private Integer totalPacketsSent = 0;
-    private Integer totalPacketsReceived = 0;
     private OverlayNodeReportsTrafficSummary overlaySummary;
 
     public static void main(String[] args) throws Exception {
@@ -40,13 +36,13 @@ public class Registry extends Node{
         this.cache = new TCPConnectionsCache();
         this.registry = new Hashtable<>();
         this.port = port;
+        overlaySummary = new OverlayNodeReportsTrafficSummary();
+        new EventFactory(this);
     }
 
     public void init() throws Exception {
         new Thread(this.tcpServer = new TCPServerThread(port), "Registry").start();
         new Thread(() -> new CommandParser().registryParser(this), "Command Parser").start();
-        new EventFactory(this);
-        overlaySummary = new OverlayNodeReportsTrafficSummary();
     }
 
     public void onEvent(TCPConnection conn, Event e) throws Exception {

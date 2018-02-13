@@ -24,7 +24,6 @@ public class MessagingNode extends Node {
 
     private int id = -1;
     private RoutingTable routingTable;
-    private EventFactory eventFactory;
     private TCPConnectionsCache cache;
     private TCPServerThread tcpServer;
     private int[] nodes;
@@ -49,7 +48,7 @@ public class MessagingNode extends Node {
      * */
     public MessagingNode(String ip, int port) throws Exception {
         this.cache = new TCPConnectionsCache();
-        this.eventFactory = new EventFactory(this);
+        new EventFactory(this);
         this.ONRTS = new OverlayNodeReportsTrafficSummary();
         this.prevONRTS = new OverlayNodeReportsTrafficSummary();
         init(ip, port);
