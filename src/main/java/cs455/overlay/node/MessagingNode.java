@@ -52,6 +52,10 @@ public class MessagingNode extends Node {
         this.eventFactory = new EventFactory(this);
         this.ONRTS = new OverlayNodeReportsTrafficSummary();
         this.prevONRTS = new OverlayNodeReportsTrafficSummary();
+        init(ip, port);
+    }
+
+    private void init(String ip, int port) throws Exception {
         new Thread(() -> new CommandParser().messengerParser(this), "Command Parser").start();
         try {
             // Initialize server to get port to send to registry

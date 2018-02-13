@@ -19,32 +19,34 @@ public class TCPConnection {
     private DataOutputStream dout;
     private Thread senderThread;
     private Thread receiverThread;
+    private Thread receiverWorker;
 
     public TCPConnection(Socket socket) throws IOException {
         this.socket = socket;
         this.din = new DataInputStream(this.socket.getInputStream());
         this.dout = new DataOutputStream(this.socket.getOutputStream());
+        this.outQueue = new PriorityQueue<>(new Comparator<byte[]>() {
+            @Override
+            public int compare(byte[] o1, byte[] o2) {
+                return 0;
+            }
+        });
+        this.inQueue = new PriorityQueue<>(new Comparator<byte[]>() {
+            @Override
+            public int compare(byte[] o1, byte[] o2) {
+                return 0;
+            }
+        });
+        this.receiverThread = new Thread(() -> receiver(), "Receiver Thread");
+        this.senderThread = new Thread(() -> new Sender(), "Sender Thread");
+        this.receiverWorker = new Thread(() -> receiverWorker(), "Receiver Worker");
+
     }
 
     public void init(){
         try {
-            this.outQueue = new PriorityQueue<>(new Comparator<byte[]>() {
-                @Override
-                public int compare(byte[] o1, byte[] o2) {
-                    return 0;
-                }
-            });
-            this.inQueue = new PriorityQueue<>(new Comparator<byte[]>() {
-                @Override
-                public int compare(byte[] o1, byte[] o2) {
-                    return 0;
-                }
-            });
-            Thread receiverThread = new Thread(() -> receiver(), "Receiver Thread");
             receiverThread.start();
-            Thread senderThread = new Thread(() -> new Sender(), "Sender Thread");
             senderThread.start();
-            Thread receiverWorker = new Thread(() -> receiverWorker(), "Receiver Worker");
             receiverWorker.start();
         } catch (Exception e){
             System.out.println("[" + Thread.currentThread().getName() + "] Error: " + e.getMessage());
