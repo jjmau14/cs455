@@ -62,12 +62,4 @@ public class RegistryRequestsTaskInitiate extends Event {
         return this.numDataPackets;
     }
 
-    public static void main(String[] args) throws Exception {
-        RegistryRequestsTaskInitiate RRTI = new RegistryRequestsTaskInitiate(299);
-        byte[] data = RRTI.pack();
-        RegistryRequestsTaskInitiate RRTI2 = new RegistryRequestsTaskInitiate();
-        RRTI2.craft(data);
-        System.out.println(RRTI2.getNumDataPackets());
-    }
-
 }

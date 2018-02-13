@@ -77,15 +77,4 @@ public class OverlayNodeReportsTaskFinished extends Event {
     public int getPort(){ return this.port; }
     public int getGuid(){ return this.guid; }
 
-    public static void main(String[] args) throws Exception {
-        OverlayNodeReportsTaskFinished ONRTF = new OverlayNodeReportsTaskFinished(InetAddress.getLocalHost().getAddress(), 1, 2);
-        System.out.println(ONRTF.ipToString());
-        OverlayNodeReportsTaskFinished ONRTF2 = new OverlayNodeReportsTaskFinished();
-        ONRTF2.craft(ONRTF.pack());
-        System.out.println(ONRTF2.ipToString());
-        System.out.println(ONRTF2.getGuid());
-        System.out.println(ONRTF2.getPort());
-        assert(ONRTF2.getType() == Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED);
-    }
-
 }

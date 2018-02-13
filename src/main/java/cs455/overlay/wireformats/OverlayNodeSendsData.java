@@ -93,16 +93,4 @@ public class OverlayNodeSendsData extends Event {
         this.trace = newTrace;
     }
 
-    public static void main(String[] args) throws Exception {
-        OverlayNodeSendsData ONSD = new OverlayNodeSendsData(1,2,3, new int[]{});
-        ONSD.addTrace(1);
-        System.out.println(Arrays.toString(ONSD.getTrace()));
-        OverlayNodeSendsData ONSD2 = new OverlayNodeSendsData();
-        ONSD2.craft(ONSD.pack());
-        ONSD2.addTrace(2);
-        ONSD2.addTrace(2);
-        ONSD2.addTrace(2);
-        System.out.println(Arrays.toString(ONSD2.getTrace()));
-        System.out.println(ONSD2.getType());
-    }
 }

@@ -72,16 +72,4 @@ public class NodeReportsOverlaySetupStatus extends Event {
         return this.statusOrId;
     }
 
-    public static void main(String[] args) throws Exception {
-        NodeReportsOverlaySetupStatus NROSS = new NodeReportsOverlaySetupStatus(1,"OK");
-        byte[] data = NROSS.pack();
-        System.out.println(Arrays.toString(data));
-        NodeReportsOverlaySetupStatus NROSS2 = new NodeReportsOverlaySetupStatus();
-        NROSS2.craft(data);
-        System.out.println(NROSS2.getType());
-        System.out.println(NROSS2.getStatusOrId());
-        System.out.println(NROSS2.getMessage());
-        System.out.println(NROSS2.getMessage().length());
-    }
-
 }
