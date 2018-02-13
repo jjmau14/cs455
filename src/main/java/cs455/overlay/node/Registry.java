@@ -290,6 +290,12 @@ public class Registry extends Node{
 
     public void initDataStream(int numDataPackets){
         for (Integer i : this.registry.keySet()){
+            if (!this.registry.get(i).isReady()){
+                System.out.println("No overlay has been configured. Use command \"setup-overlay\" to configure one or type \"help\".");
+                return;
+            }
+        }
+        for (Integer i : this.registry.keySet()){
             this.registry.get(i).ONRTS.reset();
         }
         synchronized (this.completeCount) {

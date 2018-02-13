@@ -45,6 +45,10 @@ public class RegisterItem {
         this.taskComplete = false;
     }
 
+    public boolean isReady(){
+        return this.overlayReady;
+    }
+
     @Override
     public boolean equals(Object o){
         RegisterItem other = (RegisterItem) o;
