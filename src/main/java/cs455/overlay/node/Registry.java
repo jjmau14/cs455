@@ -58,9 +58,14 @@ public class Registry extends Node{
                 OverlayNodeSendsRegistration ONSR = (OverlayNodeSendsRegistration)e;
 
                 try {
-                    id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
-                    message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
-                    this.cache.addConnection(id, conn);
+                    if (conn.getSocket().getInetAddress().getHostAddress().equals(ONSR.ipToString())
+                            || conn.getSocket().getInetAddress().getHostAddress().equals("127.0.0.1")) {
+                        id = register(new RegisterItem(ONSR.getIp(), ONSR.getPort()));
+                        message = "Registration request successful. There are currently (" + registry.size() + ") nodes constituting the overlay.";
+                        this.cache.addConnection(id, conn);
+                    } else {
+                        throw new Exception("Ip address of socket does not match requested ip for registration.");
+                    }
                 } catch (Exception err) {
                     System.out.println(err);
                     message = err.getMessage();
