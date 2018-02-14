@@ -7,7 +7,6 @@
 **/out/
 
 # Packages #
-*.tar
 *.class
 *.zip
 *.log
