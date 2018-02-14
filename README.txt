@@ -5,6 +5,62 @@ abstract: Classes that will create an overlay network with interconnected nodes 
           between each other and route packets to the proper sink. Also contains functionality to collect statistics
           for each task executed on the network.
 
+==================================================================================================
+
+Files included:
+  * Source code: contains all *.java files for this program.
+  * Makefile: provides `make clean` and `make all` functionality.
+  * This README.txt containing information about the code.
+
+==================================================================================================
+
+How to run the code:
+  * Use command `make all` to compile all the java code into class files.
+  * First, remote into a host machine and start the Registry with the following command: `java cs455.overlay.node.Registry [enter any port]`
+    If any exception is thrown, try a different port, that one may already be in use
+  * Use the following command on any number of remote hosts (or the same host as the registry or multiple times on any host)
+    `java cs455.overlay.node.MessagingNode [RegistryHost Name or IP] [Registry Port from above]`
+  * Proceed to the configuration section (Step 3) below to setup an overlay and run tasks.
+
+==================================================================================================
+
+Configuration:
+  Configuring the Registry
+    1.) `java cs455.overlay.node.Registry [Port Number]` - must provide a port for the Registry to run on. This port will be required to start all messenger nodes.
+
+  Configuring Messenger nodes
+    2.) `java cs455.overlay.node.MessagingNode [IP of Registry] [Registry Port Number]` - Messenger nodes will automatically register themselves with the Registry when they come on line.
+
+  Building the overlay network
+    3.) After all the nodes are registered, on the Registry node use the following command: `setup-overlay [Size of Routing Table]`
+      The size of the routing table will determine how many cached TCP connections each node will have.
+
+  Execute a task
+    4.) Use the following command from the Registry to send `x` number of messaging from each node:
+      `start [x number of messages]`. When every node has completed its task and there are no more packets
+      routing the overlay, task summary statistics will automatically be displayed. If you ever see something
+      similar to "259995/260000 Packets did not match. Resending request for summary..." this means the summary
+      results were sent too early and there are still packets routing the overlay. The registry will wait a short
+      amount of time before requesting summary stats again from each nodes. Generally this will not occur unless
+      machines are under heavy load from other tasks.
+
+==================================================================================================
+
+Commands:
+  Registry Commands
+    * `list-messaging-nodes`: displays all registered nodes ip, port, and overlay unique ID.
+    * `setup-overlay [Sze of Routing Table]`: creates overlay network and sends routing tables to each node.
+    * `list-routing-tables`: displays all routing tables for each node.
+    * `start [Rounds]`: execute overlay work routine 'Rounds' many times.
+
+  MessagingNode Commands
+    * `print-counters-and-diagnostics`: displays all current results of the running or previously ran task such as
+      messages sent/received/relayed and current sum received and sum sent.
+    * `exit-overlay`: requests removal from the overlay by the registry. Upon approval, the node will exit the overlay
+      and terminate the process.
+
+==================================================================================================
+
 Packages:
   * cs455.overlay
     * node - contains types of nodes (Registry and Messaging)
@@ -42,7 +98,7 @@ Packages:
     * util - contains classes for interacting with the overlay (command parser)
       Classes:
       * CommandParser: Contains command parser functions to handle user input while the overlay is running. Handles all
-        commands specified below in the configuration section.
+        commands specified above in the configuration section.
 
     * wireformats - contains classes for parsing byte streams into usable objects and packaging them back
                     up into byte arrays to send back over the wire.
@@ -84,27 +140,3 @@ Packages:
 
       * RegistrySendsNodeManifest: Contains a routing table that each MessagingNode should open and maintain connections
         with that comprise the overlay network.
-
-Configuration:
-
-  Configuring the Registry
-    * `java cs455.overlay.node.Registry [Port Number]` - must provide a port for the Registry to run on. This port will be required to start all messenger nodes.
-
-  Configuring Messenger nodes
-    * `java cs455.overlay.node.MessagingNode [IP of Registry] [Registry Port Number]` - Messenger nodes will automatically register themselves with the Registry when they come on line.
-
-  Building the overlay network
-    * From the Registry, use the following command: `setup-overlay [Size of Routing Table]`
-      The size of the routing table will determine how many cached TCP connections each node will have.
-
-  Registry Commands
-    * `list-messaging-nodes`: displays all registered nodes ip, port, and overlay unique ID.
-    * `setup-overlay [Sze of Routing Table]`: creates overlay network and sends routing tables to each node.
-    * `list-routing-tables`: displays all routing tables for each node.
-    * `start [Rounds]`: execute overlay work routine 'Rounds' many times.
-
-  MessagingNode Commands
-    * `print-counters-and-diagnostics`: displays all current results of the running or previously ran task such as
-      messages sent/received/relayed and current sum received and sum sent.
-    * `exit-overlay`: requests removal from the overlay by the registry. Upon approval, the node will exit the overlay
-      and terminate the process.
