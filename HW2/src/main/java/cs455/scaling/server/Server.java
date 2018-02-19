@@ -30,10 +30,9 @@ public class Server {
             this.server.bind(new InetSocketAddress("localhost", port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
-            this.buf = ByteBuffer.allocate(256);
+            this.buf = ByteBuffer.allocate(8);
 
             System.out.println("Server listening on " + server.getLocalAddress());
-
             while(true) {
                 selector.select();
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -49,7 +48,7 @@ public class Server {
                         readAndReply(buf, key);
                     }
 
-                    System.out.println("KEY: " + key.interestOps());
+                    //System.out.println("KEY: " + key.interestOps());
                     keys.remove();
                 }
             }
@@ -72,11 +71,15 @@ public class Server {
     private static void readAndReply(ByteBuffer buf, SelectionKey key) {
         try {
             SocketChannel client = (SocketChannel) key.channel();
+
             client.read(buf);
             System.out.println("Received: " + new String(buf.array()));
+            buf.flip();
             buf.clear();
-            buf = ByteBuffer.wrap("hello there".getBytes());
+
+            buf = ByteBuffer.wrap("12345678".getBytes());
             client.write(buf);
+            buf.flip();
             buf.clear();
         } catch (Exception e) {
 

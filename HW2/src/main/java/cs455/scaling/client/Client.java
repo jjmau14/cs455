@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Scanner;
 
 public class Client {
 
@@ -25,9 +26,12 @@ public class Client {
     public void init() {
         try {
             client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
-            buf = ByteBuffer.allocate(256);
-
-            System.out.println("Response: " + sendMessage("Hello"));
+            buf = ByteBuffer.allocate(8);
+            while(true){
+                System.out.println("Enter: ");
+                Scanner scnr = new Scanner(System.in);
+                System.out.println("Response: " + sendMessage(scnr.nextLine()));
+            }
         } catch (Exception e){
 
         }
@@ -35,14 +39,18 @@ public class Client {
     }
 
     private String sendMessage(String message) {
-        buf = ByteBuffer.wrap(message.getBytes());
         String response = null;
         try {
+            buf = ByteBuffer.wrap(message.getBytes());
             client.write(buf);
+            buf.flip();
             buf.clear();
+
             client.read(buf);
+            buf.flip();
             response = new String(buf.array());
             System.out.println(Arrays.toString(buf.array()));
+
             buf.clear();
         } catch (Exception e) {
             System.out.println(e.getMessage());
