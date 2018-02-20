@@ -1,13 +1,14 @@
 package cs455.scaling.server;
 
-import java.net.InetAddress;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
 import java.util.Iterator;
 
 public class Server {
@@ -27,7 +28,7 @@ public class Server {
         try {
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
-            this.server.bind(new InetSocketAddress("localhost", port));
+            this.server.socket().bind(new InetSocketAddress("localhost", port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
             this.buf = ByteBuffer.allocate(8);
@@ -41,14 +42,13 @@ public class Server {
                     SelectionKey key = keys.next();
 
                     if (key.isAcceptable()) {
-                        register(selector, server);
+                        register(selector, key);
                     }
 
                     if (key.isReadable()) {
-                        readAndReply(buf, key);
+                        readAndReply(key);
                     }
 
-                    //System.out.println("KEY: " + key.interestOps());
                     keys.remove();
                 }
             }
@@ -58,32 +58,58 @@ public class Server {
         }
     }
 
-    private static void register(Selector selector, ServerSocketChannel server) {
+    private static void register(Selector selector, SelectionKey key) {
         try {
-            SocketChannel client = server.accept();
-            client.configureBlocking(false);
-            client.register(selector, SelectionKey.OP_READ);
+            ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
+            SocketChannel channel = serverSocket.accept();
+            System.out.println("Accepting incoming connection.");
+            channel.configureBlocking(false);
+            channel.register(selector, SelectionKey.OP_READ);
+
         } catch (Exception e) {
             ;
         }
     }
 
-    private static void readAndReply(ByteBuffer buf, SelectionKey key) {
+    private static void readAndReply(SelectionKey key) {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        int read = 0;
         try {
-            SocketChannel client = (SocketChannel) key.channel();
-
-            client.read(buf);
-            System.out.println("Received: " + new String(buf.array()));
-            buf.flip();
-            buf.clear();
-
-            buf = ByteBuffer.wrap("12345678".getBytes());
-            client.write(buf);
-            buf.flip();
-            buf.clear();
-        } catch (Exception e) {
-
+            while (buffer.hasRemaining() && read != -1) {
+                read = channel.read(buffer);
+            }
+        } catch (IOException e) {
+            /* Abnormal termination */
+            // Cancel the key and close the socket channel
         }
+        buffer.flip();
+        // You may want to flip the buffer here
+        if (read == -1) {
+        /* Connection was terminated by the client. */
+        // Cancel the key and close the socket channel
+            return;
+        }
+        System.out.println("Received: " + read);
+        key.interestOps(SelectionKey.OP_WRITE);
+        buffer = ByteBuffer.wrap(new byte[]{5,6,7,8});
+        try {
+            channel.write(buffer);
+        } catch (Exception e){}
+        key.interestOps(SelectionKey.OP_READ);
+    }
+
+
+    private String SHA1FromBytes(byte[] data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA1");
+            byte[] hash = digest.digest(data);
+            BigInteger hashInt = new BigInteger(1, hash);
+            return hashInt.toString(16);
+        } catch (Exception  e) {
+            ;
+        }
+        return null;
     }
 
     public static void main(String[] args) {

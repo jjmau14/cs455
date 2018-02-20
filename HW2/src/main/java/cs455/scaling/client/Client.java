@@ -1,5 +1,7 @@
 package cs455.scaling.client;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
+
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -7,6 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Client {
@@ -25,12 +28,30 @@ public class Client {
 
     public void init() {
         try {
-            client = SocketChannel.open(new InetSocketAddress("localhost", 5000));
-            buf = ByteBuffer.allocate(8);
+            Selector selector = Selector.open();
+            SocketChannel channel = SocketChannel.open();
+            channel.configureBlocking(false);
+            channel.register(selector, SelectionKey.OP_CONNECT);
+            channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
             while(true){
-                System.out.println("Enter: ");
-                Scanner scnr = new Scanner(System.in);
-                System.out.println("Response: " + sendMessage(scnr.nextLine()));
+                selector.select();
+                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+
+                while(keys.hasNext()) {
+                    SelectionKey key = keys.next();
+                    System.out.println(key);
+                    if (key.isWritable()) {
+                        buf = ByteBuffer.wrap(new byte[] {1,2,3,4});
+                        channel.write(buf);
+                        System.out.println("Sleep 2000");
+                        Thread.sleep(100);
+                    }
+
+                    if (key.isConnectable()) {
+                        this.connect(key);
+                    }
+                    keys.remove();
+                }
             }
         } catch (Exception e){
 
@@ -38,19 +59,26 @@ public class Client {
 
     }
 
+    private void connect(SelectionKey key) {
+        try {
+            SocketChannel channel = (SocketChannel) key.channel();
+            channel.finishConnect();
+            key.interestOps(SelectionKey.OP_WRITE);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private String sendMessage(String message) {
         String response = null;
         try {
-            buf = ByteBuffer.wrap(message.getBytes());
+            Random r = new Random();
+            byte[] b = new byte[1000];
+            for (int i = 0 ; i < 1000 ; i++){
+                b[i] = (byte)r.nextInt();
+            }
+            buf = ByteBuffer.wrap(b);
             client.write(buf);
-            buf.flip();
-            buf.clear();
-
-            client.read(buf);
-            buf.flip();
-            response = new String(buf.array());
-            System.out.println(Arrays.toString(buf.array()));
-
             buf.clear();
         } catch (Exception e) {
             System.out.println(e.getMessage());
