@@ -2,6 +2,7 @@ package cs455.scaling.client;
 
 import com.sun.org.apache.bcel.internal.generic.Select;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -43,12 +44,17 @@ public class Client {
                     if (key.isWritable()) {
                         buf = ByteBuffer.wrap(new byte[] {1,2,3,4});
                         channel.write(buf);
+                        buf.clear();
                         System.out.println("Sleep 2000");
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     }
 
                     if (key.isConnectable()) {
                         this.connect(key);
+                    }
+
+                    if (key.isReadable()) {
+                        this.read(key);
                     }
                     keys.remove();
                 }
@@ -59,6 +65,28 @@ public class Client {
 
     }
 
+    private void read(SelectionKey key) {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        int read = 0;
+        try {
+            while (buffer.hasRemaining() && read != -1) {
+                read = channel.read(buffer);
+            }
+        } catch (IOException e) {
+            /* Abnormal termination */
+            // Cancel the key and close the socket channel
+        }
+        // You may want to flip the buffer here
+        if (read == -1) {
+        /* Connection was terminated by the client. */
+            // Cancel the key and close the socket channel
+            return;
+        }
+        buffer.clear();
+        System.out.println("Received: " + read);
+    }
+
     private void connect(SelectionKey key) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
@@ -67,23 +95,6 @@ public class Client {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    private String sendMessage(String message) {
-        String response = null;
-        try {
-            Random r = new Random();
-            byte[] b = new byte[1000];
-            for (int i = 0 ; i < 1000 ; i++){
-                b[i] = (byte)r.nextInt();
-            }
-            buf = ByteBuffer.wrap(b);
-            client.write(buf);
-            buf.clear();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return response;
     }
 
     public static void main(String[] args) {

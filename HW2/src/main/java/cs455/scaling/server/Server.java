@@ -92,6 +92,7 @@ public class Server {
         }
         System.out.println("Received: " + read);
         key.interestOps(SelectionKey.OP_WRITE);
+        buffer.clear();
         buffer = ByteBuffer.wrap(new byte[]{5,6,7,8});
         try {
             channel.write(buffer);
