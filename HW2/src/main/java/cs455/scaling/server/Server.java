@@ -4,6 +4,7 @@ import cs455.scaling.task.Task;
 import cs455.scaling.task.TaskPool;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
