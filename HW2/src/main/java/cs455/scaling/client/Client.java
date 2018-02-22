@@ -46,7 +46,6 @@ public class Client {
                     }
 
                     if (key.isReadable()) {
-                        System.out.println("READ");
                         this.read(key);
                     }
 
@@ -54,7 +53,6 @@ public class Client {
                         try {
                             Thread.sleep(2000);
                         } catch (Exception e){}
-                        System.out.println("WRITE");
                         this.write(key);
                     }
 

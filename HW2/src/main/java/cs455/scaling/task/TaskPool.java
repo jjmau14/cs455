@@ -10,12 +10,23 @@ public class TaskPool {
         this.queue = new PriorityQueue<>();
     }
 
-    public synchronized Task pop() {
-        return this.queue.poll();
+    public Task pop() {
+        synchronized (queue) {
+            if (this.queue.peek() == null) {
+                System.out.println("Task Pool waiting...");
+                try {
+                    queue.wait();
+                } catch (Exception e) {}
+            }
+            return this.queue.poll();
+        }
     }
 
-    public synchronized void put(Task t) {
-        this.queue.add(t);
+    public void put(Task t) {
+        synchronized (queue) {
+            this.queue.add(t);
+            this.queue.notify();
+        }
     }
 
     public synchronized int size() {

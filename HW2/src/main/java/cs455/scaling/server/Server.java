@@ -30,8 +30,13 @@ public class Server {
         this.tasks = new TaskPool();
     }
 
+    private void threadPool() {
+        System.out.println("READ: " + Arrays.toString(this.tasks.pop().read()));
+    }
+
     public void init() {
         try {
+            new Thread(() -> threadPool()).start();
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
             this.server.socket().bind(new InetSocketAddress("localhost", port));
