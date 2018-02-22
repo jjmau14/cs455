@@ -51,6 +51,9 @@ public class Client {
                     }
 
                     if (key.isWritable()) {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (Exception e){}
                         System.out.println("WRITE");
                         this.write(key);
                     }
@@ -82,9 +85,6 @@ public class Client {
         }
         buffer.clear();
         key.interestOps(SelectionKey.OP_READ);
-        try {
-            Thread.sleep(2000);
-        } catch (Exception e){}
     }
 
     private void read(SelectionKey key) {
