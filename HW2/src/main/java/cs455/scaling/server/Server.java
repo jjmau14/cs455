@@ -96,11 +96,12 @@ public class Server {
             } catch (Exception e){}
             return;
         }
-        System.out.println("Received: " + read);
+        try {
+        System.out.println("Received: " + Arrays.toString(buffer.array()) + " from " + ((SocketChannel) key.channel()).getRemoteAddress());
 
         key.interestOps(SelectionKey.OP_WRITE);
         buffer = ByteBuffer.wrap(new byte[]{5,6,7});
-        try {
+
             while(buffer.hasRemaining())
                 channel.write(buffer);
         } catch (Exception e){}
