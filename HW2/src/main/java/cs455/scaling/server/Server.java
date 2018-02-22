@@ -1,5 +1,8 @@
 package cs455.scaling.server;
 
+import cs455.scaling.task.Task;
+import cs455.scaling.task.TaskPool;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -19,10 +22,12 @@ public class Server {
     private ServerSocketChannel server;
     private Selector selector;
     private ByteBuffer buf;
+    private TaskPool tasks;
 
     public Server(int port, int poolSize) {
         this.port = port;
         this.poolSize = poolSize;
+        this.tasks = new TaskPool();
     }
 
     public void init() {
@@ -47,7 +52,7 @@ public class Server {
                     }
 
                     if (key.isReadable()) {
-                        readAndReply(key);
+                        addTask(key);
                     }
 
                     keys.remove();
@@ -59,16 +64,12 @@ public class Server {
         }
     }
 
-    private static void register(Selector selector, SelectionKey key) {
+    private void register(Selector selector, SelectionKey key) {
         try {
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
-            System.out.println("Accepting incoming connection.");
+            System.out.println("New Client: " + ((SocketChannel) key.channel()).getRemoteAddress());
             channel.configureBlocking(false);
-            channel.register(selector, SelectionKey.OP_WRITE);
-            ByteBuffer buf = ByteBuffer.wrap(new byte[]{10,10,10});
-            while (buf.hasRemaining())
-                channel.write(buf);
             channel.register(selector, SelectionKey.OP_READ);
 
         } catch (Exception e) {
@@ -76,7 +77,11 @@ public class Server {
         }
     }
 
-    private static void readAndReply(SelectionKey key) {
+    private void addTask(SelectionKey key) {
+        tasks.put(new Task(key));
+    }
+
+    private void readAndReply(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(3);
         int read = -1;
