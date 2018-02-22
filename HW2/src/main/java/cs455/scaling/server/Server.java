@@ -31,7 +31,18 @@ public class Server {
     }
 
     private void threadPool() {
-        System.out.println("READ: " + Arrays.toString(this.tasks.pop().read()));
+        while(true) {
+            Task t = this.tasks.pop();
+            System.out.println("READ: " + Arrays.toString(t.getData()));
+            SocketChannel channel = (SocketChannel) t.getKey().channel();
+            ByteBuffer buffer = ByteBuffer.wrap(new byte[]{1, 2, 3});
+            while (buffer.hasRemaining()) {
+                try {
+                    channel.write(buffer);
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     public void init() {
@@ -53,7 +64,7 @@ public class Server {
                     SelectionKey key = keys.next();
 
                     if (key.isAcceptable()) {
-                        register(selector, key);
+                        register(key);
                     }
 
                     if (key.isReadable()) {
@@ -69,11 +80,10 @@ public class Server {
         }
     }
 
-    private void register(Selector selector, SelectionKey key) {
+    private void register(SelectionKey key) {
         try {
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
-            System.out.println("New Client: " + ((SocketChannel) key.channel()).getRemoteAddress());
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
 
@@ -83,10 +93,6 @@ public class Server {
     }
 
     private void addTask(SelectionKey key) {
-        tasks.put(new Task(key));
-    }
-
-    private void readAndReply(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(3);
         int read = -1;
@@ -96,6 +102,30 @@ public class Server {
             }
         } catch (IOException e) {
             /* Abnormal termination */
+            // Cancel the key and close the socket channel
+        }
+        // You may want to flip the buffer here
+        if (read == -1) {
+            try {
+                System.out.println("Client terminated connection: " + ((SocketChannel) key.channel()).getRemoteAddress());
+                key.channel().close();
+            } catch (Exception e) {
+            }
+            return;
+        }
+        this.tasks.put(new Task(key, buffer.array()));
+    }
+
+    /*private void readAndReply(SelectionKey key) {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(3);
+        int read = -1;
+        try {
+            while (buffer.hasRemaining()) {
+                read = channel.read(buffer);
+            }
+        } catch (IOException e) {
+            / * Abnormal termination * /
             // Cancel the key and close the socket channel
         }
         // You may want to flip the buffer here
@@ -116,7 +146,7 @@ public class Server {
                 channel.write(buffer);
         } catch (Exception e){}
         key.interestOps(SelectionKey.OP_READ);
-    }
+    }*/
 
 
     private String SHA1FromBytes(byte[] data) {

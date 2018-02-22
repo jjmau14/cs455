@@ -50,10 +50,10 @@ public class Client {
                     }
 
                     if (key.isWritable()) {
+                        this.write(key);
                         try {
                             Thread.sleep(2000);
                         } catch (Exception e){}
-                        this.write(key);
                     }
 
                     keys.remove();
