@@ -10,8 +10,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Random;
-import java.util.Scanner;
 
 public class Client {
 
@@ -19,7 +17,8 @@ public class Client {
     private int serverPort;
     private int messageRate;
     private SocketChannel client;
-    private ByteBuffer buf;
+    private ByteBuffer buffer;
+    private Selector selector;
 
     public Client(String serverHost, int serverPort, int messageRate) {
         this.serverHost = serverHost;
@@ -29,62 +28,84 @@ public class Client {
 
     public void init() {
         try {
-            Selector selector = Selector.open();
-            SocketChannel channel = SocketChannel.open();
-            channel.configureBlocking(false);
-            channel.register(selector, SelectionKey.OP_CONNECT);
-            channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
+            this.selector = Selector.open();
+            this.client = SocketChannel.open();
+            this.client.configureBlocking(false);
+            this.client.register(this.selector, SelectionKey.OP_CONNECT);
+            this.client.connect(new InetSocketAddress(this.serverHost, this.serverPort));
+
             while(true){
                 selector.select();
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
 
                 while(keys.hasNext()) {
                     SelectionKey key = keys.next();
-                    System.out.println(key);
-                    if (key.isWritable()) {
-                        buf = ByteBuffer.wrap(new byte[] {1,2,3,4});
-                        channel.write(buf);
-                        buf.clear();
-                        System.out.println("Sleep 2000");
-                        Thread.sleep(1000);
-                    }
 
                     if (key.isConnectable()) {
                         this.connect(key);
                     }
 
                     if (key.isReadable()) {
+                        System.out.println("READ");
                         this.read(key);
                     }
+
+                    if (key.isWritable()) {
+                        System.out.println("WRITE");
+                        this.write(key);
+                    }
+
                     keys.remove();
                 }
             }
         } catch (Exception e){
 
+        } finally {
+            try {
+                client.close();
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
         }
 
     }
 
+    private void write(SelectionKey key) {
+        SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(3);
+        buffer = ByteBuffer.wrap(new byte[]{2,2,2});
+        try {
+            while (buffer.hasRemaining())
+                channel.write(buffer);
+        } catch (Exception e) {
+
+        }
+        buffer.clear();
+        key.interestOps(SelectionKey.OP_READ);
+        try {
+            Thread.sleep(2000);
+        } catch (Exception e){}
+    }
+
     private void read(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(8);
+        ByteBuffer buffer = ByteBuffer.allocate(3);
         int read = 0;
         try {
             while (buffer.hasRemaining() && read != -1) {
                 read = channel.read(buffer);
             }
         } catch (IOException e) {
-            /* Abnormal termination */
-            // Cancel the key and close the socket channel
+
         }
-        // You may want to flip the buffer here
+
         if (read == -1) {
-        /* Connection was terminated by the client. */
-            // Cancel the key and close the socket channel
             return;
         }
+
+        System.out.println("Received: " + Arrays.toString(buffer.array()));
         buffer.clear();
-        System.out.println("Received: " + read);
+        key.interestOps(SelectionKey.OP_WRITE);
     }
 
     private void connect(SelectionKey key) {

@@ -9,6 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class Server {
@@ -31,7 +32,7 @@ public class Server {
             this.server.socket().bind(new InetSocketAddress("localhost", port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
-            this.buf = ByteBuffer.allocate(8);
+            this.buf = ByteBuffer.allocate(3);
 
             System.out.println("Server listening on " + server.getLocalAddress());
             while(true) {
@@ -64,6 +65,10 @@ public class Server {
             SocketChannel channel = serverSocket.accept();
             System.out.println("Accepting incoming connection.");
             channel.configureBlocking(false);
+            channel.register(selector, SelectionKey.OP_WRITE);
+            ByteBuffer buf = ByteBuffer.wrap(new byte[]{10,10,10});
+            while (buf.hasRemaining())
+                channel.write(buf);
             channel.register(selector, SelectionKey.OP_READ);
 
         } catch (Exception e) {
@@ -73,29 +78,31 @@ public class Server {
 
     private static void readAndReply(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        int read = 0;
+        ByteBuffer buffer = ByteBuffer.allocate(3);
+        int read = -1;
         try {
-            while (buffer.hasRemaining() && read != -1) {
+            while (buffer.hasRemaining()) {
                 read = channel.read(buffer);
             }
         } catch (IOException e) {
             /* Abnormal termination */
             // Cancel the key and close the socket channel
         }
-        buffer.flip();
         // You may want to flip the buffer here
         if (read == -1) {
-        /* Connection was terminated by the client. */
-        // Cancel the key and close the socket channel
+            try {
+                System.out.println("Client terminated connection: " + ((SocketChannel) key.channel()).getRemoteAddress());
+                key.channel().close();
+            } catch (Exception e){}
             return;
         }
         System.out.println("Received: " + read);
+
         key.interestOps(SelectionKey.OP_WRITE);
-        buffer.clear();
-        buffer = ByteBuffer.wrap(new byte[]{5,6,7,8});
+        buffer = ByteBuffer.wrap(new byte[]{5,6,7});
         try {
-            channel.write(buffer);
+            while(buffer.hasRemaining())
+                channel.write(buffer);
         } catch (Exception e){}
         key.interestOps(SelectionKey.OP_READ);
     }
