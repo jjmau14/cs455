@@ -35,12 +35,12 @@ public class Client {
 
     public void init() {
         try {
-            new Thread(() -> writer()).start();
             this.selector = Selector.open();
             this.channel = SocketChannel.open();
             this.channel.configureBlocking(false);
             this.channel.register(this.selector, SelectionKey.OP_CONNECT);
             this.channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
+            new Thread(() -> writer()).start();
 
             while(true){
                 selector.select();
@@ -71,32 +71,25 @@ public class Client {
     }
 
     private void writer() {
-        boolean flag = true;
+        while(!channel.isConnected());
         while(true) {
-            this.buffer.rewind();
+            this.buffer.clear();
             byte[] data = new byte[8192];
             Random r = new Random();
             for (int i = 0 ; i < 8192 ; i++) {
                 data[i] = (byte)r.nextInt();
             }
             this.buffer = ByteBuffer.wrap(data);
+
             try {
+                SHA1FromBytes(buffer.array());
 
-                if (flag) {
-                    flag = false;
-                    SHA1FromBytes(buffer.array());
-                }
+                while (buffer.hasRemaining())
+                    this.channel.write(buffer);
 
-                while (buffer.hasRemaining()){
-                    int added = this.channel.write(buffer);
-                    if (added == BUFFER_SIZE){
-                        flag = true;
-                    }
-
-                }
                 Thread.sleep(5000);
             } catch (Exception e) {
-
+                System.out.println("Error: " + e.getMessage());
             }
         }
     }

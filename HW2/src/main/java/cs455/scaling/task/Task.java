@@ -19,7 +19,7 @@ public class Task implements Runnable {
 
     public void run() {
         byte[] data = buffer.array();
-
+        System.out.println(Arrays.toString(data));
         SocketChannel channel = (SocketChannel) this.key.channel();
         ByteBuffer buf = ByteBuffer.wrap(this.SHA1FromBytes(data).getBytes());
 
@@ -29,8 +29,6 @@ public class Task implements Runnable {
             } catch (Exception e) {}
         }
 
-        System.out.print("Length: " + buf.array().length + ": ");
-        System.out.println(Arrays.toString(buf.array()));
     }
 
     private String SHA1FromBytes(byte[] data) {
@@ -38,7 +36,6 @@ public class Task implements Runnable {
             MessageDigest digest = MessageDigest.getInstance("SHA1");
             byte[] hash = digest.digest(data);
             BigInteger hashInt = new BigInteger(1, hash);
-            System.out.println(Arrays.toString(hashInt.toString(16).getBytes()));
             return hashInt.toString(16);
         } catch (Exception  e) {
             ;
