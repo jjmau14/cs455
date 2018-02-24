@@ -76,7 +76,7 @@ public class Server {
 
     private void addTask(SelectionKey key) {
         int read = 0;
-        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
         SocketChannel channel = (SocketChannel)key.channel();
         try {
             read = channel.read(buffer);

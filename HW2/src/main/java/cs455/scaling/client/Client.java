@@ -93,9 +93,10 @@ public class Client {
         int read = 0;
 
         try {
-            while (buffer.hasRemaining() && read != -1) {
+            //while (buffer.hasRemaining() && read != -1) {
                 read = channel.read(buffer);
-            }
+                //System.out.println(read);
+            //}
         } catch (IOException e) {
 
         }
