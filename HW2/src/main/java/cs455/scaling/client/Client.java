@@ -1,15 +1,17 @@
 package cs455.scaling.client;
 
-import com.sun.org.apache.bcel.internal.generic.Select;
-
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class Client {
@@ -17,26 +19,28 @@ public class Client {
     private String serverHost;
     private int serverPort;
     private int messageRate;
-    private SocketChannel client;
+    private SocketChannel channel;
     private ByteBuffer buffer;
     private Selector selector;
     public final int BUFFER_SIZE = 8192;
+    private HashList hashList;
 
     public Client(String serverHost, int serverPort, int messageRate) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.serverHost = serverHost;
         this.serverPort = serverPort;
         this.messageRate = messageRate;
+        this.hashList = new HashList();
     }
 
     public void init() {
         try {
-            new Thread(() -> write()).start();
+            new Thread(() -> writer()).start();
             this.selector = Selector.open();
-            this.client = SocketChannel.open();
-            this.client.configureBlocking(false);
-            this.client.register(this.selector, SelectionKey.OP_CONNECT);
-            this.client.connect(new InetSocketAddress(this.serverHost, this.serverPort));
+            this.channel = SocketChannel.open();
+            this.channel.configureBlocking(false);
+            this.channel.register(this.selector, SelectionKey.OP_CONNECT);
+            this.channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
 
             while(true){
                 selector.select();
@@ -47,9 +51,7 @@ public class Client {
 
                     if (key.isConnectable()) {
                         this.connect(key);
-                    }
-
-                    if (key.isReadable()) {
+                    } else if (key.isReadable()) {
                         this.read(key);
                     }
 
@@ -60,7 +62,7 @@ public class Client {
 
         } finally {
             try {
-                client.close();
+                channel.close();
             } catch (Exception e){
                 System.out.println(e.getMessage());
             }
@@ -68,9 +70,10 @@ public class Client {
 
     }
 
-    private void write() {
+    private void writer() {
+        boolean flag = true;
         while(true) {
-            this.buffer.clear();
+            this.buffer.rewind();
             byte[] data = new byte[8192];
             Random r = new Random();
             for (int i = 0 ; i < 8192 ; i++) {
@@ -78,9 +81,20 @@ public class Client {
             }
             this.buffer = ByteBuffer.wrap(data);
             try {
-                while (buffer.hasRemaining())
-                    this.client.write(buffer);
-                Thread.sleep(2000);
+
+                if (flag) {
+                    flag = false;
+                    SHA1FromBytes(buffer.array());
+                }
+
+                while (buffer.hasRemaining()){
+                    int added = this.channel.write(buffer);
+                    if (added == BUFFER_SIZE){
+                        flag = true;
+                    }
+
+                }
+                Thread.sleep(5000);
             } catch (Exception e) {
 
             }
@@ -95,6 +109,13 @@ public class Client {
         try {
             //while (buffer.hasRemaining() && read != -1) {
                 read = channel.read(buffer);
+                buffer.flip();
+                byte[] data = new byte[buffer.limit()];
+                for (int i = 0 ; i < data.length ; i++) {
+                    data[i] = buffer.get();
+                }
+                System.out.println("Received: " + new String(data));
+                System.out.println("Removed: " + this.hashList.removeIfPresent(new String(data)));
                 //System.out.println(read);
             //}
         } catch (IOException e) {
@@ -106,12 +127,6 @@ public class Client {
             return;
         }
 
-        buffer.flip();
-        byte[] data = new byte[buffer.limit()];
-        for (int i = 0 ; i < buffer.limit() ; i++){
-            data[i] = buffer.get();
-        }
-        System.out.println("Received: " + Arrays.toString(data));
     }
 
     private void connect(SelectionKey key) {
@@ -130,6 +145,49 @@ public class Client {
         } else {
             Client client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[1]));
             client.init();
+        }
+    }
+
+    private class HashList {
+
+        private LinkedList<String> list;
+
+        public HashList() {
+            this.list = new LinkedList<>();
+        }
+
+        public void add(String item) {
+            synchronized (this.list) {
+                System.out.println("Added: " + item);
+                this.list.add(item);
+                this.list.notify();
+            }
+        }
+
+        public String removeIfPresent(String item) {
+            String itemRemoved = null;
+            synchronized (this.list) {
+                if (list.contains(item)) {
+                    itemRemoved = list.get(list.indexOf(item));
+                    list.remove(item);
+                }
+            }
+            return itemRemoved;
+        }
+    }
+
+    private String SHA1FromBytes(byte[] data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA1");
+            byte[] hash = digest.digest(data);
+            BigInteger hashInt = new BigInteger(1, hash);
+            String hashedString = hashInt.toString(16);
+            System.out.println("HASHED: " + Arrays.toString(hashedString.getBytes()));
+            this.hashList.add(hashedString);
+            return hashedString;
+        } catch (Exception  e) {
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 

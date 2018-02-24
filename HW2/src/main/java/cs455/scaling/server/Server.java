@@ -64,6 +64,7 @@ public class Server {
 
     private void register(SelectionKey key) {
         try {
+
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
             channel.configureBlocking(false);

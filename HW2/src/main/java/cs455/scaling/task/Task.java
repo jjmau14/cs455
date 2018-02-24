@@ -38,6 +38,7 @@ public class Task implements Runnable {
             MessageDigest digest = MessageDigest.getInstance("SHA1");
             byte[] hash = digest.digest(data);
             BigInteger hashInt = new BigInteger(1, hash);
+            System.out.println(Arrays.toString(hashInt.toString(16).getBytes()));
             return hashInt.toString(16);
         } catch (Exception  e) {
             ;
