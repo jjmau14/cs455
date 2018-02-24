@@ -10,6 +10,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 
 public class Client {
 
@@ -19,8 +20,10 @@ public class Client {
     private SocketChannel client;
     private ByteBuffer buffer;
     private Selector selector;
+    public final int BUFFER_SIZE = 8192;
 
     public Client(String serverHost, int serverPort, int messageRate) {
+        this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.serverHost = serverHost;
         this.serverPort = serverPort;
         this.messageRate = messageRate;
@@ -28,6 +31,7 @@ public class Client {
 
     public void init() {
         try {
+            new Thread(() -> write()).start();
             this.selector = Selector.open();
             this.client = SocketChannel.open();
             this.client.configureBlocking(false);
@@ -49,13 +53,6 @@ public class Client {
                         this.read(key);
                     }
 
-                    if (key.isWritable()) {
-                        this.write(key);
-                        try {
-                            Thread.sleep(2000);
-                        } catch (Exception e){}
-                    }
-
                     keys.remove();
                 }
             }
@@ -71,24 +68,30 @@ public class Client {
 
     }
 
-    private void write(SelectionKey key) {
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(3);
-        buffer = ByteBuffer.wrap(new byte[]{2,2,2});
-        try {
-            while (buffer.hasRemaining())
-                channel.write(buffer);
-        } catch (Exception e) {
+    private void write() {
+        while(true) {
+            this.buffer.clear();
+            byte[] data = new byte[8192];
+            Random r = new Random();
+            for (int i = 0 ; i < 8192 ; i++) {
+                data[i] = (byte)r.nextInt();
+            }
+            this.buffer = ByteBuffer.wrap(data);
+            try {
+                while (buffer.hasRemaining())
+                    this.client.write(buffer);
+                Thread.sleep(2000);
+            } catch (Exception e) {
 
+            }
         }
-        buffer.clear();
-        key.interestOps(SelectionKey.OP_READ);
     }
 
     private void read(SelectionKey key) {
-        SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(3);
+        SocketChannel channel = (SocketChannel)key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(40);
         int read = 0;
+
         try {
             while (buffer.hasRemaining() && read != -1) {
                 read = channel.read(buffer);
@@ -98,19 +101,23 @@ public class Client {
         }
 
         if (read == -1) {
+            System.out.println("Closed");
             return;
         }
 
-        System.out.println("Received: " + Arrays.toString(buffer.array()));
-        buffer.clear();
-        key.interestOps(SelectionKey.OP_WRITE);
+        buffer.flip();
+        byte[] data = new byte[buffer.limit()];
+        for (int i = 0 ; i < buffer.limit() ; i++){
+            data[i] = buffer.get();
+        }
+        System.out.println("Received: " + Arrays.toString(data));
     }
 
     private void connect(SelectionKey key) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
             channel.finishConnect();
-            key.interestOps(SelectionKey.OP_WRITE);
+            key.interestOps(SelectionKey.OP_READ);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
