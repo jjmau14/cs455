@@ -27,22 +27,33 @@ public class TaskPool {
     }
 
     private class worker extends Thread {
+
+        private Task task;
+
+        public worker() {
+            this.task = null;
+        }
+
         public void run() {
-            Task task;
             while (true) {
-                try {
+                synchronized (task) {
+                    if (task == null) {
+                        try {
+                            task.wait();
+                        } catch (Exception e) {
 
-                    synchronized (queue) {
-                        if (queue.peek() == null)
-                            queue.wait();
-                        task = queue.poll();
+                        }
                     }
-
                     task.run();
-
-                } catch (Exception e) {
-
+                    task = null;
                 }
+            }
+        }
+
+        public void setTask(Task task) {
+            synchronized (this.task) {
+                this.task = task;
+                this.task.notify();
             }
         }
     }
