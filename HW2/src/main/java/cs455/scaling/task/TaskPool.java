@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 public class TaskPool {
 
     private PriorityQueue<Task> queue;
-    private worker[] workers;
+    private TaskWorker[] workers;
 
     public TaskPool(int numThreads) {
         this.queue = new PriorityQueue<>(new Comparator<Task>() {
@@ -15,46 +15,14 @@ public class TaskPool {
                 return 0;
             }
         });
-        this.workers = new worker[numThreads];
+        this.workers = new TaskWorker[numThreads];
         init();
     }
 
     private void init() {
         for (int i = 0 ; i < this.workers.length ; i++) {
-            workers[i] = new worker();
+            workers[i] = new TaskWorker();
             workers[i].start();
-        }
-    }
-
-    private class worker extends Thread {
-
-        private Task task;
-
-        public worker() {
-            this.task = null;
-        }
-
-        public void run() {
-            while (true) {
-                synchronized (task) {
-                    if (task == null) {
-                        try {
-                            task.wait();
-                        } catch (Exception e) {
-
-                        }
-                    }
-                    task.run();
-                    task = null;
-                }
-            }
-        }
-
-        public void setTask(Task task) {
-            synchronized (this.task) {
-                this.task = task;
-                this.task.notify();
-            }
         }
     }
 
