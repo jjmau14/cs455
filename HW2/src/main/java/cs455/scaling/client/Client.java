@@ -100,17 +100,12 @@ public class Client {
         int read = 0;
 
         try {
-            //while (buffer.hasRemaining() && read != -1) {
-                read = channel.read(buffer);
-                buffer.flip();
-                byte[] data = new byte[buffer.limit()];
-                for (int i = 0 ; i < data.length ; i++) {
-                    data[i] = buffer.get();
-                }
-                System.out.println("Received: " + new String(data));
-                System.out.println("Removed: " + this.hashList.removeIfPresent(new String(data)));
-                //System.out.println(read);
-            //}
+            read = channel.read(buffer);
+            buffer.flip();
+            byte[] data = new byte[buffer.limit()];
+            for (int i = 0 ; i < data.length ; i++) {
+                data[i] = buffer.get();
+            }
         } catch (IOException e) {
 
         }
@@ -151,7 +146,6 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
-                System.out.println("Added: " + item);
                 this.list.add(item);
                 this.list.notify();
             }
@@ -175,7 +169,6 @@ public class Client {
             byte[] hash = digest.digest(data);
             BigInteger hashInt = new BigInteger(1, hash);
             String hashedString = hashInt.toString(16);
-            System.out.println("HASHED: " + Arrays.toString(hashedString.getBytes()));
             this.hashList.add(hashedString);
             return hashedString;
         } catch (Exception  e) {
