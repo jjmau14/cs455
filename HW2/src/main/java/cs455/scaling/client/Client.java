@@ -47,7 +47,7 @@ public class Client {
 
                 while(keys.hasNext()) {
                     SelectionKey key = keys.next();
-                    System.out.println(key.interestOps());
+
                     if (key.isConnectable()) {
                         this.connect(key);
                     } else if (key.isReadable()) {
