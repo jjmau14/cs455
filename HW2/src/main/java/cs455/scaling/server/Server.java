@@ -48,6 +48,7 @@ public class Server {
                     SelectionKey key = keys.next();
 
                     if (key.isAcceptable()) {
+                        System.out.println("Accepting new connection...");
                         register(key);
                     } else if (key.isReadable()) {
                         addTask(key);

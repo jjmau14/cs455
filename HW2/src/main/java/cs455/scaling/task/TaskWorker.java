@@ -13,37 +13,43 @@ public class TaskWorker extends Thread {
     public synchronized void setTask(Task task) {
         this.task = task;
         this.status = 1;
+        this.task.notify();
     }
 
     public int getStatus() {
-        return this.status;
+        synchronized (this.status) {
+            return this.status;
+        }
     }
 
     public void run() {
         while(true) {
-            synchronized (task) {
-                try {
-                if (task == null) {
+            try {
+                while (task == null) {
+                    try {
+                        task.wait();
+                    } catch (Exception e){}
+                }
+                // Wait for the task executor to assign a task.
 
-                    // Wait for the task executor to assign a task.
-                    task.wait();
-
-                    // After receiving a task, set status to 1 (busy)
+                // After receiving a task, set status to 1 (busy)
+                synchronized (status) {
                     status = 1;
+                }
 
-                    // Execute the given task.
-                    task.run();
+                // Execute the given task.
+                task.run();
 
-                    // Once task is completed, reset task to null for a new task to be assigned.
-                    task = null;
+                // Once task is completed, reset task to null for a new task to be assigned.
+                task = null;
 
-                    // Set status to 0 (idle)
+                // Set status to 0 (idle)
+                synchronized (status) {
                     status = 0;
-
                 }
-                } catch (Exception e) {
 
-                }
+            } catch (Exception e) {
+
             }
         }
     }

@@ -40,7 +40,6 @@ public class Client {
             this.channel.configureBlocking(false);
             this.channel.register(this.selector, SelectionKey.OP_CONNECT);
             this.channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
-            new Thread(() -> writer()).start();
 
             while(true){
                 selector.select();
@@ -48,7 +47,7 @@ public class Client {
 
                 while(keys.hasNext()) {
                     SelectionKey key = keys.next();
-
+                    System.out.println(key.interestOps());
                     if (key.isConnectable()) {
                         this.connect(key);
                     } else if (key.isReadable()) {
@@ -106,8 +105,9 @@ public class Client {
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
             }
+            this.hashList.removeIfPresent(new String(data));
         } catch (IOException e) {
-
+            System.out.println(e.getMessage());
         }
 
         if (read == -1) {
@@ -122,6 +122,7 @@ public class Client {
             SocketChannel channel = (SocketChannel) key.channel();
             channel.finishConnect();
             key.interestOps(SelectionKey.OP_READ);
+            new Thread(() -> writer()).start();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -146,6 +147,7 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
+                System.out.println("Adding " + item);
                 this.list.add(item);
                 this.list.notify();
             }
@@ -155,6 +157,7 @@ public class Client {
             String itemRemoved = null;
             synchronized (this.list) {
                 if (list.contains(item)) {
+                    System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
                 }
