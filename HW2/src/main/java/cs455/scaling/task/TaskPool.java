@@ -45,15 +45,17 @@ public class TaskPool {
                     while (queue.peek() == null) {
                         queue.wait();
                     }
-                    t = queue.poll();
-                    //System.out.println("Task popped");
-                    boolean assigned = false;
-                    while (!assigned) {
-                        for (TaskWorker worker : workers) {
-                            if (worker.getStatus() == 0) {
-                                //System.out.println("Assigning task");
-                                worker.setTask(t);
-                            }
+                }
+                t = queue.poll();
+                //System.out.println("Task popped");
+                boolean assigned = false;
+                while (!assigned) {
+                    for (TaskWorker worker : workers) {
+                        if (worker.getStatus() == 0) {
+                            //System.out.println("Assigning task");
+                            worker.setTask(t);
+                            assigned = true;
+                            break;
                         }
                     }
                 }

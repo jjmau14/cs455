@@ -1,5 +1,7 @@
 package cs455.scaling.task;
 
+import cs455.scaling.Counter;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;

@@ -1,5 +1,7 @@
 package cs455.scaling.client;
 
+import cs455.scaling.Counter;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
@@ -18,19 +20,33 @@ public class Client {
 
     private String serverHost;
     private int serverPort;
-    private int messageRate;
+    private float messageRate;
     private SocketChannel channel;
     private ByteBuffer buffer;
     private Selector selector;
     public final int BUFFER_SIZE = 8192;
     private HashList hashList;
+    private Counter sendCounter;
+    private Counter receivedCounter;
 
-    public Client(String serverHost, int serverPort, int messageRate) {
+    public Client(String serverHost, int serverPort, float messageRate) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.serverHost = serverHost;
         this.serverPort = serverPort;
         this.messageRate = messageRate;
         this.hashList = new HashList();
+        this.sendCounter = new Counter();
+        this.receivedCounter = new Counter();
+    }
+
+    public void counters() {
+        while (true) {
+            try {
+                System.out.println("Messages sent: " + this.sendCounter.getCount() + "\nMessages received: " + this.receivedCounter.getCount());
+                Thread.sleep(20 * 1000);
+            } catch (Exception e) {
+            }
+        }
     }
 
     public void init() {
@@ -40,6 +56,7 @@ public class Client {
             this.channel.configureBlocking(false);
             this.channel.register(this.selector, SelectionKey.OP_CONNECT);
             this.channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
+            new Thread(() -> counters()).start();
 
             while(true){
                 selector.select();
@@ -85,8 +102,8 @@ public class Client {
 
                 while (buffer.hasRemaining())
                     this.channel.write(buffer);
-
-                Thread.sleep(5000);
+                this.sendCounter.increment();
+                Thread.sleep((long)(1000/this.messageRate));
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -106,6 +123,7 @@ public class Client {
                 data[i] = buffer.get();
             }
             this.hashList.removeIfPresent(new String(data));
+            this.receivedCounter.increment();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -132,7 +150,7 @@ public class Client {
         if (args.length != 3){
             System.out.println("USAGE: java cs455.scaling.client.Client [Server Host] [Server Port] [Message Rate]");
         } else {
-            Client client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[1]));
+            Client client = new Client(args[0], Integer.parseInt(args[1]), Float.parseFloat(args[2]));
             client.init();
         }
     }
@@ -147,7 +165,7 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
-                System.out.println("Adding " + item);
+                //System.out.println("Adding " + item);
                 this.list.add(item);
                 this.list.notify();
             }
@@ -157,7 +175,7 @@ public class Client {
             String itemRemoved = null;
             synchronized (this.list) {
                 if (list.contains(item)) {
-                    System.out.println("Removing " + item);
+                    //System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
                 }

@@ -1,5 +1,6 @@
 package cs455.scaling.server;
 
+import cs455.scaling.Counter;
 import cs455.scaling.task.Task;
 import cs455.scaling.task.TaskPool;
 
@@ -22,22 +23,34 @@ public class Server {
     private ByteBuffer buffer;
     private TaskPool tasks;
     public final int BUFFER_SIZE = 8192;
+    private Counter counter;
 
     public Server(int port, int poolSize) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.port = port;
         this.poolSize = poolSize;
+        this.counter = new Counter();
+    }
+
+    public void printCounter() {
+        while(true) {
+            System.out.println("Throughput: " + counter.getCount() / 20 + " per second.");
+            try {
+                Thread.sleep(20 * 1000);
+            } catch (Exception e) {}
+        }
     }
 
     public void init() {
         try {
-            this.tasks = new TaskPool(8);
+            this.tasks = new TaskPool(this.poolSize);
 
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
             this.server.socket().bind(new InetSocketAddress("localhost", port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
+            new Thread(() -> printCounter()).start();
 
             System.out.println("Server listening on " + server.getLocalAddress());
             while(true) {
@@ -77,6 +90,7 @@ public class Server {
     }
 
     private void addTask(SelectionKey key) {
+        this.counter.increment();
         int read = 0;
         ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
         SocketChannel channel = (SocketChannel)key.channel();
@@ -95,7 +109,7 @@ public class Server {
             System.out.println("USAGE: java cs455.scaling.server.Server [Port] [Thread Pool Size]");
             System.exit(1);
         } else {
-            Server server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[0]));
+            Server server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
             server.init();
         }
     }
