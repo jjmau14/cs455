@@ -53,6 +53,8 @@ public class TaskPool {
                             if (worker.getStatus() == 0) {
                                 //System.out.println("Assigning task");
                                 worker.setTask(t);
+                                assigned = true;
+                                break;
                             }
                         }
                     }
@@ -62,4 +64,5 @@ public class TaskPool {
             }
         }
     }
+
 }

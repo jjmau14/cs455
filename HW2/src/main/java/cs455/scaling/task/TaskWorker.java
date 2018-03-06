@@ -36,7 +36,6 @@ public class TaskWorker extends Thread {
                 }
 
                 // Execute the given task.
-                //System.out.println("Runnign task");
                 task.run();
 
                 // Set status to 0 (idle)

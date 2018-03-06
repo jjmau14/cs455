@@ -3,14 +3,12 @@ package cs455.scaling.server;
 import cs455.scaling.task.Task;
 import cs455.scaling.task.TaskPool;
 
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.security.MessageDigest;
 import java.util.Iterator;
 
 public class Server {
@@ -31,7 +29,7 @@ public class Server {
 
     public void init() {
         try {
-            this.tasks = new TaskPool(8);
+            this.tasks = new TaskPool(poolSize);
 
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
@@ -95,7 +93,7 @@ public class Server {
             System.out.println("USAGE: java cs455.scaling.server.Server [Port] [Thread Pool Size]");
             System.exit(1);
         } else {
-            Server server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[0]));
+            Server server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
             server.init();
         }
     }

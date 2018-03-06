@@ -18,14 +18,14 @@ public class Client {
 
     private String serverHost;
     private int serverPort;
-    private int messageRate;
+    private float messageRate;
     private SocketChannel channel;
     private ByteBuffer buffer;
     private Selector selector;
     public final int BUFFER_SIZE = 8192;
     private HashList hashList;
 
-    public Client(String serverHost, int serverPort, int messageRate) {
+    public Client(String serverHost, int serverPort, float messageRate) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.serverHost = serverHost;
         this.serverPort = serverPort;
@@ -86,7 +86,7 @@ public class Client {
                 while (buffer.hasRemaining())
                     this.channel.write(buffer);
 
-                Thread.sleep(5000);
+                Thread.sleep((long)(1000/this.messageRate));
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -132,7 +132,7 @@ public class Client {
         if (args.length != 3){
             System.out.println("USAGE: java cs455.scaling.client.Client [Server Host] [Server Port] [Message Rate]");
         } else {
-            Client client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[1]));
+            Client client = new Client(args[0], Integer.parseInt(args[1]), Float.parseFloat(args[2]));
             client.init();
         }
     }
