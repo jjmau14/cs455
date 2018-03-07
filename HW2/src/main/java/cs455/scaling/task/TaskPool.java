@@ -1,70 +1,29 @@
 package cs455.scaling.task;
 
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import cs455.scaling.util.TaskQueue;
+
+import java.util.ArrayList;
 
 public class TaskPool {
 
-    private TaskWorker[] workers;
-    private PriorityQueue<Task> queue;
+    private ArrayList<TaskWorker> workers;
+    private TaskQueue queue;
 
     public TaskPool(int numThreads) {
-        this.workers = new TaskWorker[numThreads];
-        this.queue = new PriorityQueue<>(new Comparator<Task>() {
-            @Override
-            public int compare(Task o1, Task o2) {
-                return 0;
-            }
-        });
-        init();
+        this.queue = new TaskQueue();
+        workers = new ArrayList<>();
+        initializeWorkers(numThreads);
     }
 
-    private void init() {
-        for (int i = 0; i < this.workers.length; i++) {
-            workers[i] = new TaskWorker();
-            workers[i].start();
+    private void initializeWorkers(int numThreads) {
+        for (int i = 0 ; i < numThreads ; i++) {
+            this.workers.add(new TaskWorker(queue, i));
+            this.workers.get(i).start();
         }
-        new Thread(this::run).start();
     }
 
     public void addTask(Task t) {
-        synchronized (queue) {
-            //System.out.println("Added Task");
-            queue.add(t);
-            queue.notify();
-        }
+        this.queue.put(t);
     }
 
-    public void run() {
-        while (true) {
-            // Pop a task to assign
-            Task t;
-
-            try {
-                synchronized (queue) {
-                    while (queue.peek() == null) {
-                        queue.wait();
-                    }
-                    t = queue.poll();
-                    //System.out.println("Task popped");
-                    boolean assigned = false;
-                    while (!assigned) {
-                        int i = 0;
-                        for (TaskWorker worker : workers) {
-                            i += 1;
-                            if (worker.setTask(t) == 1) {
-                                assigned = true;
-                                break;
-                            }
-                        }
-                        if (assigned) {
-                            System.out.println("Task assigned to " + i);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                ;
-            }
-        }
-    }
 }
