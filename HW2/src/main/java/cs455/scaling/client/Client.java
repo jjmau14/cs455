@@ -88,6 +88,7 @@ public class Client {
 
     private void writer() {
         while(!channel.isConnected());
+
         while(true) {
             this.buffer.clear();
             byte[] data = new byte[8192];
@@ -103,6 +104,7 @@ public class Client {
                 while (buffer.hasRemaining())
                     this.channel.write(buffer);
                 this.sendCounter.increment();
+                System.out.println("Sent message");
                 Thread.sleep((long)(1000/this.messageRate));
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());

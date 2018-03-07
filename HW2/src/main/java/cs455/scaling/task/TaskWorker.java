@@ -10,7 +10,7 @@ public class TaskWorker extends Thread {
         this.status = 0;
     }
 
-    public synchronized void setTask(Task task) {
+    public void setTask(Task task) {
         this.task = task;
         synchronized (this.status) {
             this.status = 1;
@@ -18,7 +18,7 @@ public class TaskWorker extends Thread {
         }
     }
 
-    public synchronized int getStatus() {
+    public int getStatus() {
         synchronized (this.status) {
             return this.status;
         }
@@ -27,25 +27,19 @@ public class TaskWorker extends Thread {
     public void run() {
         while(true) {
             try {
-                synchronized (status) {
-                    while (status == 0) {
+                synchronized (this.status) {
+                    while (this.status == 0) {
                         try {
-                            status.wait();
+                            this.status.wait();
                         } catch (Exception e){}
                     }
-                    // Wait for the task executor to assign a task.
-
-                    // After receiving a task, set status to 1 (busy)
-                        status = 1;
                 }
 
-                // Execute the given task.
-                //System.out.println("Runnign task");
                 task.run();
 
                 // Set status to 0 (idle)
-                synchronized (status) {
-                    status = 0;
+                synchronized (this.status) {
+                    this.status = 0;
                 }
 
             } catch (Exception e) {

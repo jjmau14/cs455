@@ -29,7 +29,6 @@ public class TaskPool {
 
     public void addTask(Task t) {
         synchronized (queue) {
-            //System.out.println("Added Task");
             queue.add(t);
             queue.notify();
         }
@@ -58,7 +57,7 @@ public class TaskPool {
                     }
                 }
             } catch (Exception e) {
-                ;
+                System.out.println(e.getMessage());
             }
         }
     }
