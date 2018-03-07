@@ -13,12 +13,16 @@ public class TaskWorker extends Thread {
     public int setTask(Task task) {
         try {
             synchronized (this.status) {
-
+                System.out.println("OK");
                 // If the thread is idle (status == 0) assign this thread a task
                 if (this.status == 0) {
                     this.task = task;
+                    System.out.println("OK");
+
                     this.status = 1;
                     this.status.notify();
+                    System.out.println("OK");
+
                     return 1;
                 }
 
