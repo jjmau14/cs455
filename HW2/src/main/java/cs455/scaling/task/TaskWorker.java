@@ -11,17 +11,21 @@ public class TaskWorker extends Thread {
     }
 
     public int setTask(Task task) {
-        synchronized (this.status) {
-        
-            // If the thread is idle (status == 0) assign this thread a task
-            if (this.status == 0) {
-                this.task = task;
-                this.status = 1;
-                this.status.notify();
-                return 1;
-            }
+        try {
+            synchronized (this.status) {
 
-            return -1;
+                // If the thread is idle (status == 0) assign this thread a task
+                if (this.status == 0) {
+                    this.task = task;
+                    this.status = 1;
+                    this.status.notify();
+                    return 1;
+                }
+
+                return -1;
+            }
+        } catch (Exception e) {
+            System.out.println("Error setting task: " + e.getMessage());
         }
     }
 
@@ -49,7 +53,7 @@ public class TaskWorker extends Thread {
                 }
 
             } catch (Exception e) {
-
+                System.out.println("Error running task: " + e.getMessage());
             }
         }
     }

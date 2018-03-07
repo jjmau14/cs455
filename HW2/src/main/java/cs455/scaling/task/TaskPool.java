@@ -52,7 +52,6 @@ public class TaskPool {
                 while (!assigned) {
 
                     for (TaskWorker worker : workers) {
-                        System.out.println("in enhanced for loop");
                         if (worker.setTask(t) != -1) {
                             assigned = true;
                             break;
