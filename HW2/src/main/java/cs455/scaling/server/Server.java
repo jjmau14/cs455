@@ -22,6 +22,7 @@ public class Server {
     private TaskPool tasks;
     public final int BUFFER_SIZE = 8192;
     private Counter counter;
+    private Counter connectionsCounter;
 
     public Server(int port, int poolSize) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
@@ -34,7 +35,7 @@ public class Server {
         while(true) {
             try {
                 Thread.sleep(20 * 1000);
-                System.out.println("Throughput: " + counter.getCount() / 20 + " per second.");
+                System.out.println("Throughput: " + counter.getCount() / 20 + " per second, " + connectionsCounter.getCount() + " active connections.");
             } catch (Exception e) {}
         }
     }
@@ -76,13 +77,15 @@ public class Server {
     private void register(SelectionKey key) {
         try {
 
+            System.out.println("Registering new connection...");
+            this.connectionsCounter.increment();
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
 
         } catch (Exception e) {
-            ;
+            System.out.println("Error registering channel: " + e.getMessage());
         }
     }
 
@@ -93,6 +96,7 @@ public class Server {
         try {
             read = channel.read(buffer);
             if (read > 0){
+                System.out.println("New task received");
                 this.counter.increment();
                 this.tasks.addTask(new Task(key, buffer));
             }
