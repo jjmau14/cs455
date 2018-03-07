@@ -112,7 +112,7 @@ public class Client {
 
     private void read(SelectionKey key) {
         SocketChannel channel = (SocketChannel)key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(41);
+        ByteBuffer buffer = ByteBuffer.allocate(40);
         int read = 0;
 
         try {
