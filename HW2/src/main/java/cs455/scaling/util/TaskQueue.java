@@ -19,25 +19,23 @@ public class TaskQueue {
     }
 
     public Task poll() {
+        Task t = new Task(null, null);
         try {
             synchronized (this) {
-                while (this.queue.peek() == null) {
+                while (this.queue.size() == 0) {
                     wait();
                 }
-                return queue.poll();
+                t = queue.poll();
             }
         } catch (Exception e) {}
-        return null;
+
+        return t;
     }
 
     public void put(Task t) {
-        try {
-            synchronized (this) {
-                this.queue.add(t);
-                notify();
-            }
-        } catch (Exception e) {
-
+        synchronized (this) {
+            this.queue.add(t);
+            notify();
         }
     }
 
