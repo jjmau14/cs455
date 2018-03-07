@@ -7,7 +7,7 @@ public class TaskWorker extends Thread {
 
     public TaskWorker() {
         this.task = new Task(null, null);
-        this.status = 0;
+        this.status = new Integer(0);
     }
 
     public int setTask(Task task) {
