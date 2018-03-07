@@ -96,12 +96,11 @@ public class Server {
         ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
         SocketChannel channel = (SocketChannel)key.channel();
         try {
-            read = channel.read(buffer);
-            if (read > 0){
-                System.out.println("Adding task.");
-                this.count.increment();
-                this.tasks.addTask(new Task(key, buffer));
+            while (buffer.hasRemaining() && read != -1) {
+                read = channel.read(buffer);
             }
+            this.count.increment();
+            this.tasks.addTask(new Task(key, buffer));
         } catch (Exception e) {
 
         }
