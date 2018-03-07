@@ -87,6 +87,7 @@ public class Client {
 
     private void writer() {
         while(!channel.isConnected());
+
         while(true) {
             this.buffer.clear();
             byte[] data = new byte[8192];

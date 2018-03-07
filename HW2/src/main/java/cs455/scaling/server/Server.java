@@ -62,7 +62,6 @@ public class Server {
                     SelectionKey key = keys.next();
 
                     if (key.isAcceptable()) {
-                        System.out.println("Accepting new connection...");
                         register(key);
                     } else if (key.isReadable()) {
                         addTask(key);
@@ -84,6 +83,7 @@ public class Server {
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
             channel.configureBlocking(false);
+            System.out.println("Accepting new connection from: "  + channel.getRemoteAddress());
             channel.register(selector, SelectionKey.OP_READ);
 
         } catch (Exception e) {
