@@ -29,6 +29,7 @@ public class Server {
         this.port = port;
         this.poolSize = poolSize;
         this.counter = new Counter();
+        this.connectionsCounter = new Counter();
     }
 
     public void printCounter() {
