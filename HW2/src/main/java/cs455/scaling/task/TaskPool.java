@@ -44,8 +44,9 @@ public class TaskPool {
                     while (queue.peek() == null) {
                         queue.wait();
                     }
+                    t = queue.poll();
+                    queue.notify();
                 }
-                t = queue.poll();
                 boolean assigned = false;
                 while (!assigned) {
                     for (TaskWorker worker : workers) {

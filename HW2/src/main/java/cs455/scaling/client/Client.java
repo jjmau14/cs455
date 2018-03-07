@@ -104,7 +104,7 @@ public class Client {
                 while (buffer.hasRemaining())
                     this.channel.write(buffer);
                 this.sendCounter.increment();
-                System.out.println("Sent message");
+
                 Thread.sleep((long)(1000/this.messageRate));
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
