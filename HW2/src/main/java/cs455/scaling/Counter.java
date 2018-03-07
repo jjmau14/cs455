@@ -1,7 +1,5 @@
 package cs455.scaling;
 
-import java.util.Iterator;
-
 public class Counter {
 
     private Integer count;
@@ -18,10 +16,6 @@ public class Counter {
 
     public synchronized void increment() {
         count += 1;
-    }
-
-    public synchronized void reset() {
-        count = 0;
     }
 
 }

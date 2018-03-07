@@ -79,6 +79,7 @@ public class Server {
 
             System.out.println("Registering new connection...");
             this.connectionsCounter.increment();
+
             ServerSocketChannel serverSocket = (ServerSocketChannel) key.channel();
             SocketChannel channel = serverSocket.accept();
             channel.configureBlocking(false);
