@@ -58,7 +58,7 @@ public class TaskPool {
                     }
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println("Task Pool run method error: " + e.getMessage());
             }
         }
     }
