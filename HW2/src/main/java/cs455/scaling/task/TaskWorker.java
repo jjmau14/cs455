@@ -11,27 +11,22 @@ public class TaskWorker extends Thread {
     }
 
     public int setTask(Task task) {
+        int temp = 0;
         try {
             synchronized (this.status) {
-                System.out.println("OK");
                 // If the thread is idle (status == 0) assign this thread a task
                 if (this.status == 0) {
                     this.task = task;
-                    System.out.println("OK");
-
                     this.status = 1;
-                    this.status.notify();
-                    System.out.println("OK");
-
-                    return 1;
+                    temp = 1;
+                } else {
+                    temp = -1;
                 }
-
-                return -1;
             }
         } catch (Exception e) {
             System.out.println("Error setting task: " + e.getMessage());
         }
-        return 0;
+        return temp;
     }
 
     public void run() {
