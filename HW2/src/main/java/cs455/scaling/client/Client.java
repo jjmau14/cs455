@@ -114,11 +114,13 @@ public class Client {
     private void read(SelectionKey key) {
         SocketChannel channel = (SocketChannel)key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(40);
+        buffer.clear();
         int read = 0;
 
         try {
             read = channel.read(buffer);
             buffer.flip();
+            buffer.clear();
             byte[] data = new byte[buffer.limit()];
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
