@@ -49,11 +49,16 @@ public class TaskPool {
                     //System.out.println("Task popped");
                     boolean assigned = false;
                     while (!assigned) {
+                        int i = 0;
                         for (TaskWorker worker : workers) {
+                            i += 1;
                             if (worker.setTask(t) == 1) {
                                 assigned = true;
                                 break;
                             }
+                        }
+                        if (assigned) {
+                            System.out.println("Task assigned to " + i);
                         }
                     }
                 }
