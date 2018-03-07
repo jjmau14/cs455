@@ -22,6 +22,7 @@ public class TaskWorker extends Thread {
                 } else {
                     temp = -1;
                 }
+                status.notify();
             }
         } catch (Exception e) {
             System.out.println("Error setting task: " + e.getMessage());
@@ -40,6 +41,8 @@ public class TaskWorker extends Thread {
                         this.status.wait();
                     }
                 }
+
+                System.out.println("Runnign task");
 
                 // Execute task
                 task.run();
