@@ -101,7 +101,7 @@ public class Server {
             channel.configureBlocking(false);
             //System.out.println("Accepting new connection from: "  + channel.getRemoteAddress());
             channel.register(selector, SelectionKey.OP_READ);
-            System.out.println("Adding new connection: " + channel.getRemoteAddress().toString());
+            //System.out.println("Adding new connection: " + channel.getRemoteAddress().toString());
             this.countPerConnection.put(channel.getRemoteAddress().toString(), new Counter());
 
         } catch (Exception e) {
