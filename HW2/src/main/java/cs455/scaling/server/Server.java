@@ -15,7 +15,6 @@ import java.util.Iterator;
 public class Server {
 
     private int port;
-    private int poolSize;
     private ServerSocketChannel server;
     private Selector selector;
     private ByteBuffer buffer;
@@ -27,7 +26,7 @@ public class Server {
     public Server(int port, int poolSize) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
         this.port = port;
-        this.poolSize = poolSize;
+        this.tasks = new TaskPool(poolSize);
         this.counter = new Counter();
         this.connectionsCounter = new Counter();
     }
@@ -43,13 +42,12 @@ public class Server {
 
     public void init() {
         try {
-            this.tasks = new TaskPool(this.poolSize);
-
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
             this.server.socket().bind(new InetSocketAddress(port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
+
             new Thread(() -> printCounter()).start();
 
             System.out.println("Server listening on " + server.getLocalAddress());
