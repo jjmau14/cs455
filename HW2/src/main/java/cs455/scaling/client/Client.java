@@ -1,5 +1,7 @@
 package cs455.scaling.client;
 
+import cs455.scaling.util.Counter;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -22,6 +24,8 @@ public class Client {
     private Selector selector;
     public final int BUFFER_SIZE = 8192;
     private HashList hashList;
+    private Counter sendCounter;
+    private Counter receiveCounter;
 
     public Client(String serverHost, int serverPort, float messageRate) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
@@ -29,6 +33,20 @@ public class Client {
         this.serverPort = serverPort;
         this.messageRate = messageRate;
         this.hashList = new HashList();
+        this.sendCounter = new Counter();
+        this.receiveCounter = new Counter();
+    }
+
+    private void displayStats() {
+        while (true) {
+            try {
+                Thread.sleep(20 * 1000);
+                System.out.print("Sending: " + (float)this.sendCounter.getCount() + " messages, ");
+                System.out.println("Received: " + this.receiveCounter.getCount() + " messages.");
+                this.sendCounter.reset();
+                this.receiveCounter.reset();
+            } catch (Exception e){}
+        }
     }
 
     public void init() {
@@ -38,7 +56,7 @@ public class Client {
             this.channel.configureBlocking(false);
             this.channel.register(this.selector, SelectionKey.OP_CONNECT);
             this.channel.connect(new InetSocketAddress(this.serverHost, this.serverPort));
-
+            new Thread(() -> displayStats()).start();
             while(true){
                 selector.select();
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -83,7 +101,7 @@ public class Client {
 
                 while (buffer.hasRemaining())
                     this.channel.write(buffer);
-
+                this.sendCounter.increment();
                 Thread.sleep((long)(1000/this.messageRate));
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
@@ -158,6 +176,7 @@ public class Client {
                     System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
+                    receiveCounter.increment();
                 }
             }
             return itemRemoved;
