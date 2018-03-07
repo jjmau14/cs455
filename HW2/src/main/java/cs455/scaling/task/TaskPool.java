@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 public class TaskPool {
 
-    private ArrayList<TaskWorker> workers;
-    private TaskQueue queue;
+    private final ArrayList<TaskWorker> workers;
+    private final TaskQueue queue;
 
     public TaskPool(int numThreads) {
         this.queue = new TaskQueue();
-        workers = new ArrayList<>();
+        workers = new ArrayList<>(numThreads);
         initializeWorkers(numThreads);
     }
 
