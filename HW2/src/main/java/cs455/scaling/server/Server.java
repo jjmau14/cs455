@@ -49,7 +49,7 @@ public class Server {
             new Thread(() -> displayStats()).start();
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
-            this.server.socket().bind(new InetSocketAddress("localhost", port));
+            this.server.socket().bind(new InetSocketAddress(port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
 
