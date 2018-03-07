@@ -40,16 +40,20 @@ public class TaskPool {
             Task t;
 
             try {
+                System.out.println("OK");
                 synchronized (queue) {
                     while (queue.peek() == null)
                         queue.wait();
+                    System.out.println("OK");
 
                     t = queue.poll();
                     queue.notify();
                 }
+                System.out.println("OK");
 
                 boolean assigned = false;
-                while (!assigned) {
+                while (!assigned) {                System.out.println("OK");
+
                     for (TaskWorker worker : workers) {
                         if (worker.setTask(t) != -1) {
                             assigned = true;
