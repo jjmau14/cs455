@@ -10,14 +10,19 @@ public class TaskWorker extends Thread {
         this.status = 0;
     }
 
-    public synchronized void setTask(Task task) {
-        this.task = task;
-        this.status = 1;
-        this.status.notify();
-    }
-
-    public synchronized int getStatus() {
-        return this.status;
+    public int setTask(Task task) {
+        int temp = 0;
+        synchronized (this.status) {
+            if (this.status == 0) {
+                this.task = task;
+                this.status = 1;
+                this.status.notify();
+                temp = 1;
+            } else {
+                temp = -1;
+            }
+        }
+        return temp;
     }
 
     public void run() {

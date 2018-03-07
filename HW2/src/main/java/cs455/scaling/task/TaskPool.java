@@ -50,9 +50,9 @@ public class TaskPool {
                     boolean assigned = false;
                     while (!assigned) {
                         for (TaskWorker worker : workers) {
-                            if (worker.getStatus() == 0) {
-                                //System.out.println("Assigning task");
-                                worker.setTask(t);
+                            if (worker.setTask(t) == 1) {
+                                assigned = true;
+                                break;
                             }
                         }
                     }
