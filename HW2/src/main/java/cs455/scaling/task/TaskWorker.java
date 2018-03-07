@@ -12,27 +12,31 @@ public class TaskWorker extends Thread {
 
     public synchronized void setTask(Task task) {
         this.task = task;
-        this.status = 1;
-        this.status.notify();
+        synchronized (this.status) {
+            this.status = 1;
+            this.status.notify();
+        }
     }
 
     public synchronized int getStatus() {
-        return this.status;
+        synchronized (this.status) {
+            return this.status;
+        }
     }
 
     public void run() {
         while(true) {
             try {
-                while (status == 0) {
-                    try {
-                        status.wait();
-                    } catch (Exception e){}
-                }
-                // Wait for the task executor to assign a task.
-
-                // After receiving a task, set status to 1 (busy)
                 synchronized (status) {
-                    status = 1;
+                    while (status == 0) {
+                        try {
+                            status.wait();
+                        } catch (Exception e){}
+                    }
+                    // Wait for the task executor to assign a task.
+
+                    // After receiving a task, set status to 1 (busy)
+                        status = 1;
                 }
 
                 // Execute the given task.

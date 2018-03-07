@@ -20,7 +20,6 @@ public class Task implements Runnable {
 
     public void run() {
         byte[] data = buffer.array();
-        //System.out.println(Arrays.toString(data));
         SocketChannel channel = (SocketChannel) this.key.channel();
         ByteBuffer buf = ByteBuffer.wrap(this.SHA1FromBytes(data).getBytes());
 

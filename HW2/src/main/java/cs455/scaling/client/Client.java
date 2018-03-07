@@ -122,7 +122,6 @@ public class Client {
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
             }
-            this.receivedCounter.increment();
             this.hashList.removeIfPresent(new String(data));
 
         } catch (IOException e) {
@@ -179,6 +178,7 @@ public class Client {
                     //System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
+                    receivedCounter.increment();
                 }
             }
             return itemRemoved;

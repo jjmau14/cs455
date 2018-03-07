@@ -32,9 +32,9 @@ public class Server {
 
     public void printCounter() {
         while(true) {
-            System.out.println("Throughput: " + counter.getCount() / 20 + " per second.");
             try {
                 Thread.sleep(20 * 1000);
+                System.out.println("Throughput: " + counter.getCount() / 20 + " per second.");
             } catch (Exception e) {}
         }
     }
@@ -59,7 +59,6 @@ public class Server {
                     SelectionKey key = keys.next();
 
                     if (key.isAcceptable()) {
-                        System.out.println("Accepting new connection...");
                         register(key);
                     } else if (key.isReadable()) {
                         addTask(key);
@@ -94,6 +93,7 @@ public class Server {
         try {
             read = channel.read(buffer);
             if (read > 0){
+                System.out.println("Read task, incremented counter");
                 this.counter.increment();
                 this.tasks.addTask(new Task(key, buffer));
             }
