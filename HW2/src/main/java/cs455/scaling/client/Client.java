@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
@@ -122,7 +123,8 @@ public class Client {
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
             }
-            System.out.println("Received: " + new String(data));
+            System.out.println("Received: " + Arrays.toString(buffer.array()));
+            //System.out.println("Received: " + new String(data));
             this.hashList.removeIfPresent(new String(data));
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -165,7 +167,7 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
-                System.out.println("Adding " + item);
+                System.out.println("Adding " + Arrays.toString(item.getBytes()));
                 this.list.add(item);
                 this.list.notify();
             }
@@ -175,7 +177,6 @@ public class Client {
             String itemRemoved = null;
             synchronized (this.list) {
                 if (list.contains(item)) {
-                    System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
                     receiveCounter.increment();
