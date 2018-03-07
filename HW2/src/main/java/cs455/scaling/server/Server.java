@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class Server {
@@ -23,6 +24,8 @@ public class Server {
     public final int BUFFER_SIZE = 8192;
     private Counter count;
     private Counter activeConnections;
+    private HashMap<String, Counter> countPerConnection;
+
 
     public Server(int port, int poolSize) {
         this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
@@ -30,6 +33,7 @@ public class Server {
         this.poolSize = poolSize;
         this.count = new Counter();
         this.activeConnections = new Counter();
+        countPerConnection = new HashMap<>();
     }
 
     private void displayStats() {
@@ -37,7 +41,19 @@ public class Server {
             try {
                 Thread.sleep(20 * 1000);
                 System.out.print("Throughput: " + (float)this.count.getCount() / 20.0 + " messages per second. ");
-                System.out.println("There are " + this.activeConnections.getCount() + " active clients.");
+                System.out.print("There are " + this.activeConnections.getCount() + " active clients. ");
+                System.out.print("Per Client throughput: " + (float)this.count.getCount() / this.activeConnections.getCount() / 20.0 + " messages per second.");
+                float average = (float)(this.count.getCount() / this.activeConnections.getCount() / 20.0);
+                double variance = 0.0;
+                for (String s: countPerConnection.keySet()) {
+                    float f = (average - this.countPerConnection.get(s).getCount() / 20);
+                    variance += f*f;
+                }
+                variance /= this.activeConnections.getCount();
+                System.out.println("Standard Deviation: " + Math.sqrt(variance) + " per client messages per second.");
+                for(String s: countPerConnection.keySet()) {
+                    this.countPerConnection.get(s).reset();
+                }
                 this.count.reset();
             } catch (Exception e){}
         }
@@ -85,6 +101,8 @@ public class Server {
             channel.configureBlocking(false);
             //System.out.println("Accepting new connection from: "  + channel.getRemoteAddress());
             channel.register(selector, SelectionKey.OP_READ);
+            System.out.println("Adding new connection: " + channel.getRemoteAddress().toString());
+            this.countPerConnection.put(channel.getRemoteAddress().toString(), new Counter());
 
         } catch (Exception e) {
             ;
@@ -100,9 +118,11 @@ public class Server {
                 read = channel.read(buffer);
             }
             this.count.increment();
+            this.countPerConnection.get(channel.getRemoteAddress().toString()).increment();
             this.tasks.addTask(new Task(key, buffer));
         } catch (Exception e) {
-
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
