@@ -165,7 +165,7 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
-                //System.out.println("Adding " + item);
+                System.out.println("Adding " + item);
                 this.list.add(item);
                 this.list.notify();
             }
@@ -175,7 +175,7 @@ public class Client {
             String itemRemoved = null;
             synchronized (this.list) {
                 if (list.contains(item)) {
-                    //System.out.println("Removing " + item);
+                    System.out.println("Removing " + item);
                     itemRemoved = list.get(list.indexOf(item));
                     list.remove(item);
                     receivedCounter.increment();
