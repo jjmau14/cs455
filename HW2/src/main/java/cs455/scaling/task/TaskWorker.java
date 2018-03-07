@@ -15,7 +15,7 @@ public class TaskWorker extends Thread {
     public void run() {
         while(true) {
             Task t = queue.poll();
-
+            System.out.println(this + " working.");
             t.run();
         }
     }
