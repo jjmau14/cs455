@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
+import java.util.Arrays;
 
 public class Task implements Runnable {
 
@@ -21,7 +22,7 @@ public class Task implements Runnable {
 
         SocketChannel channel = (SocketChannel) this.key.channel();
         ByteBuffer buf = ByteBuffer.wrap(this.SHA1FromBytes(data).getBytes());
-
+        System.out.println("Sending: " + Arrays.toString(this.SHA1FromBytes(data).getBytes()));
         try {
             channel.write(buf);
         } catch (Exception e) {}
