@@ -122,8 +122,9 @@ public class Client {
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
             }
-            this.hashList.removeIfPresent(new String(data));
             this.receivedCounter.increment();
+            this.hashList.removeIfPresent(new String(data));
+
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

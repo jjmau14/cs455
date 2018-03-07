@@ -90,13 +90,13 @@ public class Server {
     }
 
     private void addTask(SelectionKey key) {
-        this.counter.increment();
         int read = 0;
         ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
         SocketChannel channel = (SocketChannel)key.channel();
         try {
             read = channel.read(buffer);
             if (read > 0){
+                this.counter.increment();
                 this.tasks.addTask(new Task(key, buffer));
             }
         } catch (Exception e) {
