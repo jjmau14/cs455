@@ -10,32 +10,38 @@ public class TaskWorker extends Thread {
         this.status = 0;
     }
 
-    public void setTask(Task task) {
-        this.task = task;
+    public int setTask(Task task) {
         synchronized (this.status) {
-            this.status = 1;
-            this.status.notify();
-        }
-    }
+        
+            // If the thread is idle (status == 0) assign this thread a task
+            if (this.status == 0) {
+                this.task = task;
+                this.status = 1;
+                this.status.notify();
+                return 1;
+            }
 
-    public int getStatus() {
-        synchronized (this.status) {
-            return this.status;
+            return -1;
         }
     }
 
     public void run() {
         while(true) {
             try {
+
+                // Wait for this status to be 1 indicating task should be ran
+                // and this thread can proceed.
                 synchronized (this.status) {
                     while (this.status == 0) {
-                        try {
-                            this.status.wait();
-                        } catch (Exception e){}
+                        this.status.wait();
                     }
                 }
 
+                // Execute task
                 task.run();
+
+                // Reset task
+                task = null;
 
                 // Set status to 0 (idle)
                 synchronized (this.status) {

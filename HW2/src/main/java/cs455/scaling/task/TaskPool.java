@@ -24,7 +24,7 @@ public class TaskPool {
             workers[i] = new TaskWorker();
             workers[i].start();
         }
-        new Thread(this::run).start();
+        new Thread(() -> run()).start();
     }
 
     public void addTask(Task t) {
@@ -41,17 +41,17 @@ public class TaskPool {
 
             try {
                 synchronized (queue) {
-                    while (queue.peek() == null) {
+                    while (queue.peek() == null)
                         queue.wait();
-                    }
+
                     t = queue.poll();
                     queue.notify();
                 }
+
                 boolean assigned = false;
                 while (!assigned) {
                     for (TaskWorker worker : workers) {
-                        if (worker.getStatus() == 0) {
-                            worker.setTask(t);
+                        if (worker.setTask(t) != -1) {
                             assigned = true;
                             break;
                         }
