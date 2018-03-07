@@ -4,14 +4,12 @@ import cs455.scaling.Counter;
 import cs455.scaling.task.Task;
 import cs455.scaling.task.TaskPool;
 
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.security.MessageDigest;
 import java.util.Iterator;
 
 public class Server {
@@ -47,7 +45,7 @@ public class Server {
 
             this.selector = Selector.open();
             this.server = ServerSocketChannel.open();
-            this.server.socket().bind(new InetSocketAddress("localhost", port));
+            this.server.socket().bind(new InetSocketAddress(port));
             this.server.configureBlocking(false);
             this.server.register(selector, SelectionKey.OP_ACCEPT);
             new Thread(() -> printCounter()).start();
