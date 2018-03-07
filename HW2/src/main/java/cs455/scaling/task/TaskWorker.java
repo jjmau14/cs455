@@ -6,7 +6,7 @@ public class TaskWorker extends Thread {
     private Integer status;
 
     public TaskWorker() {
-        this.task = null;
+        this.task = new Task(null, null);
         this.status = 0;
     }
 
@@ -27,6 +27,7 @@ public class TaskWorker extends Thread {
         } catch (Exception e) {
             System.out.println("Error setting task: " + e.getMessage());
         }
+        return 0;
     }
 
     public void run() {
