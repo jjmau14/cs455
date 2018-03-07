@@ -36,7 +36,7 @@ public class Server {
         while (true) {
             try {
                 Thread.sleep(20 * 1000);
-                System.out.print("Throughput: " + this.count.getCount() / 20 + " messages per second. ");
+                System.out.print("Throughput: " + (float)this.count.getCount() / 20.0 + " messages per second. ");
                 System.out.println("There are " + this.activeConnections.getCount() + " active clients.");
                 this.count.reset();
             } catch (Exception e){}
