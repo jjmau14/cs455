@@ -98,6 +98,7 @@ public class Server {
         try {
             read = channel.read(buffer);
             if (read > 0){
+                System.out.println("Adding task.");
                 this.count.increment();
                 this.tasks.addTask(new Task(key, buffer));
             }
