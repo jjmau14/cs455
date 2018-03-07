@@ -125,7 +125,7 @@ public class Client {
             for (int i = 0 ; i < data.length ; i++) {
                 data[i] = buffer.get();
             }
-            System.out.println("Received: " + Arrays.toString(buffer.array()));
+            //System.out.println("Received: " + Arrays.toString(buffer.array()));
             //System.out.println("Received: " + new String(data));
             this.hashList.removeIfPresent(new String(data));
         } catch (IOException e) {
@@ -169,7 +169,7 @@ public class Client {
 
         public void add(String item) {
             synchronized (this.list) {
-                System.out.println("Adding " + Arrays.toString(item.getBytes()));
+                //System.out.println("Adding " + Arrays.toString(item.getBytes()));
                 this.list.add(item);
                 this.list.notify();
             }

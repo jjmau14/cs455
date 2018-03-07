@@ -22,7 +22,7 @@ public class Task implements Runnable {
 
         SocketChannel channel = (SocketChannel) this.key.channel();
         ByteBuffer buf = ByteBuffer.wrap(this.SHA1FromBytes(data).getBytes());
-        System.out.println("Sending: " + Arrays.toString(this.SHA1FromBytes(data).getBytes()));
+        //System.out.println("Sending: " + Arrays.toString(this.SHA1FromBytes(data).getBytes()));
         try {
             channel.write(buf);
         } catch (Exception e) {}
