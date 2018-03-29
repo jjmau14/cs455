@@ -42,7 +42,7 @@
 
     <property>
         <name>mapreduce.shuffle.port</name>
-        <value>PORT</value>
+        <value>46910</value>
     </property>
 
     <property>

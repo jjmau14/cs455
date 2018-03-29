@@ -35,7 +35,7 @@
   
   <property>
         <name>dfs.namenode.secondary.http-address</name>
-        <value>boston:46900</value>
+        <value>boston:46905</value>
         <description>Web UI of the secondary name node</description>
   </property>
 </configuration>
