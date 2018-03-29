@@ -1,6 +1,6 @@
 <configuration>
   <property>
     <name>fs.default.name</name>
-    <value>hdfs://NAME-NODE-HOST:PORT</value>
+    <value>hdfs://denver:46900</value>
   </property>
 </configuration>
