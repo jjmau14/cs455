@@ -19,17 +19,7 @@
             Can be one of local, classic or yarn.
         </description>
     </property>
-<!--
-    <property>
-        <name>mapreduce.map.java.opts</name>
-        <value>-Xmx384M</value>
-    </property>
 
-    <property>
-        <name>mapreduce.reduce.java.opts</name>
-        <value>-Xmx768M</value>
-    </property>
--->
     <property>
         <name>mapreduce.map.memory.mb</name>
         <value>1024</value>
@@ -42,7 +32,7 @@
 
     <property>
         <name>mapreduce.shuffle.port</name>
-        <value>46910</value>
+        <value>46970</value>
     </property>
 
     <property>

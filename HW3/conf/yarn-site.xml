@@ -1,13 +1,13 @@
 <configuration>
     <property>
         <name>yarn.resourcemanager.webapp.address</name>
-        <value>0.0.0.0:46913</value>
+        <value>madison:46920</value>
         <description>Address of the ResourceManager web app</description>
     </property>
 
     <property>
         <name>yarn.resourcemanager.resource-tracker.address</name>
-        <value>denver:46920</value>
+        <value>madison:46921</value>
         <description>host is the hostname of the resource manager and
             port is the port on which the NodeManagers contact the Resource Manager.
         </description>
@@ -15,7 +15,7 @@
 
     <property>
         <name>yarn.resourcemanager.scheduler.address</name>
-        <value>denver:46921</value>
+        <value>madison:46922</value>
         <description>host is the hostname of the resourcemanager and port is the port
             on which the Applications in the cluster talk to the Resource Manager.
         </description>
@@ -29,7 +29,7 @@
 
     <property>
         <name>yarn.resourcemanager.address</name>
-        <value>denver:46922</value>
+        <value>madison:46923</value>
         <description>the host is the hostname of the ResourceManager and the port is the port on
             which the clients can talk to the Resource Manager.
         </description>
@@ -43,7 +43,7 @@
 
     <property>
         <name>yarn.nodemanager.address</name>
-        <value>0.0.0.0:46914</value>
+        <value>0.0.0.0:46924</value>
         <description>the nodemanagers bind to this port</description>
     </property>
 
@@ -75,47 +75,15 @@
         <value>100</value>
     </property>
 
-
-    <!-- Add if we have port overload for the web portal -->
-    <!--  <property>
-        <name>yarn.resourcemanager.webapp.address</name>
-        <value>0.0.0.0:7477</value>
-        <description>Address of the ResourceManager web app</description>
-      </property>
-    -->
-    <!--  Other ports with may be overloaded.  Modify if you see error messages about the defaults already being in use
-      <property>
-       <name>yarn.resourcemanager.address</name>
-       <value>0.0.0.0:7472</value>
-       <description>The address of the applications manager interface in the RM.</description>
-      </property>
-
-      <property>
-       <name>yarn.resourcemanager.scheduler.address</name>
-       <value>0.0.0.0:7430</value>
-       <description>The address of the scheduler interface.</description>
-      </property>
-
-      <property>
-       <name>yarn.resourcemanager.resource-tracker.address</name>
-       <value>0.0.0.0:7431</value>
-      </property>
-
-      <property>
-       <name>yarn.resourcemanager.admin.address</name>
-       <value>0.0.0.0:7433</value>
-       <description>The address of the RM admin interface.</description>
-      </property>
-      -->
     <property>
         <name>yarn.nodemanager.localizer.address</name>
-        <value>0.0.0.0:46911</value>
+        <value>0.0.0.0:46925</value>
         <description>Address where the localizer IPC is.</description>
     </property>
 
     <property>
         <name>yarn.nodemanager.webapp.address</name>
-        <value>0.0.0.0:46912</value>
+        <value>0.0.0.0:46926</value>
         <description>NM Webapp address.</description>
     </property>
 
