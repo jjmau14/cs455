@@ -43,7 +43,7 @@
 
     <property>
         <name>yarn.nodemanager.address</name>
-        <value>montgomery:46938</value>
+        <value>0.0.0.0:46938</value>
         <description>the nodemanagers bind to this port</description>
     </property>
 
