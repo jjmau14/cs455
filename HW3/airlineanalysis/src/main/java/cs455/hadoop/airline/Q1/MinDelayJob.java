@@ -1,7 +1,8 @@
-package cs455.hadoop.wordcount;
+package cs455.hadoop.airline.Q1;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -10,21 +11,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-/**
- * This is the main class. Hadoop will invoke the main method of this class.
- */
-public class WordCountJob {
+public class MinDelayJob {
+
     public static void main(String[] args) {
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
             Job job = Job.getInstance(conf, "word count");
             // Current class.
-            job.setJarByClass(WordCountJob.class);
+            job.setJarByClass(MinDelayJob.class);
             // Mapper
-            job.setMapperClass(WordCountMapper.class);
+            job.setMapperClass(MinDelayMapper.class);
+            // Combiner. We use the reducer as the combiner in this case.
+            job.setCombinerClass(MinDelayReducer.class);
             // Reducer
-            job.setReducerClass(WordCountReducer.class);
+            job.setReducerClass(MinDelayReducer.class);
 
 
             // Outputs from the Mapper.
@@ -56,6 +57,5 @@ public class WordCountJob {
         } catch (ClassNotFoundException e) {
             System.err.println(e.getMessage());
         }
-
-    }
+}
 }
