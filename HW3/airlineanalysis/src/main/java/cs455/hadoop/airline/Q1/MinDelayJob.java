@@ -17,7 +17,7 @@ public class MinDelayJob {
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "word count");
+            Job job = Job.getInstance(conf, "Q1 Min Delay");
             // Current class.
             job.setJarByClass(MinDelayJob.class);
             // Mapper
@@ -30,14 +30,14 @@ public class MinDelayJob {
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(IntWritable.class);
+            job.setMapOutputValueClass(ArrayWritable.class);
 
 
             // Outputs from Reducer. It is sufficient to set only the following two properties
             // if the Mapper and Reducer has same key and value types. It is set separately for
             // elaboration.
             job.setOutputKeyClass(Text.class);
-            job.setOutputValueClass(IntWritable.class);
+            job.setOutputValueClass(Text.class);
 
 
             // path to input in HDFS
