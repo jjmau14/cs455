@@ -11,7 +11,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         Hashtable<Integer, Integer> key_values = new Hashtable<>();
-
+        context.write(key, new Text());
         for(Text t : values){
 
             try {
