@@ -28,19 +28,23 @@ public class MinDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
          *
          * */
 
-        int time, day, month, delay;
+        String time, day, month, delay;
         try {
-            time = Integer.parseInt(line[5]) / 100;
-            day = Integer.parseInt(line[3]);
-            month = Integer.parseInt(line[1]);
-            delay = Integer.parseInt(line[14]);
+            time = Integer.toString(Integer.parseInt(line[5]) / 100);
+            day = line[3];
+            month = line[1];
+            delay = line[14];
         } catch (Exception e){
             return;
         }
 
-        context.write(new Text("Time"), new Text(new String(Integer.toString(time) + "|" + Integer.toString(delay))));
-        context.write(new Text("Day"), new Text(new String(Integer.toString(day) + "|" + Integer.toString(delay))));
-        context.write(new Text("Month"), new Text(new String(Integer.toString(month) + "|" + Integer.toString(delay))));
+        String TIME = time + "|" + delay;
+        String DAY = day + "|" + delay;
+        String MONTH = month + "|" + delay;
+        
+        context.write(new Text("Time"), new Text(TIME));
+        context.write(new Text("Day"), new Text(DAY));
+        context.write(new Text("Month"), new Text(MONTH));
 
     }
 
