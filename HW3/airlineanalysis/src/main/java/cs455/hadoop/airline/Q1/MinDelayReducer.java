@@ -18,7 +18,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 String[] data = t.toString().split("|");
                 int data_key = Integer.parseInt(data[0]);
                 int data_value = Integer.parseInt(data[1]);
-
+                context.write(key, new Text(data_key + ": " + data_value));
                 if (key_values.containsKey(data_key)) {
                     key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
                 } else {
