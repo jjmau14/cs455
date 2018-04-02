@@ -19,7 +19,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 if (!minimizer.containsKey(arr[0])) {
                     minimizer.put(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
                 } else {
-                    minimizer.replace(Integer.parseInt(arr[0]), minimizer.get(Integer.parseInt(arr[0])) + Integer.parseInt(arr[1]));
+                    minimizer.put(Integer.parseInt(arr[0]), minimizer.get(Integer.parseInt(arr[0])) + Integer.parseInt(arr[1]));
                 }
             } catch (NumberFormatException nfe) {
                 // pass
@@ -29,13 +29,15 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         int key_name = 0;
         int value = 0;
         for (Integer i : minimizer.keySet()) {
+            String s = i + ": " + minimizer.get(i);
+            context.write(key, new Text(s));
             if (minimizer.get(i) > value) {
                 value = minimizer.get(i);
                 key_name = i;
             }
         }
 
-        context.write(key, new Text(key_name + ": " + value));
+        context.write(key, new Text(key_name + ": " + value + "\n"));
     }
 
 }
