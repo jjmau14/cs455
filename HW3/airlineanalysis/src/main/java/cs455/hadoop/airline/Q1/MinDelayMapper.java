@@ -1,5 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
+import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -38,22 +39,22 @@ public class MinDelayMapper extends Mapper<LongWritable, Text, Text, ArrayWritab
             return;
         }
 
-        context.write(new Text("Time"), new ArrayWritable(
-                new String[] {
-                        Integer.toString(time),
-                        Integer.toString(delay)
+        context.write(new Text("Time"), new IntArrayWritable(
+                new IntWritable[] {
+                        new IntWritable(time),
+                        new IntWritable(delay)
                 }
         ));
-        context.write(new Text("Day"), new ArrayWritable(
-                new String[] {
-                        Integer.toString(day),
-                        Integer.toString(delay)
+        context.write(new Text("Day"), new IntArrayWritable(
+                new IntWritable[] {
+                        new IntWritable(day),
+                        new IntWritable(delay)
                 }
         ));
-        context.write(new Text("Month"), new ArrayWritable(
-                new String[] {
-                        Integer.toString(month),
-                        Integer.toString(delay)
+        context.write(new Text("Month"), new IntArrayWritable(
+                new IntWritable[] {
+                        new IntWritable(month),
+                        new IntWritable(delay)
                 }
         ));
 
