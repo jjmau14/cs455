@@ -34,7 +34,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                         key_values.put(data_key, data_value);
                     }
                 } else {
-                    context.write(key, new Text(data_raw));
+                    context.write(key, new Text("ERROR: " + data_raw));
                 }
 
             } catch (NumberFormatException nfe) {
@@ -57,7 +57,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         }
 
 
-        context.write(key, new Text(min_key + ": " + min_value + "\n"));
+        context.write(key, new Text("MIN: " + min_key + ": " + min_value + "\n"));
     }
 
 }
