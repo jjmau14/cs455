@@ -1,7 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
 import cs455.hadoop.airline.util.IntArrayWritable;
-import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -14,7 +13,7 @@ public class MinDelayReducer extends Reducer<Text, IntArrayWritable, Text, Text>
     protected void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
         HashMap<Integer, Integer> minimizer = new HashMap<>();
 
-        for(ArrayWritable t : values){
+        for(IntArrayWritable t : values){
             String[] arr = (String[]) t.toArray();
 
             if (!minimizer.containsKey(arr)){
