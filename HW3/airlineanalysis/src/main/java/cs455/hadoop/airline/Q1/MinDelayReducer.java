@@ -16,7 +16,9 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         for(Text t : values){
 
             try {
-                String[] data = t.toString().split("|");
+                String data_raw = new String(t.getBytes());
+
+                String[] data = data_raw.split("|");
                 int data_key = Integer.parseInt(data[0]);
                 int data_value = Integer.parseInt(data[1]);
 
