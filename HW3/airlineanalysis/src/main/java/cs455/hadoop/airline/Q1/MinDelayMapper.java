@@ -1,5 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
+import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
