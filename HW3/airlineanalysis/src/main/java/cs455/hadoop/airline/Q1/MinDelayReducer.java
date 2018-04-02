@@ -7,6 +7,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Set;
 
 public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
 
@@ -22,7 +23,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 String[] data = data_raw.split("\\|");
                 int data_key = Integer.parseInt(data[0]);
                 int data_value = Integer.parseInt(data[1]);
-
+                context.write(key, new Text("PreReduce: " + data_key + ": " + data_value));
                 if (key_values.containsKey(data_key)) {
                     key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
                 } else {
@@ -38,8 +39,10 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         int min_key = Integer.MAX_VALUE;
         int min_value = Integer.MAX_VALUE;
 
-        for (Integer i : key_values.keySet()) {
+        Set<Integer> keys = key_values.keySet();
+        for (Integer i : keys) {
             context.write(key, new Text(i + ": " + key_values.get(i)));
+
             if (key_values.get(i) < min_value) {
                 min_key = i;
                 min_value = key_values.get(i);
