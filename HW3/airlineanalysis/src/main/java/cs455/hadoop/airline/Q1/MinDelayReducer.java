@@ -7,14 +7,14 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MinDelayReducer extends Reducer<Text, IntArrayWritable, Text, Text> {
+public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
 
     @Override
-    protected void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         HashMap<Integer, Integer> minimizer = new HashMap<>();
 
-        for(IntArrayWritable t : values){
-            String[] arr = (String[]) t.toArray();
+        for(Text t : values){
+            String[] arr = t.toString().split("|");
 
             if (!minimizer.containsKey(arr)){
                 minimizer.put(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));

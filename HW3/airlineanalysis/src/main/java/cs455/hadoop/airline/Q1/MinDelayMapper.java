@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class MinDelayMapper extends Mapper<LongWritable, Text, Text, IntArrayWritable> {
+public class MinDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -38,24 +38,9 @@ public class MinDelayMapper extends Mapper<LongWritable, Text, Text, IntArrayWri
             return;
         }
 
-        context.write(new Text("Time"), new IntArrayWritable(
-                new IntWritable[] {
-                        new IntWritable(time),
-                        new IntWritable(delay)
-                }
-        ));
-        context.write(new Text("Day"), new IntArrayWritable(
-                new IntWritable[] {
-                        new IntWritable(day),
-                        new IntWritable(delay)
-                }
-        ));
-        context.write(new Text("Month"), new IntArrayWritable(
-                new IntWritable[] {
-                        new IntWritable(month),
-                        new IntWritable(delay)
-                }
-        ));
+        context.write(new Text("Time"), new Text(Integer.toString(time) + "|" + Integer.toString(delay)));
+        context.write(new Text("Day"), new Text(Integer.toString(day) + "|" + Integer.toString(delay)));
+        context.write(new Text("Month"), new Text(Integer.toString(month) + "|" + Integer.toString(delay)));
 
     }
 
