@@ -19,7 +19,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             try {
                 String data_raw = t.toString();
 
-                String[] data = data_raw.split("|");
+                String[] data = data_raw.split("\\|");
                 int data_key = 0;
                 int data_value = 0;
                 try {
