@@ -41,7 +41,7 @@ public class MinDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
         String TIME = time + "|" + delay;
         String DAY = day + "|" + delay;
         String MONTH = month + "|" + delay;
-        
+
         context.write(new Text("Time"), new Text(TIME));
         context.write(new Text("Day"), new Text(DAY));
         context.write(new Text("Month"), new Text(MONTH));
