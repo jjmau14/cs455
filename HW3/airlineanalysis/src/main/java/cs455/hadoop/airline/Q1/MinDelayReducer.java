@@ -10,12 +10,12 @@ public class MinDelayReducer extends Reducer<Text, IntWritable, Text, IntWritabl
 
     @Override
     protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-        int count = 0;
+        double count = 0;
         // calculate the total count
         for(IntWritable val : values){
-            count += val.get();
+            count += val.get() / 60.0;
         }
-        context.write(key, new IntWritable(count));
+        context.write(key, new IntWritable((int)count));
     }
 
 }
