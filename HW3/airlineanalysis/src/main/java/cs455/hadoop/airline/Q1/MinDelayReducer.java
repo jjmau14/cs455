@@ -21,16 +21,20 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 String data_raw = t.toString();
 
                 String[] data = data_raw.split("\\|");
-                int data_key = Integer.parseInt(data[0]);
-                int data_value = Integer.parseInt(data[1]);
+                if (data.length > 1) {
+                    int data_key = Integer.parseInt(data[0]);
+                    int data_value = Integer.parseInt(data[1]);
 
-                context.write(key, new Text("PreReduce: " + data_key + ": " + data_value));
-                context.write(key, new Text(Arrays.toString(data)));
+                    context.write(key, new Text("PreReduce: " + data_key + ": " + data_value));
+                    context.write(key, new Text(Arrays.toString(data)));
 
-                if (key_values.containsKey(data_key)) {
-                    key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
+                    if (key_values.containsKey(data_key)) {
+                        key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
+                    } else {
+                        key_values.put(data_key, data_value);
+                    }
                 } else {
-                    key_values.put(data_key, data_value);
+                    context.write(key, new Text(data_raw));
                 }
 
             } catch (NumberFormatException nfe) {
