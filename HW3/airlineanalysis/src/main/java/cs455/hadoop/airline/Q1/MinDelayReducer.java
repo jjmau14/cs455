@@ -17,7 +17,8 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
 
         for(Text t : values){
             String s = t.toString();
-            context.write(key, new Text(s));
+            String[] arr = s.split("|");
+            context.write(key, new Text(arr[0]));
         }
 
     }
