@@ -19,7 +19,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             String s = t.toString();
             String a1 = s.substring(0, 2);
 
-            context.write(key, new Text(a1));
+            context.write(key, new Text(Integer.toString(s.length())));
         }
 
     }
