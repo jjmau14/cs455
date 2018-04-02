@@ -57,7 +57,7 @@ public class MinDelayMapper extends Mapper<
             case 5: return "fri";
             case 6: return "sat";
             case 7: return "sun";
-            default: return null;
+            default: return "error: " + Integer.toString(i);
         }
     }
 
