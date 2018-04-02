@@ -20,7 +20,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 int data_value = Integer.parseInt(data[1]);
 
                 if (key_values.containsKey(data_key)) {
-                    key_values.put(data_key, (key_values.get(data_key) + data_value));
+                    key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
                 } else {
                     key_values.put(data_key, data_value);
                 }
