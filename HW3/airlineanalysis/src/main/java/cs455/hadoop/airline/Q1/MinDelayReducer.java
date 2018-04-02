@@ -20,16 +20,8 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                 String data_raw = t.toString();
 
                 String[] data = data_raw.split("\\|");
-                int data_key = 0;
-                int data_value = 0;
-                try {
-                    data_key = Integer.parseInt(data[0]);
-                    data_value = Integer.parseInt(data[1]);
-                    context.write(new Text(Integer.toString(data_key)), new Text(Integer.toString(data_value)));
-                    context.write(key, t);
-                } catch (Exception e) {
-                    context.write(key, new Text(Arrays.toString(data)));
-                }
+                int data_key = Integer.parseInt(data[0]);
+                int data_value = Integer.parseInt(data[1]);
 
                 if (key_values.containsKey(data_key)) {
                     key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
