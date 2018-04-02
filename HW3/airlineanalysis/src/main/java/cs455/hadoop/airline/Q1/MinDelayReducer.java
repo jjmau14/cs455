@@ -1,5 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
+import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -7,10 +8,10 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MinDelayReducer extends Reducer<Text, ArrayWritable, Text, Text> {
+public class MinDelayReducer extends Reducer<Text, IntArrayWritable, Text, Text> {
 
     @Override
-    protected void reduce(Text key, Iterable<ArrayWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
         HashMap<Integer, Integer> minimizer = new HashMap<>();
 
         for(ArrayWritable t : values){

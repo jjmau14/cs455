@@ -1,5 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
+import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
@@ -30,7 +31,7 @@ public class MinDelayJob {
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(ArrayWritable.class);
+            job.setMapOutputValueClass(IntArrayWritable.class);
 
 
             // Outputs from Reducer. It is sufficient to set only the following two properties
