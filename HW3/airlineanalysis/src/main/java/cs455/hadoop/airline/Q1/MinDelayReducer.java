@@ -4,6 +4,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
@@ -15,7 +16,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         for(Text t : values){
             try {
                 String[] arr = t.toString().split("|");
-
+                context.write(key, new Text(Arrays.toString(arr)));
                 if (!minimizer.containsKey(arr[0])) {
                     minimizer.put(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
                 } else {
