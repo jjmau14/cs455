@@ -56,7 +56,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
-        context.write(new Text(key + "1"), new Text("MIN: " + min_key + ": " + min_value + "\n"));
+        context.write(key, new Text("MIN: " + min_key + ": " + min_value + "\n"));
     }
 
 }
