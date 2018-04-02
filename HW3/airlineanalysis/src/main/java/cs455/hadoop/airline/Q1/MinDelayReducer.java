@@ -35,6 +35,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         int min_value = Integer.MAX_VALUE;
 
         for (Integer i : key_values.keySet()) {
+            context.write(key, new Text(i + ": " + key_values.get(i)));
             if (key_values.get(i) < min_value) {
                 min_key = i;
                 min_value = key_values.get(i);
