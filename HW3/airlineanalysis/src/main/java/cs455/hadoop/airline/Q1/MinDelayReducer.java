@@ -16,9 +16,9 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
         Hashtable<Integer, Integer> kv = new Hashtable<>();
 
         for(Text t : values){
-            String s = new String(t.getBytes());
-
-            context.write(key, new Text(Integer.toString(s.length())));
+            byte[] s = t.getBytes();
+            int x = s.length;
+            context.write(key, new Text(Integer.toString(x)));
         }
 
     }
