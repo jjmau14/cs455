@@ -13,6 +13,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         HashMap<Integer, Integer> minimizer = new HashMap<>();
         for(Text t : values){
+            context.write(key, new Text(t.toString()));
             try {
                 String[] arr = t.toString().split("|");
                 if (!minimizer.containsKey(arr[0])) {
