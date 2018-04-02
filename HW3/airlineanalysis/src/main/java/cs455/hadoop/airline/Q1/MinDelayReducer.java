@@ -1,7 +1,6 @@
 package cs455.hadoop.airline.Q1;
 
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -15,12 +14,12 @@ public class MinDelayReducer extends Reducer<Text, ArrayWritable, Text, Text> {
         HashMap<Integer, Integer> minimizer = new HashMap<>();
 
         for(ArrayWritable t : values){
-            Integer[] arr = (Integer[]) t.toArray();
+            String[] arr = (String[]) t.toArray();
 
             if (!minimizer.containsKey(arr)){
-                minimizer.put(arr[0], arr[1]);
+                minimizer.put(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
             } else {
-                minimizer.replace(arr[0], minimizer.get(arr[0]) + arr[1]);
+                minimizer.replace(Integer.parseInt(arr[0]), minimizer.get(Integer.parseInt(arr[0])) + Integer.parseInt(arr[1]));
             }
         }
 
