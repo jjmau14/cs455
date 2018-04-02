@@ -4,40 +4,45 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-        HashMap<Integer, Integer> minimizer = new HashMap<>();
+        Hashtable<Integer, Integer> key_values = new Hashtable<>();
+
         for(Text t : values){
-            context.write(key, new Text(t.toString()));
+
             try {
-                String[] arr = t.toString().split("|");
-                if (!minimizer.containsKey(arr[0])) {
-                    minimizer.put(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+                String[] data = t.toString().split("|");
+                int data_key = Integer.parseInt(data[0]);
+                int data_value = Integer.parseInt(data[1]);
+
+                if (key_values.containsKey(data_key)) {
+                    key_values.put(data_key, (key_values.get(data_key) + data_value));
                 } else {
-                    minimizer.put(Integer.parseInt(arr[0]), minimizer.get(Integer.parseInt(arr[0])) + Integer.parseInt(arr[1]));
+                    key_values.put(data_key, data_value);
                 }
+
             } catch (NumberFormatException nfe) {
                 // pass
             }
+
         }
 
-        int key_name = 0;
-        int value = 0;
-        for (Integer i : minimizer.keySet()) {
-            String s = i + ": " + minimizer.get(i);
-            context.write(key, new Text(s));
-            if (minimizer.get(i) > value) {
-                value = minimizer.get(i);
-                key_name = i;
+        int min_key = Integer.MAX_VALUE;
+        int min_value = Integer.MAX_VALUE;
+
+        for (Integer i : key_values.keySet()) {
+            if (key_values.get(i) < min_value) {
+                min_key = i;
+                min_value = key_values.get(i);
             }
         }
 
-        context.write(key, new Text(key_name + ": " + value + "\n"));
+
+        context.write(key, new Text(min_key + ": " + min_value + "\n"));
     }
 
 }
