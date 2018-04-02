@@ -25,8 +25,8 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                     int data_key = Integer.parseInt(data[0]);
                     int data_value = Integer.parseInt(data[1]);
 
-                    context.write(key, new Text("PreReduce: " + data_key + ": " + data_value));
-                    context.write(key, new Text(Arrays.toString(data)));
+                    //context.write(key, new Text("PreReduce: " + data_key + ": " + data_value));
+                    //context.write(key, new Text(Arrays.toString(data)));
 
                     if (key_values.containsKey(data_key)) {
                         key_values.replace(data_key, key_values.get(data_key).intValue() + data_value);
@@ -34,7 +34,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                         key_values.put(data_key, data_value);
                     }
                 } else {
-                    context.write(key, new Text("ERROR: " + data_raw));
+                    //context.write(key, new Text("ERROR: " + data_raw));
                 }
 
             } catch (NumberFormatException nfe) {
@@ -48,7 +48,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
 
         Set<Integer> keys = key_values.keySet();
         for (Integer i : keys) {
-            context.write(key, new Text(i + ": " + key_values.get(i)));
+            //context.write(key, new Text(i + ": " + key_values.get(i)));
 
             if (key_values.get(i) < min_value) {
                 min_key = i;
