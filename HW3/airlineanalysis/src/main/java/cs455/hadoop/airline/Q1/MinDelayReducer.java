@@ -28,7 +28,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
                     context.write(new Text(Integer.toString(data_key)), new Text(Integer.toString(data_value)));
                     context.write(key, t);
                 } catch (Exception e) {
-                    context.write(key, new Text(data_raw));
+                    context.write(key, new Text(Arrays.toString(data)));
                 }
 
                 if (key_values.containsKey(data_key)) {

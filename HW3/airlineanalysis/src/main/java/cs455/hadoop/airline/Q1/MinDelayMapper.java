@@ -8,7 +8,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class MinDelayMapper extends Mapper<LongWritable, Text, Text, Text> {
+public class MinDelayMapper extends Mapper<
+        LongWritable,   /* Input Key */
+        Text,           /* Input Value */
+        Text,           /* Output Key */
+        Text            /* Output Value Type */
+    >{
 
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
