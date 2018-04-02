@@ -19,7 +19,7 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             String s = t.toString();
             String[] arr = s.split("|");
 
-            context.write(key, new Text(arr[0] + ": " + arr[1]));
+            context.write(key, new Text(Arrays.toString(arr)));
         }
 
     }
