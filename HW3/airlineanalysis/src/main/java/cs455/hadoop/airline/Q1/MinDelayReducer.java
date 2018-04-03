@@ -7,6 +7,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Set;
 
 public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
@@ -19,8 +20,32 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             String s = t.toString();
             String[] arr = s.split("\\|");
 
-            context.write(key, new Text(Arrays.toString(arr)));
+            Integer dataKey = Integer.parseInt(arr[0]);
+            Integer dataValue = Integer.parseInt(arr[1]);
+
+            if (kv.containsKey(dataKey)) {
+                kv.replace(dataKey, kv.get(dataKey) + dataValue);
+            } else {
+                kv.put(dataKey, dataValue);
+            }
         }
+
+        Set<Integer> keys = kv.keySet();
+        Iterator<Integer> iter = keys.iterator();
+        boolean setInit = true;
+        int minKey = 0;
+        int minVal = Integer.MAX_VALUE;
+
+        while (iter.hasNext()) {
+            Integer i = iter.next();
+
+            if (kv.get(i) < minVal) {
+                minKey = i;
+                minVal = kv.get(i);
+            }
+        }
+
+        context.write(key, new Text(minKey + ": Delay: " + minVal));
 
     }
 
