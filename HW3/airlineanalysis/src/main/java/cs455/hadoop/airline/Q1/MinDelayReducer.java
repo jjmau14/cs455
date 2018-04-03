@@ -20,14 +20,23 @@ public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
             String s = t.toString();
             String[] arr = s.split("\\|");
 
-            Integer dataKey = Integer.parseInt(arr[0]);
-            Integer dataValue = Integer.parseInt(arr[1]);
+            Integer dataKey = 0;
+            Integer dataValue = 0;
+
+            try {
+                dataKey = Integer.parseInt(arr[0]);
+                dataValue = Integer.parseInt(arr[1]);
+
+            } catch (Exception e) {
+
+            }
 
             if (kv.containsKey(dataKey)) {
                 kv.replace(dataKey, kv.get(dataKey) + dataValue);
             } else {
                 kv.put(dataKey, dataValue);
             }
+            
         }
 
         Set<Integer> keys = kv.keySet();
