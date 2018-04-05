@@ -41,7 +41,7 @@ public class BusiestAirportsReducer extends Reducer<
         String s = "";
         Map<String, Integer> m = counts.get("2000");
         for (String k : m.keySet()) {
-            s += Integer.toString(m.get(k));
+            s += ", " + Integer.toString(m.get(k));
         }
         context.write(new Text("2000"), new Text(s));
     }
