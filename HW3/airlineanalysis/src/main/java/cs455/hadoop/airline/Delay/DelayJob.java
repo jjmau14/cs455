@@ -23,7 +23,7 @@ public class DelayJob {
             job.setMapperClass(DelayMapper.class);
             // Reducer
             job.setReducerClass(DelayReducer.class);
-            job.setNumReduceTasks(5);
+
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);
