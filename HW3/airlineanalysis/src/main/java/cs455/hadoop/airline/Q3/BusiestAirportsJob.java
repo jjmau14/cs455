@@ -1,8 +1,5 @@
 package cs455.hadoop.airline.Q3;
 
-import cs455.hadoop.airline.Q2.MaxDelayJob;
-import cs455.hadoop.airline.Q2.MaxDelayMapper;
-import cs455.hadoop.airline.Q2.MaxDelayReducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
