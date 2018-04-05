@@ -1,6 +1,5 @@
-package cs455.hadoop.airline.Q1;
+package cs455.hadoop.airline.Delay;
 
-import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -8,7 +7,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class MinDelayMapper extends Mapper<
+public class DelayMapper extends Mapper<
         LongWritable,   /* Input Key */
         Text,           /* Input Value */
         Text,           /* Output Key */

@@ -1,9 +1,7 @@
-package cs455.hadoop.airline.Q1;
+package cs455.hadoop.airline.Delay;
 
-import cs455.hadoop.airline.util.IntArrayWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -12,22 +10,20 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class MinDelayJob {
+public class DelayJob {
 
     public static void main(String[] args) {
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "Q1 Min Delay");
+            Job job = Job.getInstance(conf, "Delay Min Delay");
             // Current class.
-            job.setJarByClass(MinDelayJob.class);
+            job.setJarByClass(DelayJob.class);
             // Mapper
-            job.setMapperClass(MinDelayMapper.class);
-            // Combiner
-            job.setCombinerClass(MinDelayReducer.class);
+            job.setMapperClass(DelayMapper.class);
             // Reducer
-            job.setReducerClass(MinDelayReducer.class);
-
+            job.setReducerClass(DelayReducer.class);
+            job.setNumReduceTasks(5);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);
