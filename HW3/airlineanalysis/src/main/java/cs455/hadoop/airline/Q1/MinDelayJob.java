@@ -29,7 +29,7 @@ public class MinDelayJob {
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(Text.class);
+            job.setMapOutputValueClass(IntWritable.class);
 
 
             // Outputs from Reducer. It is sufficient to set only the following two properties
