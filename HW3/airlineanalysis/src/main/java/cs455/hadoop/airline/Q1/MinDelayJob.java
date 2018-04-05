@@ -23,9 +23,10 @@ public class MinDelayJob {
             job.setJarByClass(MinDelayJob.class);
             // Mapper
             job.setMapperClass(MinDelayMapper.class);
+            // Combiner
+            job.setCombinerClass(MinDelayReducer.class);
             // Reducer
             job.setReducerClass(MinDelayReducer.class);
-
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
