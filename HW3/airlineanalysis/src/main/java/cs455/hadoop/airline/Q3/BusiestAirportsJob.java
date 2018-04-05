@@ -1,5 +1,8 @@
-package cs455.hadoop.airline.Q2;
+package cs455.hadoop.airline.Q3;
 
+import cs455.hadoop.airline.Q2.MaxDelayJob;
+import cs455.hadoop.airline.Q2.MaxDelayMapper;
+import cs455.hadoop.airline.Q2.MaxDelayReducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -10,7 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class MaxDelayJob {
+public class BusiestAirportsJob {
 
     public static void main(String[] args) {
         try {
@@ -18,16 +21,16 @@ public class MaxDelayJob {
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
             Job job = Job.getInstance(conf, "Q2 Max Delay");
             // Current class.
-            job.setJarByClass(MaxDelayJob.class);
+            job.setJarByClass(BusiestAirportsJob.class);
             // Mapper
-            job.setMapperClass(MaxDelayMapper.class);
+            job.setMapperClass(BusiestAirportsMapper.class);
             // Reducer
-            job.setReducerClass(MaxDelayReducer.class);
+            job.setReducerClass(BusiestAirportsReducer.class);
 
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(IntWritable.class);
+            job.setMapOutputValueClass(Text.class);
 
 
             // Outputs from Reducer. It is sufficient to set only the following two properties
