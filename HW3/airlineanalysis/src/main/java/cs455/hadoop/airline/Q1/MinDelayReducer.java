@@ -7,20 +7,18 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.*;
 
-public class MinDelayReducer extends Reducer<Text, Text, Text, Text> {
+public class MinDelayReducer extends Reducer<Text, IntWritable, Text, Text> {
 
     private Map<String, Integer[]> kv = new HashMap<>();
 
     @Override
-    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 
-        for(Text t : values){
-            String s = t.toString();
-            String[] arr = s.split("\\|");
+        for(IntWritable t : values){
 
             try {
-                String dataKey = arr[0];
-                Integer dataValue = Integer.parseInt(arr[1]);
+                String dataKey = key.toString();
+                Integer dataValue = t.get();
 
 
                 /**
