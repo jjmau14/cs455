@@ -74,9 +74,9 @@ public class MinDelayReducer extends Reducer<Text, IntWritable, Text, Text> {
             }
         }
 
-        context.write(new Text("Time"), new Text(topTime + Integer.toString(topTimeVal)));
-        context.write(new Text("Day"), new Text(topDay + Integer.toString(topDayVal)));
-        context.write(new Text("Month"), new Text(topMonth + Integer.toString(topMonthVal)));
+        context.write(new Text("Time"), new Text(topTime + ": " + Integer.toString(topTimeVal)));
+        context.write(new Text("Day"), new Text(topDay + ": " + Integer.toString(topDayVal)));
+        context.write(new Text("Month"), new Text(topMonth + ": " + Integer.toString(topMonthVal)));
     }
 
     private boolean isDay(String d) {
