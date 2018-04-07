@@ -16,54 +16,17 @@ public class BusiestAirportsReducer extends Reducer<
         Text    /* Output Value Type */
     >{
 
-    // map of years to
-    private Map<String, HashMap<String, Integer>> counts = new HashMap<>();
-
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
 
-        /**
-         * Receives: <airport, year>
-         * */
-
+        int count = 0;
         for (Text t : values) {
-            String year = t.toString();
-            String airport = key.toString();
-            if (counts.containsKey(year)) {
-                if (counts.get(year).containsKey(airport)) {
-                    counts.get(year).replace(airport, counts.get(year).get(airport).intValue() + 1);
-                } else {
-                    counts.get(year).put(airport, 1);
-                }
-            } else {
-                counts.put(year, new HashMap<>());
-                counts.get(year).put(airport, 1);
-            }
+            count += 1;
         }
-
-        String s = "";
-        Map<String, Integer> m = counts.get("2000");
-        for (String k : m.keySet()) {
-            s += ", " + Integer.toString(m.get(k));
-        }
-        context.write(new Text("2000"), new Text(s));
+        context.write(key, new Text(Integer.toString(count)));
     }
 
-    /*@Override
-    protected void cleanup(Context context) {
-        Set<String> years = counts.keySet();
-
-
-
-        for (String year : years) {
-            ArrayList<String> airport = new ArrayList<>();
-            ArrayList<Integer> count = new ArrayList<>();
-
-
-        }
-
-    }*/
 
 
 }
