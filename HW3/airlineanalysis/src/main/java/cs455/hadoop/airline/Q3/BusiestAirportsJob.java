@@ -23,7 +23,8 @@ public class BusiestAirportsJob {
             job.setMapperClass(BusiestAirportsMapper.class);
             // Reducer
             job.setReducerClass(BusiestAirportsReducer.class);
-
+            job.setNumReduceTasks(22);
+            job.setPartitionerClass(BusiestAirportPartitioner.class);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(Text.class);
