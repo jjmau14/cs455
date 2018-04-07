@@ -40,6 +40,13 @@ public class BusiestAirportsReducer extends Reducer<
         HashMap<String, Integer> totalAirports = new HashMap<>();
 
         for (String year : counts.keySet()) {
+            String s = "";
+            for (String airport : counts.get(year).keySet()) {
+                s += airport + counts.get(year).get(airport) + " ";
+            }
+            context.write(new Text(year), new Text(s));
+        }
+        /*for (String year : counts.keySet()) {
 
             ArrayList<String> top10AirportsByYear = new ArrayList<>();
 
@@ -90,7 +97,7 @@ public class BusiestAirportsReducer extends Reducer<
 
         for (int i = 0 ; i < 10 ; i++) {
             context.write(new Text(sortedTotals.get(i)), new Text(Integer.toString(totalAirports.get(sortedTotals.get(i)))));
-        }
+        }*/
     }
 
 }
