@@ -35,7 +35,12 @@ public class BusiestAirportsReducer extends Reducer<
                 top10Airports.add(key);
             } else {
                 top10Airports.add(key);
-                Collections.sort(top10Airports);
+                Collections.sort(top10Airports, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return (-1)*(counts.get(o1).compareTo(counts.get(o2)));
+                    }
+                });
                 top10Airports.remove(10);
             }
         }
