@@ -43,7 +43,7 @@ public class BusiestAirportsReducer extends Reducer<
 
             ArrayList<String> top10AirportsByYear = new ArrayList<>();
 
-            for (String airport : counts.keySet()) {
+            for (String airport : counts.get(year).keySet()) {
 
                 if (top10AirportsByYear.size() < 10) {
                     top10AirportsByYear.add(airport);
