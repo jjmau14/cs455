@@ -23,7 +23,6 @@ public class BusiestAirportsJob {
             job.setMapperClass(BusiestAirportsMapper.class);
             // Reducer
             job.setReducerClass(BusiestAirportsReducer.class);
-            job.setCombinerClass(BusiestAirportsReducer.class);
 
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
