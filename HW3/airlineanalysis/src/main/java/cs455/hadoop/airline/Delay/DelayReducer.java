@@ -1,46 +1,65 @@
 package cs455.hadoop.airline.Delay;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 import java.util.*;
 
-public class DelayReducer extends Reducer<Text, IntWritable, Text, Text> {
-
-    private Map<String, Integer[]> kv = new HashMap<>();
+public class DelayReducer extends Reducer<Text, Text, Text, Text> {
 
     @Override
-    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-        for(IntWritable t : values){
+        HashMap<String, Integer> keyValues = new HashMap<>();
+
+        for(Text data_raw : values){
+
+            String data = data_raw.toString();
 
             try {
-                String dataKey = key.toString();
-                Integer dataValue = t.get();
 
+                String[] dataArr = data.split("\\|");
 
-                /**
-                 *  If map contains the certain day, or month... etc.
-                 * */
-                if (kv.containsKey(dataKey)) {
-                    Integer[] newArr = kv.get(dataKey);
-                    newArr[0] += dataValue; // Increment Value
-                    newArr[1] += 1;         // Increment Counter
-                    kv.replace(dataKey, newArr);
+                String dataKey = dataArr[0];
+                String dataValue = dataArr[1];
+
+                if (keyValues.containsKey(dataKey)) {
+                    keyValues.replace(dataKey, keyValues.get(dataKey) + Integer.parseInt(dataValue));
                 } else {
-                    kv.put(dataKey, new Integer[] {dataValue, 0});
+                    keyValues.put(dataKey, Integer.parseInt(dataValue));
                 }
+
             } catch (NumberFormatException nfe) {
 
             }
 
         }
 
+        int bestVal = Integer.MAX_VALUE;
+        String bestValName = "";
+        int worstVal = 0;
+        String worstValName = "";
+
+        for (String k : keyValues.keySet()) {
+            if (keyValues.get(k) < bestVal) {
+                bestVal = keyValues.get(k);
+                bestValName = k;
+            } else if (keyValues.get(k) > worstVal) {
+                worstVal = keyValues.get(k);
+                worstValName = k;
+            }
+        }
+
+        context.write(new Text("BEST:"), new Text(""));
+        context.write(new Text(bestValName), new Text(Integer.toString(bestVal)));
+
+        context.write(new Text("WORST:"), new Text(""));
+        context.write(new Text(worstValName), new Text(Integer.toString(worstVal)));
+
     }
 
-    @Override
+    /*@Override
     protected void cleanup(Context context) throws IOException, InterruptedException{
         Set<String> keys = kv.keySet();
 
@@ -136,6 +155,6 @@ public class DelayReducer extends Reducer<Text, IntWritable, Text, Text> {
             case "dec": return true;
             default: return false;
         }
-    }
+    }*/
 
 }

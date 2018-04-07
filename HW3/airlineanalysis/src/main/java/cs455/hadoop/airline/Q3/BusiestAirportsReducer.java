@@ -23,6 +23,10 @@ public class BusiestAirportsReducer extends Reducer<
     protected void reduce(Text key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
 
+        /**
+         * Receives: <airport, year>
+         * */
+
         for (Text t : values) {
             String year = t.toString();
             String airport = key.toString();

@@ -1,6 +1,5 @@
 package cs455.hadoop.airline.Delay;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -11,7 +10,7 @@ public class DelayMapper extends Mapper<
         LongWritable,   /* Input Key */
         Text,           /* Input Value */
         Text,           /* Output Key */
-        IntWritable     /* Output Value Type */
+        Text     /* Output Value Type */
     >{
 
     @Override
@@ -43,9 +42,9 @@ public class DelayMapper extends Mapper<
             return;
         }
 
-        context.write(new Text(time), new IntWritable(delay));
-        context.write(new Text(day), new IntWritable(delay));
-        context.write(new Text(month), new IntWritable(delay));
+        context.write(new Text("time"), new Text(time + "|" + delay));
+        context.write(new Text("day"), new Text(day + "|" + delay));
+        context.write(new Text("month"), new Text(month + "|" + delay));
 
     }
 

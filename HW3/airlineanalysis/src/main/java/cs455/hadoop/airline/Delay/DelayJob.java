@@ -2,7 +2,6 @@ package cs455.hadoop.airline.Delay;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -23,12 +22,12 @@ public class DelayJob {
             job.setMapperClass(DelayMapper.class);
             // Reducer
             job.setReducerClass(DelayReducer.class);
-
+            job.setNumReduceTasks(3);
             // Outputs from the Mapper.
             job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(IntWritable.class);
+            job.setMapOutputValueClass(Text.class);
 
-
+            job.setPartitionerClass(DelayPartitioner.class);
             // Outputs from Reducer. It is sufficient to set only the following two properties
             // if the Mapper and Reducer has same key and value types. It is set separately for
             // elaboration.
