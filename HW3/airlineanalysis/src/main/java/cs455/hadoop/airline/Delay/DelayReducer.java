@@ -51,6 +51,7 @@ public class DelayReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
+        context.write(key, new Text(""));
         context.write(new Text("BEST:"), new Text(""));
         context.write(new Text(bestValName), new Text(Integer.toString(bestVal)));
 
