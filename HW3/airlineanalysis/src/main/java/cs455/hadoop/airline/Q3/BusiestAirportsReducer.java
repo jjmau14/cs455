@@ -39,10 +39,31 @@ public class BusiestAirportsReducer extends Reducer<
 
         HashMap<String, Integer> totalAirports = new HashMap<>();
 
+        ArrayList<String> years = new ArrayList<>();
         for (String year : counts.keySet()) {
-            String s = "";
+            years.add(year);
+        }
+        Collections.sort(years);
+        for (String year : years) {
+            ArrayList<String> airports = new ArrayList<>();
+
             for (String airport : counts.get(year).keySet()) {
-                s += airport + counts.get(year).get(airport) + " ";
+                if (airports.size() < 10)
+                    airports.add(airport);
+                else {
+                    airports.add(airport);
+                    Collections.sort(airports, new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            return (-1)*(counts.get(year).get(o1).compareTo(counts.get(year).get(o2)));
+                        }
+                    });
+                    airports.remove(10);
+                }
+            }
+            String s = "";
+            for (String airport : airports) {
+                s += airport + ": " + counts.get(year).get(airport) + " ";
             }
             context.write(new Text(year), new Text(s));
         }
