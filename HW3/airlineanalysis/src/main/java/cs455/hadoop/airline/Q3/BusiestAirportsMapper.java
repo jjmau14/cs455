@@ -33,9 +33,10 @@ public class BusiestAirportsMapper extends Mapper<
         String origin = line[16];
         String dest = line[17];
 
-        context.write(new Text(year), new Text(origin));
-        context.write(new Text(year), new Text(dest));
-
+        if (!year.equals("Year")) {
+            context.write(new Text(year), new Text(origin));
+            context.write(new Text(year), new Text(dest));
+        }
     }
 
 }
