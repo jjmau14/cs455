@@ -67,7 +67,7 @@ public class BusiestAirportsReducer extends Reducer<
 
             String s = "";
             for (int i = 0 ; i < 10 ; i++) {
-                s += top10AirportsByYear.get(i) + ": " + counts.get(year).get(top10AirportsByYear.get(i) + "\n");
+                s += top10AirportsByYear.get(i) + ": " + counts.get(year).get(top10AirportsByYear.get(i)) + "\n";
             }
             context.write(new Text(year), new Text(s));
         }
