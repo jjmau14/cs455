@@ -36,7 +36,7 @@ public class CarrierDelayMapper extends Mapper<
                 context.write(new Text(carrier), new IntWritable(delay));
             }
         } catch (Exception e){
-            
+
         }
 
     }

@@ -14,7 +14,7 @@ public class CarrierDelayReducer extends Reducer<
         Text,   /* Input Key Type */
         IntWritable,   /* Input Value Type */
         Text,   /* Output Key Type */
-        IntWritable    /* Output Value Type */
+        Text    /* Output Value Type */
     >{
 
     private HashMap<String, HashMap<String, Integer>> counts = new HashMap<>();
@@ -24,10 +24,11 @@ public class CarrierDelayReducer extends Reducer<
             throws IOException, InterruptedException {
 
         int count = 0;
+        int numFlights = 0;
         for (IntWritable i : values) {
             count += i.get();
         }
-        context.write(key, new IntWritable(count));
+        context.write(key, new Text("Flights Delayed: " + numFlights + " for " + count + " minutes"));
     }
 
     @Override

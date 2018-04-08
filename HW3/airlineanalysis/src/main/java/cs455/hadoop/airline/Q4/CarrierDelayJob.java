@@ -34,7 +34,7 @@ public class CarrierDelayJob {
             // if the Mapper and Reducer has same key and value types. It is set separately for
             // elaboration.
             job.setOutputKeyClass(Text.class);
-            job.setOutputValueClass(IntWritable.class);
+            job.setOutputValueClass(Text.class);
 
 
             // path to input in HDFS
