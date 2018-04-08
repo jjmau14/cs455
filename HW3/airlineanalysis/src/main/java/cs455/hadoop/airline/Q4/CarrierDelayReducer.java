@@ -27,8 +27,9 @@ public class CarrierDelayReducer extends Reducer<
         int numFlights = 0;
         for (IntWritable i : values) {
             count += i.get();
+            numFlights++;
         }
-        context.write(key, new Text("Flights Delayed: " + numFlights + " for " + count + " minutes"));
+        context.write(key, new Text("Flights Delayed: " + numFlights + " for " + count + " minutes. Average delay of: " + (count/numFlights) + " minutes"));
     }
 
     @Override
