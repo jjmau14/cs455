@@ -30,11 +30,15 @@ public class CarrierDelayMapper extends Mapper<
          * */
 
         String carrier = line[8];
-        int delay = Integer.parseInt(line[24]);
-
-        if (!carrier.equals("UniqueCarrier")) {
-            context.write(new Text(carrier), new IntWritable(delay));
+        try {
+            int delay = Integer.parseInt(line[24]);
+            if (!carrier.equals("UniqueCarrier")) {
+                context.write(new Text(carrier), new IntWritable(delay));
+            }
+        } catch (Exception e){
+            
         }
+
     }
 
 }
