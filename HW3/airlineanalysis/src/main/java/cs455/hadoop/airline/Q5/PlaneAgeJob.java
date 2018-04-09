@@ -1,6 +1,8 @@
 package cs455.hadoop.airline.Q5;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -43,10 +45,11 @@ public class PlaneAgeJob {
 
             // Block until the job is completed.
             job.waitForCompletion(true);
-
-
-
-
+            FileSystem fs = FileSystem.get(new Configuration());
+            FileStatus[] status = fs.listStatus(new Path("hdfs://denver:4601/" + args[2]));
+            for (int i=0;i<status.length;i++){
+                fs.open(status[i].getPath());
+            }
         } catch (IOException e) {
             System.err.println(e.getMessage());
         } catch (InterruptedException e) {
