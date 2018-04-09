@@ -21,18 +21,19 @@ public class PlaneAgeReducer extends Reducer<
             throws IOException, InterruptedException {
 
         int i = 0;
-        String dataOut = "";
+        String year = "";
+        int dataOut = 0;
         for (Text t : values) {
             String data = t.toString();
 
-            if (i == 0) {
-                dataOut += data;
+            int dataInt = Integer.parseInt(data);
+            if (dataInt > 1900) {
+                year = Integer.toString(dataInt);
             } else {
-                dataOut += data;
+                dataOut += dataInt;
             }
-            i++;
         }
-        context.write(key, new Text(dataOut));
+        context.write(key, new Text(year + ": " + dataOut));
     }
 
 }
