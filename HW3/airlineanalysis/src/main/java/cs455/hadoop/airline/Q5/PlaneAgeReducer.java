@@ -26,15 +26,18 @@ public class PlaneAgeReducer extends Reducer<
         for (Text t : values) {
             String data = t.toString();
 
-            if (data == "NA")
+            if (data.equals("NA"))
                 continue;
 
-            int dataInt = Integer.parseInt(data);
-            if (dataInt > 1900) {
-                year = Integer.toString(dataInt);
-            } else {
-                dataOut += dataInt;
-            }
+            try {
+                int dataInt = Integer.parseInt(data);
+                if (dataInt > 1900) {
+                    year = Integer.toString(dataInt);
+                } else {
+                    dataOut += dataInt;
+                }
+            } catch (Exception e){}
+
         }
         context.write(key, new Text(year + ": " + dataOut));
     }
