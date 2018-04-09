@@ -20,16 +20,19 @@ public class PlaneAgeReducer extends Reducer<
     protected void reduce(Text key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
 
-        String s = "";
+        int i = 0;
+        String dataOut = "";
         for (Text t : values) {
-            s += " " + t.toString();
+            String data = t.toString();
+
+            if (i == 0) {
+                dataOut += data;
+            } else {
+                dataOut += data;
+            }
+            i++;
         }
-        context.write(key, new Text(s));
-    }
-
-    @Override
-    protected void cleanup(Context context) throws IOException, InterruptedException {
-
+        context.write(key, new Text(dataOut));
     }
 
 }
