@@ -45,11 +45,7 @@ public class PlaneAgeJob {
 
             // Block until the job is completed.
             job.waitForCompletion(true);
-            FileSystem fs = FileSystem.get(new Configuration());
-            FileStatus[] status = fs.listStatus(new Path("hdfs://denver:4601/" + args[2]));
-            for (int i=0;i<status.length;i++){
-                fs.open(status[i].getPath());
-            }
+
         } catch (IOException e) {
             System.err.println(e.getMessage());
         } catch (InterruptedException e) {

@@ -45,9 +45,9 @@ public class PlaneAgeReducer extends Reducer<
 
         }
 
-        if (!year.equals("")) {
-            context.write(key, new Text(year + ": " + (i == 0 ? dataOut : (dataOut/i))));
-        }
+        //if (!year.equals("")) {
+        //    context.write(key, new Text(year + ": " + (i == 0 ? dataOut : (dataOut/i))));
+        //}
     }
 
     @Override
