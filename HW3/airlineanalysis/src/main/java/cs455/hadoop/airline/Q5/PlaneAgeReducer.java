@@ -69,6 +69,24 @@ public class PlaneAgeReducer extends Reducer<
             }
         }
 
+        ArrayList<String> totalsBest = new ArrayList<>();
+
+        for (String key : delays.keySet()) {
+            if (totalsBest.size() == 0) {
+                totalsBest.add(key);
+            } else {
+                totalsBest.add(key);
+                Collections.sort(totalsBest, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return delays.get(o1).compareTo(delays.get(o2));
+                    }
+                });
+                totalsBest.remove(1);
+            }
+        }
+
+        context.write(new Text("Best manufactured year: "), new Text(totalsBest.get(0)));
         context.write(new Text("Worst manufactured year: "), new Text(totals.get(0)));
     }
 
