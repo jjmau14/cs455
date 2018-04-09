@@ -20,7 +20,13 @@ public class SupplPlaneAgeMapper extends Mapper<
 
         String[] line = value.toString().split(",");
 
-        context.write(new Text(line[0]), new Text(line[8]));
+        try {
+            String year = line[8];
+            String tailNum = line[0];
+            context.write(new Text(tailNum), new Text(year));
+        } catch (Exception e) {
+            // skip bad record
+        }
     }
 
 }
