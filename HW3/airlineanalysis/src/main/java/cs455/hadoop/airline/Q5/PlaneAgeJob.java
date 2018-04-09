@@ -31,7 +31,7 @@ public class PlaneAgeJob {
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(Text.class);
 
-
+            job.setNumReduceTasks(10);
             // path to input in HDFS
             MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, PlaneAgeMapper.class);
             MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, SupplPlaneAgeMapper.class);
