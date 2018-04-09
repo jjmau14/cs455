@@ -35,11 +35,15 @@ public class PlaneAgeReducer extends Reducer<
                     year = Integer.toString(dataInt);
                 } else {
                     dataOut += dataInt;
+                    i++;
                 }
             } catch (Exception e){}
 
         }
-        context.write(key, new Text(year + ": " + dataOut));
+
+        if (!year.equals("")) {
+            context.write(key, new Text(year + ": " + (dataOut/i)));
+        }
     }
 
 }
