@@ -42,7 +42,11 @@ public class PlaneAgeJob {
 
 
             // Block until the job is completed.
-            System.exit(job.waitForCompletion(true) ? 0 : 1);
+            job.waitForCompletion(true);
+
+
+
+
         } catch (IOException e) {
             System.err.println(e.getMessage());
         } catch (InterruptedException e) {
