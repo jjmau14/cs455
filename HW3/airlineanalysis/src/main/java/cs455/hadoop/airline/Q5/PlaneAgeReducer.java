@@ -14,80 +14,68 @@ public class PlaneAgeReducer extends Reducer<
         Text    /* Output Value Type */
     >{
 
-    private HashMap<String, Integer> delays = new HashMap<>();
+    private int[] oldVsNew = new int[] {0,0};
+    private static final int OLD = 0;
+    private static final int NEW = 1;
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
 
-        int i = 0;
-        String year = "";
-        int dataOut = 0;
+        HashMap<Integer, Integer> delays = new HashMap<>();
+
+        // Store all delays in hashmap of <yearOfFlight, delayTime>
+        // count delays > 20yrs and < 20yrs.
+        // count delays > 20 yrs and < 20 yrs
+        // cleanup, context write delays >20 and <20
+
+        int yearOfPlane = 0;
+
         for (Text t : values) {
             String data = t.toString();
 
-            if (data.equals("NA"))
-                continue;
+            String[] splitData = data.split("\\|");
+            if (splitData.length == 2) {
+                int arrDelay = Integer.parseInt(splitData[0]);
+                int yearOfFlight = Integer.parseInt(splitData[1]);
 
-            try {
-                int dataInt = Integer.parseInt(data);
-                if (dataInt > 1900) {
-                    delays.put(Integer.toString(dataInt), dataOut);
-                    year = Integer.toString(dataInt);
+                if (delays.containsKey(yearOfFlight)) {
+                    delays.replace(yearOfFlight, delays.get(yearOfFlight) + arrDelay);
                 } else {
-                    if (!year.equals("")) {
-                        delays.replace(year, dataOut);
-                    }
-                    dataOut += dataInt;
-                    i++;
+                    delays.put(yearOfFlight, arrDelay);
                 }
-            } catch (Exception e){}
-
+            } else {
+                yearOfPlane = Integer.parseInt(splitData[0]);
+            }
         }
 
-        //if (!year.equals("")) {
-        //    context.write(key, new Text(year + ": " + (i == 0 ? dataOut : (dataOut/i))));
-        //}
+        for (Integer yearOfFlight : delays.keySet()) {
+            // New Planes
+            if ((yearOfFlight-20) < yearOfPlane) {
+                oldVsNew[NEW] += delays.get(yearOfFlight);
+            // Old Planes
+            } else {
+                oldVsNew[OLD] += delays.get(yearOfFlight);
+            }
+        }
+
     }
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
         ArrayList<String> totals = new ArrayList<>();
 
-        for (String key : delays.keySet()) {
-            if (totals.size() == 0) {
-                totals.add(key);
-            } else {
-                totals.add(key);
-                Collections.sort(totals, new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return (-1)*(delays.get(o1).compareTo(delays.get(o2)));
-                    }
-                });
-                totals.remove(1);
-            }
+        if (oldVsNew[OLD] > oldVsNew[NEW]) {
+            context.write(
+                    new Text("Old Planes performed worse: "),
+                    new Text(oldVsNew[OLD] + " vs " + oldVsNew[NEW])
+            );
+        } else {
+            context.write(
+                    new Text("New Planes performed worse: "),
+                    new Text(oldVsNew[NEW] + " vs " + oldVsNew[OLD])
+            );
         }
-
-        ArrayList<String> totalsBest = new ArrayList<>();
-
-        for (String key : delays.keySet()) {
-            if (totalsBest.size() == 0) {
-                totalsBest.add(key);
-            } else {
-                totalsBest.add(key);
-                Collections.sort(totalsBest, new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return delays.get(o1).compareTo(delays.get(o2));
-                    }
-                });
-                totalsBest.remove(1);
-            }
-        }
-
-        context.write(new Text("Best manufactured year: "), new Text(totalsBest.get(0)));
-        context.write(new Text("Worst manufactured year: "), new Text(totals.get(0)));
     }
 
 }
