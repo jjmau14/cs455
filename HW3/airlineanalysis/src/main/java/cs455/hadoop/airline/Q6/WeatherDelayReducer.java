@@ -47,12 +47,12 @@ public class WeatherDelayReducer extends Reducer<
 
         if (nameOfAirport != "" && delay > 0) {
             delays.put(nameOfAirport, delay);
-            context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
+            //context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
         }
 
     }
 
-    /*@Override
+    @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
         ArrayList<String> airports = new ArrayList<>();
 
@@ -73,6 +73,6 @@ public class WeatherDelayReducer extends Reducer<
         for (int i = 0 ; i < 10 ; i++) {
             context.write(new Text(airports.get(i)), new Text(Integer.toString(delays.get(airports.get(i)))));
         }
-    }*/
+    }
 
 }
