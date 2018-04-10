@@ -1,6 +1,8 @@
 package cs455.hadoop.airline.Q5;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -43,9 +45,6 @@ public class PlaneAgeJob {
 
             // Block until the job is completed.
             job.waitForCompletion(true);
-
-
-
 
         } catch (IOException e) {
             System.err.println(e.getMessage());

@@ -76,7 +76,6 @@ public class PlaneAgeReducer extends Reducer<
                     new Text(oldVsNew[NEW] + " vs " + oldVsNew[OLD])
             );
         }
-
     }
 
 }
