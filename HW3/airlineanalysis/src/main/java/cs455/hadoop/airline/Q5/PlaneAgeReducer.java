@@ -30,14 +30,20 @@ public class PlaneAgeReducer extends Reducer<
         // cleanup, context write delays >20 and <20
 
         int yearOfPlane = 0;
-
         for (Text t : values) {
             String data = t.toString();
 
+            int arrDelay = 0;
+            int yearOfFlight = 0;
+
             String[] splitData = data.split("\\|");
             if (splitData.length == 2) {
-                int arrDelay = Integer.parseInt(splitData[0]);
-                int yearOfFlight = Integer.parseInt(splitData[1]);
+                try {
+                    arrDelay = Integer.parseInt(splitData[0]);
+                    yearOfFlight = Integer.parseInt(splitData[1]);
+                } catch (Exception e) {
+                    continue;
+                }
 
                 if (delays.containsKey(yearOfFlight)) {
                     delays.replace(yearOfFlight, delays.get(yearOfFlight) + arrDelay);
