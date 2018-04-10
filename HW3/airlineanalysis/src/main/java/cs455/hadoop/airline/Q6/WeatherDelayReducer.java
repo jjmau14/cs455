@@ -34,7 +34,7 @@ public class WeatherDelayReducer extends Reducer<
 
         for (Text t : values) {
             String data = t.toString();
-
+            context.write(new Text(data), new Text());
             try {
                 int x = Integer.parseInt(data);
                 delay += x;
