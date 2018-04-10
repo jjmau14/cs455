@@ -20,7 +20,9 @@ public class WeatherDelayMapper extends Mapper<
         String[] line = value.toString().split(",");
 
         // <origin iata, weatherDelay>
-        context.write(new Text(line[16]), new Text(line[25]));
+        if (Integer.parseInt(line[25]) > 0) {
+            context.write(new Text(line[16]), new Text(line[25]));
+        }
     }
 
 }

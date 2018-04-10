@@ -19,7 +19,7 @@ public class WeatherDelayCityMapper extends Mapper<
 
         String[] line = value.toString().split(",");
 
-        // <iata, cityName/stateName>
+        // <iata, airport name>
         context.write(new Text(line[0]), new Text(line[2] + ", " + line[3]));
     }
 

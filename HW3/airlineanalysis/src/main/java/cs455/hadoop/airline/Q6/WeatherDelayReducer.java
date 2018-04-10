@@ -36,13 +36,11 @@ public class WeatherDelayReducer extends Reducer<
             String data = t.toString();
 
             try {
-                if (data.contains(",")) {
-                    nameOfAirport = data;
-                    continue;
-                } else {
-                    delay += Integer.parseInt(data);
-                }
+                int x = Integer.parseInt(data);
+                delay += x;
+
             } catch (Exception e) {
+                nameOfAirport = data;
                 continue;
             }
 
