@@ -61,7 +61,7 @@ public class PlaneAgeReducer extends Reducer<
         if (yearOfPlane != 0) {
             for (Integer yearOfFlight : delays.keySet()) {
                 // New Planes
-                if ((yearOfFlight - 20) < yearOfPlane) {
+                if ((yearOfFlight - 20) > yearOfPlane) {
                     oldVsNew[NEW] += delays.get(yearOfFlight);
                     // Old Planes
                 } else {
