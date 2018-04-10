@@ -41,14 +41,14 @@ public class WeatherDelayReducer extends Reducer<
             } catch (Exception e) {
                 nameOfAirport = data.replace("\"", "");
             }
-            context.write(key, new Text(Integer.toString(delay)));
+            //context.write(key, new Text(Integer.toString(delay)));
 
         }
 
         if (nameOfAirport != "" && delay > 0) {
-            //delays.put(nameOfAirport, delay);
+            delays.put(nameOfAirport, delay);
+            context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
         }
-        //context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
 
     }
 
