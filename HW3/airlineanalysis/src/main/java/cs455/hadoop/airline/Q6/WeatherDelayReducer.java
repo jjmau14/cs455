@@ -38,7 +38,7 @@ public class WeatherDelayReducer extends Reducer<
             try {
                 int x = Integer.parseInt(data);
                 delay += x;
-
+                context.write(new Text(Integer.toString(delay)), new Text());
             } catch (Exception e) {
                 nameOfAirport = data.replace("\"", "");
             }
@@ -46,9 +46,9 @@ public class WeatherDelayReducer extends Reducer<
         }
 
         if (nameOfAirport != "" && delay > 0) {
-            delays.put(nameOfAirport, delay);
+            //delays.put(nameOfAirport, delay);
         }
-        context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
+        //context.write(key, new Text(new String(nameOfAirport + ": " + delay)));
 
     }
 
