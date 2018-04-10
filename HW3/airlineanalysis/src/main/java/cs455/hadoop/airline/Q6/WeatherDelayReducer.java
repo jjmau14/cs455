@@ -38,10 +38,10 @@ public class WeatherDelayReducer extends Reducer<
             try {
                 int x = Integer.parseInt(data);
                 delay += x;
-                context.write(new Text(Integer.toString(delay)), new Text());
             } catch (Exception e) {
                 nameOfAirport = data.replace("\"", "");
             }
+            context.write(key, new Text(Integer.toString(delay)));
 
         }
 
