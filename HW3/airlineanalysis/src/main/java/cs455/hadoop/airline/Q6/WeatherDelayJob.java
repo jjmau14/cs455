@@ -16,7 +16,7 @@ public class WeatherDelayJob {
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-            Job job = Job.getInstance(conf, "Q5 Plane Age Delay");
+            Job job = Job.getInstance(conf, "Q6 Weather Delay");
             // Current class.
             job.setJarByClass(WeatherDelayJob.class);
 

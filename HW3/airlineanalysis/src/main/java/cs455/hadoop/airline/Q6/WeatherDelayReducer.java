@@ -48,8 +48,8 @@ public class WeatherDelayReducer extends Reducer<
 
         if (nameOfAirport != "" && delay > 0) {
             delays.put(nameOfAirport, delay);
+            context.write(key, new Text(new String(nameOfAirport.replace("\"", "") + ": " + delay)));
         }
-        context.write(key, new Text(nameOfAirport + ": " + delay));
 
     }
 
