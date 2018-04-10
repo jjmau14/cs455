@@ -51,17 +51,22 @@ public class PlaneAgeReducer extends Reducer<
                     delays.put(yearOfFlight, arrDelay);
                 }
             } else {
-                yearOfPlane = Integer.parseInt(splitData[0]);
+                try {
+                    yearOfPlane = Integer.parseInt(splitData[0]);
+                } catch (Exception e) {
+                }
             }
         }
 
-        for (Integer yearOfFlight : delays.keySet()) {
-            // New Planes
-            if ((yearOfFlight-20) < yearOfPlane) {
-                oldVsNew[NEW] += delays.get(yearOfFlight);
-            // Old Planes
-            } else {
-                oldVsNew[OLD] += delays.get(yearOfFlight);
+        if (yearOfPlane != 0) {
+            for (Integer yearOfFlight : delays.keySet()) {
+                // New Planes
+                if ((yearOfFlight - 20) < yearOfPlane) {
+                    oldVsNew[NEW] += delays.get(yearOfFlight);
+                    // Old Planes
+                } else {
+                    oldVsNew[OLD] += delays.get(yearOfFlight);
+                }
             }
         }
 
