@@ -20,8 +20,8 @@ public class PlaneAgeMapper extends Mapper<
 
         String[] line = value.toString().split(",");
 
-        // <tailnum, arrDelay>
-        context.write(new Text(line[10]), new Text(line[14]));
+        // <tailnum, arrDelay|yearOfFlight>
+        context.write(new Text(line[10]), new Text(line[14] + "|" + line[0]));
     }
 
 }
