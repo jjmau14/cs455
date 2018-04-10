@@ -26,6 +26,7 @@ public class PlaneAgeReducer extends Reducer<
 
         // Store all delays in hashmap of <yearOfFlight, delayTime>
         // count delays > 20yrs and < 20yrs.
+        // count delays > 20 yrs and < 20 yrs
         // cleanup, context write delays >20 and <20
 
         int yearOfPlane = 0;
