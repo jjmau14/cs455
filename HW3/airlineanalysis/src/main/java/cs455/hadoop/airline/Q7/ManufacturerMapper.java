@@ -23,7 +23,7 @@ public class ManufacturerMapper extends Mapper<
         try {
             context.write(new Text(line[0]), new Text(line[2]));
         } catch (Exception e) {
-            
+
         }
     }
 
