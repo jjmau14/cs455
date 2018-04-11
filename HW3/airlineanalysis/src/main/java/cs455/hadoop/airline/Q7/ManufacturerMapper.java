@@ -20,7 +20,11 @@ public class ManufacturerMapper extends Mapper<
         String[] line = value.toString().split(",");
 
         // <tailnum, manufacturer>
-        context.write(new Text(line[0]), new Text(line[2]));
+        try {
+            context.write(new Text(line[0]), new Text(line[2]));
+        } catch (Exception e) {
+            
+        }
     }
 
 }
